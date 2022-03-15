@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "pretty": true,
+    "inlineSourceMap": true,
+    "target": "es2017",
+    "outDir": "./dist",
+    "lib": ["es6"],
+    "resolveJsonModule": true,
+    "types": ["node", "jest"],
+    "typeRoots" : ["./node_modules/@types", "./src/@types"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+  },
+  "include": [
+    "src/infra/sequelize/**/*.js",
+    "src/infra/sequelize/**/*.ts",
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.js",
+  ],
+  "exclude": [
+    "node_modules",
+    "!node_modules/@types",
+    "./dist"
+  ]
+}
