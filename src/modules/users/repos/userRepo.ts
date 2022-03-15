@@ -1,6 +1,6 @@
 
 import { User } from "../domain/user";
-import { UserMap } from "../mappers/UserMap";
+// import { UserMap } from "../mappers/UserMap";
 import { UserEmail } from "../domain/userEmail";
 
 export interface IUserRepo {
@@ -10,6 +10,7 @@ export interface IUserRepo {
   save(user: User): Promise<void>;
 }
 
+/*
 export class UserRepo implements IUserRepo {
   private models: any;
 
@@ -54,16 +55,16 @@ export class UserRepo implements IUserRepo {
     const BaseUserModel = this.models.BaseUser;
     const exists = await this.exists(user.email);
     const rawUser = UserMap.toPersistence(user);
-    
+
     try {
       if (!exists) {
         // Create new
         await BaseUserModel.create(rawUser);
-      } 
-      
+      }
+
       else {
         // Save old
-        const sequelizeUserInstance = await BaseUserModel.findOne({ 
+        const sequelizeUserInstance = await BaseUserModel.findOne({
           where: { user_email: user.email.value }
         })
         await sequelizeUserInstance.update(rawUser);
@@ -72,4 +73,4 @@ export class UserRepo implements IUserRepo {
       console.log(err);
     }
   }
-}
+}*/

@@ -2,14 +2,14 @@
 import { IHandle } from "../../../core/domain/events/IHandle";
 import { UserCreatedEvent } from "../domain/events/userCreatedEvent";
 import { DomainEvents } from "../../../core/domain/events/DomainEvents";
-import { AssignInitialUsername } from "../useCases/assignInitialUsername/AssignInitialUsername";
+// import { AssignInitialUsername } from "../useCases/assignInitialUsername/AssignInitialUsername";
 
 export class AfterUserCreated implements IHandle<UserCreatedEvent> {
-  private assignInitialUsername: AssignInitialUsername;
+  // private assignInitialUsername: AssignInitialUsername;
 
-  constructor (assignInitialUsername: AssignInitialUsername) {
+  constructor (/*assignInitialUsername: AssignInitialUsername*/) {
     this.setupSubscriptions();
-    this.assignInitialUsername = assignInitialUsername;
+    // this.assignInitialUsername = assignInitialUsername;
   }
 
   setupSubscriptions(): void {
@@ -19,9 +19,9 @@ export class AfterUserCreated implements IHandle<UserCreatedEvent> {
   private async onUserCreatedEvent (event: UserCreatedEvent): Promise<void> {
     const { user } = event;
 
-    this.assignInitialUsername.execute({ user })
+    /*this.assignInitialUsername.execute({ user })
       .then((r) => { console.log(r) })
-      .catch((err) => { console.log(err) })
-    
+      .catch((err) => { console.log(err) })*/
+
   }
 }
