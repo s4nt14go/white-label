@@ -13,11 +13,29 @@ export class AfterUserCreated implements IHandle<UserCreatedEvent> {
   }
 
   setupSubscriptions(): void {
+    console.log(`Register onUserCreatedEvent for UserCreatedEvent`);
     DomainEvents.register(this.onUserCreatedEvent.bind(this), UserCreatedEvent.name);
   }
 
   private async onUserCreatedEvent (event: UserCreatedEvent): Promise<void> {
+    console.log('onUserCreatedEvent!', event);
     const { user } = event;
+
+    console.log('Do some stuff with user...', user);
+    // Even throwing here, CreateUserUseCase will return success:
+    // Right {
+    //   value: Result {
+    //     isSuccess: true,
+    //     isFailure: false,
+    //     error: null,
+    //     _value: undefined
+    //   }
+    // }
+    /*await new Promise<void>(resolve => {
+      setTimeout(() => {
+        throw Error('Throwing error here!');
+      }, 2000);
+    })*/
 
     /*this.assignInitialUsername.execute({ user })
       .then((r) => { console.log(r) })
