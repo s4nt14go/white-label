@@ -17,9 +17,9 @@ export class AfterUserCreated implements IHandle<UserCreatedEvent> {
     DomainEvents.register(this.onUserCreatedEvent.bind(this), UserCreatedEvent.name);
   }
 
-  private craftSlackMessage (user: User): string {
+  private static craftSlackMessage (user: User): string {
     return `Hey! Guess who just joined us? => ${user.firstName} ${user.lastName}\n
-      Need to reach 'em? Their email is ${user.email}.`
+      Need to reach 'em? Their email is ${user.email.value}.`
   }
 
   private async onUserCreatedEvent (event: UserCreatedEvent): Promise<void> {
@@ -28,10 +28,10 @@ export class AfterUserCreated implements IHandle<UserCreatedEvent> {
     try {
       await this.notifySlackChannel.execute({
         channel: 'growth',
-        message: this.craftSlackMessage(user)
+        message: AfterUserCreated.craftSlackMessage(user)
       })
     } catch (err) {
-
+      console.log(err);
     }
   }
 }

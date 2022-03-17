@@ -1,5 +1,5 @@
 
-import axios from 'axios'
+// import axios from 'axios'
 import { SlackChannel } from '../../domain/slackChannel';
 
 export interface ISlackService {
@@ -26,8 +26,9 @@ export class SlackService implements ISlackService {
   }
 
   sendMessage (text: string, channel: SlackChannel): Promise<any> {
-    const url: string = this.getWebookUrl(channel);
-    return axios.post(url, { text });
+    return console.log('For now, skip sending slack message') as unknown as Promise<any>;
+    /*const url: string = this.getWebookUrl(channel);
+    return axios.post(url, { text });*/
   }
 
 }
