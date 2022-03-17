@@ -8,7 +8,6 @@ import { User } from "../../domain/user";
 import { IUserRepo } from "../../repos/userRepo";
 import { CreateUserErrors } from "./CreateUserErrors";
 import { GenericAppError } from "../../../../core/logic/AppError";
-import { DomainEvents } from '../../../../core/domain/events/DomainEvents';
 
 type Response = Either<
   GenericAppError.UnexpectedError |
@@ -61,8 +60,6 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
     } catch (err) {
       return left(new GenericAppError.UnexpectedError(err)) as Response;
     }
-
-    DomainEvents.dispatchEventsForAggregate(userOrError.getValue().id);
 
     return right(Result.ok<void>()) as Response;
   }
