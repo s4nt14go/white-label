@@ -9,3 +9,9 @@ Unit tests added:
 * Value Objects: `User`, `UserEmail`, `User Password`
 * Domain event subscriber `src/modules/notification/subscribers/AfterUserCreated.ts`
 * Use cases: `CreateUserUseCase` (with faked repo), `NotifySlackChannel`
+
+## Instructions
+```
+npm i
+npm test 
+```
