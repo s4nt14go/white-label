@@ -24,6 +24,7 @@ export class UserRepoFake implements IUserRepo {
         });
     };
     save(user: User): Promise<void> {
+        if (user.firstName === 'PLEASE FAIL WHEN SAVING') throw Error('Faked failure when saving');
         return;
     };
 }

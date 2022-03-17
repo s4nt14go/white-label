@@ -11,7 +11,7 @@ test('Create user without username', () => {
     expect(userOrError.getValue().domainEvents.length).toBe(1);
     const domainEvent = userOrError.getValue().domainEvents[0];
     expect(domainEvent.constructor.name).toBe('UserCreatedEvent');
-    expect(userOrError.getValue().id.equals(domainEvent.getAggregateId())).toBe(true);
+    expect(userOrError.getValue().id).toBe(domainEvent.getAggregateId());
 });
 
 test('Create user with username', () => {
@@ -26,13 +26,14 @@ test('Create user with id', () => {
     const userOrError = createUser({ username: 'testUsername', id });
 
     expect(userOrError.isSuccess).toBe(true);
-    expect(userOrError.getValue().id.equals(id)).toBe(true);
+    expect(userOrError.getValue().id).toBe(id);
     expect(userOrError.getValue().username).toBe('testUsername');
 });
 
-test('Fails with firstName null', () => {
-    const userOrError = createUser({ firstName: null });
+test.each(['firstName', 'lastName', 'email', 'isEmailVerified'])('Fails with %p null', (field) => {
+    console.log('field', field);
+    const userOrError = createUser({ [field]: null });
 
     expect(userOrError.isFailure).toBe(true);
-    expect(userOrError.error).toBe(`firstName is null or undefined`);
+    expect(userOrError.error).toContain(field);
 });
