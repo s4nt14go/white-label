@@ -41,11 +41,11 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
       password: passwordOrError.getValue(), 
       firstName, 
       lastName,
-      isEmailVerified: false
+      isEmailVerified: false,
     });
 
     if (userOrError.isFailure) {
-      return left(Result.fail<void>(combinedPropsResult.error)) as Response;
+      return left(Result.fail<void>(userOrError.error)) as Response;
     }
 
     const user: User = userOrError.getValue();
