@@ -1,0 +1,27 @@
+service: white-label
+
+package:
+  individually: true  # Create an optimized package for our functions
+
+plugins:
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: dev
+  region: us-east-1
+  logRetentionInDays: 14
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  webpack:
+    excludeFiles: '**/*.test.ts'
+
+functions:
+  createUser:
+    handler: src/modules/users/useCases/createUser/index.handler
+    events:
+      - http:
+          path: createUser
+          method: post
