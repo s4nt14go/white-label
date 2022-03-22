@@ -4,12 +4,13 @@ test('Create with plain text', async () => {
     const passwordOrError = UserPassword.create({ value: 'super_secret'});
 
     expect(passwordOrError.isSuccess).toBe(true);
-    expect(passwordOrError.getValue().value).toBe('super_secret');
+    const password = passwordOrError.getValue() as UserPassword;
+    expect(password.value).toBe('super_secret');
 
     expect(UserPassword.isAppropriateLength('super_secret')).toBe(true);
-    const passwordValid = await passwordOrError.getValue().comparePassword('super_secret');
+    const passwordValid = await password.comparePassword('super_secret');
     expect(passwordValid).toBe(true);
-    expect(passwordOrError.getValue().isAlreadyHashed()).toBe(false);
+    expect(password.isAlreadyHashed()).toBe(false);
 })
 
 test('Create with hashed text', async () => {
@@ -17,10 +18,11 @@ test('Create with hashed text', async () => {
     // Hash for password 'super_secret' with salt bcrypt.hashSync("bacon"): $2a$10$QMdHMmcWVZGrYxIPyHeMfOynZyb9Go8yjvdJLNU8AQ5M0YhLRJLIO
 
     expect(passwordOrError.isSuccess).toBe(true);
-    const passwordValid = await passwordOrError.getValue().comparePassword('super_secret');
+    const password = passwordOrError.getValue() as UserPassword;
+    const passwordValid = await password.comparePassword('super_secret');
     expect(passwordValid).toBe(true);
-    expect(passwordOrError.getValue().isAlreadyHashed()).toBe(true);
-    const hash = await passwordOrError.getValue().getHashedValue();
+    expect(password.isAlreadyHashed()).toBe(true);
+    const hash = await password.getHashedValue();
     expect(hash).toBe('$2a$10$QMdHMmcWVZGrYxIPyHeMfOynZyb9Go8yjvdJLNU8AQ5M0YhLRJLIO');
 
 })

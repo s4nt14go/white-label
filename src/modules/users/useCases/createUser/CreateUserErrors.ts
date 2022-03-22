@@ -4,7 +4,7 @@ import { Result } from "../../../../core/logic/Result";
 
 export namespace CreateUserErrors {
 
-  export class AccountAlreadyExists extends Result<UseCaseError> {    
+  export class EmailAlreadyExistsError extends Result<UseCaseError> {
     constructor (email: string) {
       super(false, {
         message: `The email ${email} associated for this account already exists`
@@ -12,20 +12,13 @@ export namespace CreateUserErrors {
     }
   }
 
-  export class FacebookTokenInvalid extends Result<UseCaseError> {
-    constructor () {
+  export class UsernameTakenError extends Result<UseCaseError> {
+    constructor (username: string) {
       super(false, {
-        message: `The facebook token used to attempt to create an account not genuine.`
+        message: `The username ${username} was already taken`
       } as UseCaseError)
-    } 
+    }
   }
 
-  export class GoogleTokenInvalid extends Result<UseCaseError> {
-    constructor () {
-      super(false, {
-        message: `The google token used to attempt to create an account not genuine.`
-      } as UseCaseError)
-    } 
-  }
 
 }

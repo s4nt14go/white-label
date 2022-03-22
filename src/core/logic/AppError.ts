@@ -2,7 +2,7 @@
 import { Result } from "./Result";
 import { UseCaseError } from "./UseCaseError";
 
-export namespace GenericAppError {
+export namespace AppError {
   export class UnexpectedError extends Result<UseCaseError> {
     public constructor (err: any) {
       super(false, {

@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt-nodejs';
 
 interface UserPasswordProps {
   value: string;
-  hashed?: boolean;
+  hashed: boolean;
 }
 
 export class UserPassword extends ValueObject<UserPasswordProps> {
@@ -14,7 +14,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     return this.props.value;
   }
 
-  private constructor (props) {
+  private constructor (props: UserPasswordProps) {
     super(props)
   }
 
@@ -48,7 +48,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
   
   private hashPassword (password: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      bcrypt.hash(password, null, null, (err, hash) => {
+      bcrypt.hash(password, 'secret', null, (err, hash) => {
         if (err) return reject(err);
         resolve(hash)
       })
@@ -69,7 +69,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     return value.length >= 8;
   }
 
-  public static create (props: UserPasswordProps): Result<UserPassword> {
+  public static create (props: { value: string; hashed?: boolean; }): Result<UserPassword> {
     const propsResult = Guard.againstNullOrUndefined(props.value, 'password');
 
     if (!propsResult.succeeded) {
@@ -85,7 +85,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
 
       return Result.ok<UserPassword>(new UserPassword({
         value: props.value,
-        hashed: !!props.hashed === true
+        hashed: !!props.hashed
       }));
     }
   }

@@ -6,17 +6,16 @@ import { UserEmail } from "./userEmail";
 import { Guard } from "../../../core/logic/Guard";
 import { UserCreatedEvent } from "./events/userCreatedEvent";
 import { UserPassword } from "./userPassword";
+import { UserName } from './userName';
 
 interface UserProps {
-  firstName: string;
-  lastName: string;
   email: UserEmail;
+  username: UserName;
   password: UserPassword;
-  isEmailVerified: boolean;
-  profilePicture?: string;
-  googleId?: number;
-  facebookId?: number;
-  username?: string;
+  isEmailVerified?: boolean;
+  isAdminUser?: boolean;
+  isDeleted?: boolean;
+  lastLogin?: Date;
 }
 
 export class User extends AggregateRoot<UserProps> {
@@ -32,66 +31,29 @@ export class User extends AggregateRoot<UserProps> {
     return this.props.email;
   }
 
-  get firstName (): string {
-    return this.props.firstName
-  }
-
-  get lastName (): string {
-    return this.props.lastName;
-  }
-
   get password (): UserPassword {
     return this.props.password;
   }
 
-  get isEmailVerified (): boolean {
+  get isEmailVerified (): boolean | undefined {
     return this.props.isEmailVerified;
   }
 
-  get profilePicture (): string {
-    return this.props.profilePicture;
-  }
-
-  get googleId (): number {
-    return this.props.googleId;
-  }
-
-  get facebookId (): number {
-    return this.props.facebookId;
-  }
-
-  get username (): string {
+  get username (): UserName {
     return this.props.username;
-  }
-  
-  set username (value: string) {
-    this.props.username = value;
   }
 
   private constructor (props: UserProps, id?: UniqueEntityID) {
     super(props, id);
   }
 
-  private static isRegisteringWithGoogle (props: UserProps): boolean {
-    return !!props.googleId === true;
-  }
-
-  private static isRegisteringWithFacebook (props: UserProps): boolean {
-    return !!props.facebookId === true;
-  }
-
   public static create (props: UserProps, id?: UniqueEntityID): Result<User> {
 
     const guardedProps = [
-      { argument: props.firstName, argumentName: 'firstName' },
-      { argument: props.lastName, argumentName: 'lastName' },
       { argument: props.email, argumentName: 'email' },
-      { argument: props.isEmailVerified, argumentName: 'isEmailVerified' }
+      { argument: props.username, argumentName: 'username' },
+      { argument: props.password, argumentName: 'password' }
     ];
-
-    if (!this.isRegisteringWithGoogle(props) && !this.isRegisteringWithFacebook(props) ) {
-      guardedProps.push({ argument: props.password, argumentName: 'password' })
-    }
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
 
@@ -102,7 +64,9 @@ export class User extends AggregateRoot<UserProps> {
     else {
       const user = new User({
         ...props,
-        username: props.username ? props.username : '',
+        isDeleted: props.isDeleted ? props.isDeleted : false,
+        isEmailVerified: props.isEmailVerified ? props.isEmailVerified : false,
+        isAdminUser: props.isAdminUser ? props.isAdminUser : false
       }, id);
 
       const idWasProvided = !!id;

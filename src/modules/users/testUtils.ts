@@ -2,35 +2,31 @@ import { UserEmail } from './domain/userEmail';
 import { UserPassword } from './domain/userPassword';
 import { UniqueEntityID } from '../../core/domain/UniqueEntityID';
 import { User } from './domain/user';
+import { UserName } from './domain/userName';
+import { Result } from '../../core/logic/Result';
 
 type CreateUserInput = {
-    email?: UserEmail;
-    password?: UserPassword;
-    firstName?: string;
-    lastName?: string;
+    email?: string;
+    password?: string;
     username?: string;
     isEmailVerified?: boolean;
     id?: UniqueEntityID;
 }
 
 export function createUser({
-                               email = UserEmail.create('test@email.com').getValue(),
-                               password = UserPassword.create({ value: 'test password' }).getValue(),
-                               firstName = 'John',
-                               lastName = 'Smith',
-                               username,
+                               email = 'default_email',
+                               password = 'default_pass',
+                               username = 'default_uname',
                                isEmailVerified = false,
                                id,
-                           }: CreateUserInput) {
+                           }: CreateUserInput): Result<User> {
 
     const props = {
-        email,
-        password,
-        firstName,
-        lastName,
+        email: UserEmail.create(email).getValue() as UserEmail,
+        password: UserPassword.create({ value: password }).getValue() as UserPassword,
+        username: UserName.create({ name: username }).getValue() as UserName,
         isEmailVerified,
     };
-    const usernameObj = { username };
 
-    return User.create({ ...props, ...usernameObj }, id);
+    return User.create(props, id);
 }

@@ -14,11 +14,11 @@ export class AfterUserCreated implements IHandle<UserCreatedEvent> {
   }
 
   setupSubscriptions(): void {
-    DomainEvents.register(this.onUserCreatedEvent.bind(this), UserCreatedEvent.name);
+    DomainEvents.register(this.onUserCreatedEvent.bind(this) as any, UserCreatedEvent.name);
   }
 
   private static craftSlackMessage (user: User): string {
-    return `Hey! Guess who just joined us? => ${user.firstName} ${user.lastName}\n
+    return `Hey! Guess who just joined us? => ${user.username}\n
       Need to reach 'em? Their email is ${user.email.value}.`
   }
 

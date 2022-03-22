@@ -4,7 +4,7 @@ import { AggregateRoot } from "../AggregateRoot";
 import { UniqueEntityID } from "../UniqueEntityID";
 
 export class DomainEvents {
-  private static handlersMap = {};
+  private static handlersMap: Record<string, any> = {};
   private static markedAggregates: AggregateRoot<any>[] = [];
 
   /**
@@ -32,9 +32,9 @@ export class DomainEvents {
     this.markedAggregates.splice(index, 1);
   }
 
-  private static findMarkedAggregateByID (id: UniqueEntityID): AggregateRoot<any> {
-    let found: AggregateRoot<any> = null;
-    for (let aggregate of this.markedAggregates) {
+  private static findMarkedAggregateByID (id: UniqueEntityID): AggregateRoot<any> | null {
+    let found: AggregateRoot<any> | null = null;
+    for (const aggregate of this.markedAggregates) {
       if (aggregate.id.equals(id)) {
         found = aggregate;
       }
@@ -73,7 +73,7 @@ export class DomainEvents {
 
     if (this.handlersMap.hasOwnProperty(eventClassName)) {
       const handlers: any[] = this.handlersMap[eventClassName];
-      for (let handler of handlers) {
+      for (const handler of handlers) {
         handler(event);
       }
     }

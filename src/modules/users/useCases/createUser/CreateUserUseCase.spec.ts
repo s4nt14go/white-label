@@ -1,7 +1,8 @@
 import { CreateUserUseCase } from './CreateUserUseCase';
 import { UserRepoFake } from '../../repos/implementations/fake';
+import { CreateUserDTO } from './CreateUserDTO';
 
-let userRepoFake, createUserUseCase;
+let userRepoFake, createUserUseCase: CreateUserUseCase;
 beforeAll(() => {
   userRepoFake = new UserRepoFake();
   createUserUseCase = new CreateUserUseCase(userRepoFake);
@@ -9,9 +10,8 @@ beforeAll(() => {
 
 test('User creation', async () => {
   const validData = {
-    firstName: 'John',
-    lastName: 'Smith',
-    email: 'js@gmail.com',
+    username: 'test_username',
+    email: 'test@email.com',
     password: 'passwordd',
   }
 
@@ -21,14 +21,13 @@ test('User creation', async () => {
 
 });
 
-test.each(['firstName', 'lastName', 'email', 'password'])('User creation fails without %p', async (field) => {
-  const badData = {
-    firstName: 'John',
-    lastName: 'Smith',
-    email: 'js@gmail.com',
+test.each(['username', 'email', 'password'])('User creation fails without %p', async (field: string) => {
+  const badData: CreateUserDTO = {
+    username: 'test_username',
+    email: 'test@email.com',
     password: 'passwordd',
   };
-  delete badData[field];
+  delete badData[field as 'username' | 'email' | 'password'];
 
   const result = await createUserUseCase.execute(badData);
 
@@ -38,8 +37,7 @@ test.each(['firstName', 'lastName', 'email', 'password'])('User creation fails w
 
 test('User creation fails for taken email', async () => {
   const validData = {
-    firstName: 'John',
-    lastName: 'Smith',
+    username: 'test_username',
     email: 'already@taken.com',
     password: 'passwordd',
   }
@@ -47,14 +45,13 @@ test('User creation fails for taken email', async () => {
   const result = await createUserUseCase.execute(validData);
 
   expect(result.value.isFailure).toBe(true);
-  expect(result.value.constructor.name).toBe('AccountAlreadyExists');
+  expect(result.value.constructor.name).toBe('EmailAlreadyExistsError');
 });
 
 test('User creation fails when saving to DB fails', async () => {
   const validData = {
-    firstName: 'PLEASE FAIL WHEN SAVING',
-    lastName: 'Smith',
-    email: 'js@gmail.com',
+    username: 'FAIL WHEN SAVE',
+    email: 'test@email.com',
     password: 'passwordd',
   }
 

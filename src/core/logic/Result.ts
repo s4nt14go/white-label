@@ -2,10 +2,10 @@
 export class Result<T> {
   public isSuccess: boolean;
   public isFailure: boolean
-  public error: T | string;
-  private _value: T;
+  public error: T | string | undefined | null;
+  private _value: T | undefined;
 
-  public constructor (isSuccess: boolean, error?: T | string, value?: T) {
+  public constructor (isSuccess: boolean, error?: T | string | null, value?: T) {
     if (isSuccess && error) {
       throw new Error("InvalidOperation: A result cannot be successful and contain an error");
     }
@@ -21,7 +21,7 @@ export class Result<T> {
     Object.freeze(this);
   }
 
-  public getValue () : T {
+  public getValue () : T | undefined {
     if (!this.isSuccess) {
       console.log(this.error,);
       throw new Error("Can't get the value of an error result. Use 'errorValue' instead.")
@@ -43,7 +43,7 @@ export class Result<T> {
   }
 
   public static combine (results: Result<any>[]) : Result<any> {
-    for (let result of results) {
+    for (const result of results) {
       if (result.isFailure) return result;
     }
     return Result.ok();

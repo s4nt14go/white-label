@@ -7,14 +7,16 @@ import { UserPassword } from "../../domain/userPassword";
 import { User } from "../../domain/user";
 import { IUserRepo } from "../../repos/userRepo";
 import { CreateUserErrors } from "./CreateUserErrors";
-import { GenericAppError } from "../../../../core/logic/AppError";
+import { AppError } from "../../../../core/logic/AppError";
+import { UserName } from '../../domain/userName';
 
 type Response = Either<
-  GenericAppError.UnexpectedError |
-  CreateUserErrors.AccountAlreadyExists |
-  Result<any>, 
-  Result<void>
->
+    CreateUserErrors.EmailAlreadyExistsError |
+    CreateUserErrors.UsernameTakenError |
+    AppError.UnexpectedError |
+    Result<any>,
+    Result<void>
+    >
 
 export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Response>> {
   private userRepo: IUserRepo;
@@ -23,44 +25,65 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
     this.userRepo = userRepo;
   }
 
-  async execute (req: CreateUserDTO): Promise<Response> {
-    const { firstName, lastName } = req;
+  async execute (request: CreateUserDTO): Promise<Response> {
+    const emailOrError = UserEmail.create(request.email);
+    const passwordOrError = UserPassword.create({ value: request.password });
+    const usernameOrError = UserName.create({ name: request.username });
 
-    const emailOrError = UserEmail.create(req.email);
-    const passwordOrError = UserPassword.create({ value: req.password });
+    const dtoResult = Result.combine([
+      emailOrError, passwordOrError, usernameOrError
+    ]);
 
-    const combinedPropsResult = Result.combine([ emailOrError, passwordOrError ]);
-
-    if (combinedPropsResult.isFailure) {
-      return left(Result.fail<void>(combinedPropsResult.error)) as Response;
+    if (dtoResult.isFailure) {
+      return left(Result.fail<void>(dtoResult.error)) as Response;
     }
 
-    const userOrError = User.create({ 
-      email: emailOrError.getValue(), 
-      password: passwordOrError.getValue(), 
-      firstName, 
-      lastName,
-      isEmailVerified: false,
-    });
-
-    if (userOrError.isFailure) {
-      return left(Result.fail<void>(userOrError.error)) as Response;
-    }
-
-    const user: User = userOrError.getValue();
-
-    const userAlreadyExists = await this.userRepo.exists(user.email);
-
-    if (userAlreadyExists) {
-      return left(new CreateUserErrors.AccountAlreadyExists(user.email.value)) as Response;
-    }
+    const email = emailOrError.getValue() as UserEmail;
+    const password = passwordOrError.getValue() as UserPassword;
+    const username = usernameOrError.getValue() as UserName;
 
     try {
-      await this.userRepo.save(user);
-    } catch (err) {
-      return left(new GenericAppError.UnexpectedError(err)) as Response;
-    }
+      const userAlreadyExists = await this.userRepo.exists(email);
 
-    return right(Result.ok<void>()) as Response;
+      if (userAlreadyExists) {
+        return left(
+            new CreateUserErrors.EmailAlreadyExistsError(email.value)
+        ) as Response;
+      }
+
+      try {
+        const alreadyCreatedUserByUserName = await this.userRepo
+            .findUserByUsername(username);
+
+        const userNameTaken = !!alreadyCreatedUserByUserName;
+
+        if (userNameTaken) {
+          return left (
+              new CreateUserErrors.UsernameTakenError(username.value)
+          ) as Response;
+        }
+      } catch (err) {}
+
+
+      const userOrError: Result<User> = User.create({
+        email, password, username,
+      });
+
+      if (userOrError.isFailure) {
+        const error = userOrError.error ? userOrError.error.toString() : userOrError.error;
+        return left(
+            Result.fail<User>(error)
+        ) as Response;
+      }
+
+      const user = userOrError.getValue() as User;
+
+      await this.userRepo.save(user);
+
+      return right(Result.ok<void>())
+
+    } catch (err) {
+      return left(new AppError.UnexpectedError(err)) as Response;
+    }
   }
 }

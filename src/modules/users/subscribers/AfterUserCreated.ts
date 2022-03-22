@@ -14,10 +14,10 @@ export class AfterUserCreated implements IHandle<UserCreatedEvent> {
 
   setupSubscriptions(): void {
     console.log(`Register onUserCreatedEvent for UserCreatedEvent`);
-    DomainEvents.register(this.onUserCreatedEvent.bind(this), UserCreatedEvent.name);
+    DomainEvents.register(AfterUserCreated.onUserCreatedEvent.bind(this) as any, UserCreatedEvent.name);
   }
 
-  private async onUserCreatedEvent (event: UserCreatedEvent): Promise<void> {
+  private static async onUserCreatedEvent (event: UserCreatedEvent): Promise<void> {
     console.log('onUserCreatedEvent!', event);
     const { user } = event;
 

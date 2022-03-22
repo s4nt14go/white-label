@@ -1,38 +1,46 @@
 import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
 import { createUser } from '../testUtils';
+import { User } from './user';
 
-test('Create user without username', () => {
-    const userOrError = createUser({});
+test('Create user', () => {
+    const userOrError = createUser({
+        username: 'test_username',
+        email: 'test_email',
+        password: 'test_password',
+    });
 
     expect(userOrError.isSuccess).toBe(true);
-    expect(userOrError.getValue().id.constructor.name).toBe('UniqueEntityID');
-    expect(userOrError.getValue().username).toBe('');
+    const user = userOrError.getValue() as User;
+    expect(user.id.constructor.name).toBe('UniqueEntityID');
+    expect(user.username.value).toBe('test_username');
+    expect(user.email.value).toBe('test_email');
+    expect(user.password.value).toBe('test_password');
 
-    expect(userOrError.getValue().domainEvents.length).toBe(1);
-    const domainEvent = userOrError.getValue().domainEvents[0];
+    expect(user.domainEvents.length).toBe(1);
+    const domainEvent = user.domainEvents[0];
     expect(domainEvent.constructor.name).toBe('UserCreatedEvent');
-    expect(userOrError.getValue().id).toBe(domainEvent.getAggregateId());
-});
-
-test('Create user with username', () => {
-    const userOrError = createUser({ username: 'testUsername' });
-
-    expect(userOrError.isSuccess).toBe(true);
-    expect(userOrError.getValue().username).toBe('testUsername');
+    expect(user.id).toBe(domainEvent.getAggregateId());
 });
 
 test('Create user with id', () => {
     const id = new UniqueEntityID();
-    const userOrError = createUser({ username: 'testUsername', id });
+
+    const userOrError = createUser({ id });
 
     expect(userOrError.isSuccess).toBe(true);
-    expect(userOrError.getValue().id).toBe(id);
-    expect(userOrError.getValue().username).toBe('testUsername');
+    const user = userOrError.getValue() as User;
+    expect(user.id).toBe(id);
 });
 
-test.each(['firstName', 'lastName', 'email', 'isEmailVerified'])('Fails with %p null', (field) => {
-    console.log('field', field);
-    const userOrError = createUser({ [field]: null });
+test.each(['username', 'email', 'password'])('Fails with %p null', (field) => {
+    const invalidData: any = {
+        username: 'test_username',
+        email: 'test_email',
+        password: 'test_password',
+    }
+    delete invalidData[field];
+
+    const userOrError = User.create(invalidData);
 
     expect(userOrError.isFailure).toBe(true);
     expect(userOrError.error).toContain(field);

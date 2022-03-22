@@ -14,10 +14,37 @@ export type GuardArgumentCollection = IGuardArgument[];
 export class Guard {
   public static combine (guardResults: IGuardResult[]): IGuardResult {
     for (let result of guardResults) {
-      if (result.succeeded === false) return result;
+      if (!result.succeeded) return result;
     }
 
     return { succeeded: true };
+  }
+
+  public static greaterThan (minValue: number, actualValue: number): IGuardResult {
+    return actualValue > minValue
+        ? { succeeded: true }
+        : {
+          succeeded: false,
+          message: `Number given {${actualValue}} is not greater than {${minValue}}`
+        }
+  }
+
+  public static againstAtLeast (numChars: number, text: string): IGuardResult {
+    return text.length >= numChars
+        ? { succeeded: true }
+        : {
+          succeeded: false,
+          message: `Text is not at least ${numChars} chars.`
+        }
+  }
+
+  public static againstAtMost (numChars: number, text: string): IGuardResult {
+    return text.length <= numChars
+        ? { succeeded: true }
+        : {
+          succeeded: false,
+          message: `Text is greater than ${numChars} chars.`
+        }
   }
 
   public static againstNullOrUndefined (argument: any, argumentName: string): IGuardResult {
@@ -48,9 +75,9 @@ export class Guard {
     if (isValid) {
       return { succeeded: true }
     } else {
-      return { 
-        succeeded: false, 
-        message: `${argumentName} isn't oneOf the correct types in ${JSON.stringify(validValues)}. Got "${value}".` 
+      return {
+        succeeded: false,
+        message: `${argumentName} isn't oneOf the correct types in ${JSON.stringify(validValues)}. Got "${value}".`
       }
     }
   }
@@ -65,7 +92,7 @@ export class Guard {
   }
 
   public static allInRange (numbers: number[], min: number, max: number, argumentName: string) : IGuardResult {
-    let failingResult: IGuardResult = null;
+    let failingResult: IGuardResult | null = null;
     for(let num of numbers) {
       const numIsInRangeResult = this.inRange(num, min, max, argumentName);
       if (!numIsInRangeResult.succeeded) failingResult = numIsInRangeResult;
