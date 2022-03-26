@@ -17,11 +17,8 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.93",
     "@types/bcrypt-nodejs": "0.0.31",
-    "@types/dompurify": "^2.3.3",
     "@types/jest": "^27.4.1",
-    "@types/jsdom": "^16.2.14",
     "@types/uuid": "^8.3.4",
-    "@types/validator": "^13.7.1",
     "jest": "^27.5.1",
     "serverless": "^3.7.9",
     "serverless-webpack": "^5.6.1",
@@ -32,7 +29,10 @@
     "webpack": "^5.70.0"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.55.0",
+    "@aws-sdk/signature-v4-crt": "^3.55.0",
     "bcrypt-nodejs": "0.0.3",
+    "json-stringify-safe": "^5.0.1",
     "shallow-equal-object": "^1.1.1",
     "uuid": "^8.3.2"
   }
