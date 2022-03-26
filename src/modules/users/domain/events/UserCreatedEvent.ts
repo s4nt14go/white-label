@@ -6,8 +6,8 @@ export class UserCreatedEvent implements IDomainEvent {
   public dateTimeOccurred: Date;
   public user: User;
 
-  constructor (user: User) {
-    this.dateTimeOccurred = new Date();
+  constructor (user: User, dateTimeOccurred?: Date) {
+    this.dateTimeOccurred = dateTimeOccurred? dateTimeOccurred : new Date();
     this.user = user;
   }
   

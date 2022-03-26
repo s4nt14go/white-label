@@ -1,11 +1,12 @@
 import { CreateUserUseCase } from './CreateUserUseCase';
 import { UserRepoFake } from '../../repos/implementations/fake';
 import { CreateUserDTO } from './CreateUserDTO';
+import { DispatcherFake } from '../../../../core/infra/DispatcherFake';
 
 let userRepoFake, createUserUseCase: CreateUserUseCase;
 beforeAll(() => {
   userRepoFake = new UserRepoFake();
-  createUserUseCase = new CreateUserUseCase(userRepoFake);
+  createUserUseCase = new CreateUserUseCase(userRepoFake, new DispatcherFake());
 })
 
 test('User creation', async () => {

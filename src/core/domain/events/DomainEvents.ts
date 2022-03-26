@@ -1,11 +1,19 @@
-
 import { IDomainEvent } from "./IDomainEvent";
 import { AggregateRoot } from "../AggregateRoot";
 import { UniqueEntityID } from "../UniqueEntityID";
 
+export interface IDispatcher {
+  dispatch (event: IDomainEvent, handler: string): Promise<any>
+}
+
 export class DomainEvents {
   private static handlersMap: Record<string, any> = {};
   private static markedAggregates: AggregateRoot<any>[] = [];
+  private static dispatcher: IDispatcher;
+
+  constructor (dispatcher: IDispatcher) {
+    DomainEvents.dispatcher = dispatcher;
+  }
 
   /**
    * @method markAggregateForDispatch
@@ -14,7 +22,6 @@ export class DomainEvents {
    * events to eventually be dispatched when the infrastructure commits
    * the unit of work. 
    */
-
   public static markAggregateForDispatch (aggregate: AggregateRoot<any>): void {
     const aggregateFound = !!this.findMarkedAggregateByID(aggregate.id);
 
@@ -23,8 +30,10 @@ export class DomainEvents {
     }
   }
 
-  private static dispatchAggregateEvents (aggregate: AggregateRoot<any>): void {
-    aggregate.domainEvents.forEach((event: IDomainEvent) => this.dispatch(event));
+  private static async dispatchAggregateEvents (aggregate: AggregateRoot<any>): Promise<void> {
+    await Promise.all(aggregate.domainEvents.map(event => {
+      return this.dispatch(event);
+    }));
   }
 
   private static removeAggregateFromMarkedDispatchList (aggregate: AggregateRoot<any>): void {
@@ -43,21 +52,22 @@ export class DomainEvents {
     return found;
   }
 
-  public static dispatchEventsForAggregate (id: UniqueEntityID): void {
+  public static async dispatchEventsForAggregate (id: UniqueEntityID): Promise<void> {
     const aggregate = this.findMarkedAggregateByID(id);
 
     if (aggregate) {
-      this.dispatchAggregateEvents(aggregate);
+      await this.dispatchAggregateEvents(aggregate);
       aggregate.clearEvents();
       this.removeAggregateFromMarkedDispatchList(aggregate);
     }
   }
 
-  public static register(callback: (event: IDomainEvent) => void, eventClassName: string): void {
+  public static register(handler: string, eventClassName: string): void {
     if (!this.handlersMap.hasOwnProperty(eventClassName)) {
       this.handlersMap[eventClassName] = [];
     }
-    this.handlersMap[eventClassName].push(callback);
+    console.log(`Register handler ${handler} for ${eventClassName}`);
+    this.handlersMap[eventClassName].push(handler);
   }
 
   public static clearHandlers(): void {
@@ -68,13 +78,13 @@ export class DomainEvents {
     this.markedAggregates = [];
   }
 
-  private static dispatch (event: IDomainEvent): void {
+  private static async dispatch (event: IDomainEvent): Promise<void> {
     const eventClassName: string = event.constructor.name;
 
     if (this.handlersMap.hasOwnProperty(eventClassName)) {
       const handlers: any[] = this.handlersMap[eventClassName];
       for (const handler of handlers) {
-        handler(event);
+        await DomainEvents.dispatcher.dispatch(event, handler);
       }
     }
   }

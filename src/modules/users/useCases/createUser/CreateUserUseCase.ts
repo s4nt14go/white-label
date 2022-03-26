@@ -9,6 +9,8 @@ import { IUserRepo } from "../../repos/userRepo";
 import { CreateUserErrors } from "./CreateUserErrors";
 import { AppError } from "../../../../core/logic/AppError";
 import { UserName } from '../../domain/userName';
+import { CreateUserSubscribers } from './CreateUserSubscribers';
+import { IDispatcher } from '../../../../core/domain/events/DomainEvents';
 
 type Response = Either<
     CreateUserErrors.EmailAlreadyExistsError |
@@ -21,8 +23,9 @@ type Response = Either<
 export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Response>> {
   private userRepo: IUserRepo;
 
-  constructor (userRepo: IUserRepo) {
+  constructor (userRepo: IUserRepo, dispatcher: IDispatcher) {
     this.userRepo = userRepo;
+    new CreateUserSubscribers(dispatcher);
   }
 
   async execute (request: CreateUserDTO): Promise<Response> {

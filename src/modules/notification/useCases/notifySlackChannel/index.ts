@@ -1,10 +1,9 @@
-
 import { NotifySlackChannel } from "./NotifySlackChannel";
 import { slackService } from "../../services";
-import './../../../loadSubscribers';
+import { NotifySlackChannelController } from './NotifySlackChannelController';
 
-const notifySlackChannel = new NotifySlackChannel(slackService);
-
-export {
-  notifySlackChannel
-}
+const useCase = new NotifySlackChannel(slackService);
+const controller = new NotifySlackChannelController(
+    useCase
+)
+export const handler = controller.executeImpl.bind(controller);

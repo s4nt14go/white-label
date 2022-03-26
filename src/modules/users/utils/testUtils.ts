@@ -1,9 +1,9 @@
-import { UserEmail } from './domain/userEmail';
-import { UserPassword } from './domain/userPassword';
-import { UniqueEntityID } from '../../core/domain/UniqueEntityID';
-import { User } from './domain/user';
-import { UserName } from './domain/userName';
-import { Result } from '../../core/logic/Result';
+import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
+import { User } from '../domain/user';
+import { UserName } from '../domain/userName';
+import { UserPassword } from '../domain/userPassword';
+import { UserEmail } from '../domain/userEmail';
+import { Result } from '../../../core/logic/Result';
 
 type CreateUserInput = {
     email?: string;

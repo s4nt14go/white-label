@@ -12,11 +12,17 @@ provider:
   stage: dev
   region: us-east-1
   logRetentionInDays: 14
+  environment:
+    service: ${self:service}
+    stage: ${self:custom.stage}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action: lambda:InvokeFunction
+      Resource: arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:${self:service}-${self:custom.stage}-*
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-  webpack:
-    excludeFiles: '**/*.test.ts'
 
 functions:
   createUser:
@@ -25,3 +31,9 @@ functions:
       - http:
           path: createUser
           method: post
+
+  notifySlackChannel:
+    handler: src/modules/notification/useCases/notifySlackChannel/index.handler
+
+  someWork:
+    handler: src/modules/users/useCases/someWork/index.handler

@@ -4,7 +4,7 @@ import { Result } from "../../../core/logic/Result";
 import { UserId } from "./userId";
 import { UserEmail } from "./userEmail";
 import { Guard } from "../../../core/logic/Guard";
-import { UserCreatedEvent } from "./events/userCreatedEvent";
+import { UserCreatedEvent } from "./events/UserCreatedEvent";
 import { UserPassword } from "./userPassword";
 import { UserName } from './userName';
 
@@ -43,6 +43,14 @@ export class User extends AggregateRoot<UserProps> {
     return this.props.username;
   }
 
+  get isDeleted (): boolean | undefined {
+    return this.props.isDeleted;
+  }
+
+  get isAdminUser (): boolean | undefined {
+    return this.props.isAdminUser;
+  }
+
   private constructor (props: UserProps, id?: UniqueEntityID) {
     super(props, id);
   }
@@ -76,6 +84,13 @@ export class User extends AggregateRoot<UserProps> {
       }
 
       return Result.ok<User>(user);
+    }
+  }
+
+  public delete (): void {
+    if (!this.props.isDeleted) {
+      // this.addDomainEvent(new UserDeleted(this)); TBI
+      this.props.isDeleted = true;
     }
   }
 }

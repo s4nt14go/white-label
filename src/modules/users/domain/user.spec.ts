@@ -1,6 +1,6 @@
 import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
-import { createUser } from '../testUtils';
 import { User } from './user';
+import { createUser } from '../utils/testUtils';
 
 test('Create user', () => {
     const userOrError = createUser({
@@ -15,11 +15,6 @@ test('Create user', () => {
     expect(user.username.value).toBe('test_username');
     expect(user.email.value).toBe('test_email');
     expect(user.password.value).toBe('test_password');
-
-    expect(user.domainEvents.length).toBe(1);
-    const domainEvent = user.domainEvents[0];
-    expect(domainEvent.constructor.name).toBe('UserCreatedEvent');
-    expect(user.id).toBe(domainEvent.getAggregateId());
 });
 
 test('Create user with id', () => {
