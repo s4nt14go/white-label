@@ -1,4 +1,4 @@
-# Serverless Domain-Driven-Design (DDD) with unit tests
+# Serverless Domain-Driven Design (DDD) with unit tests
 I took some files from Khalil Stemmler's [white-label](https://github.com/stemmlerjs/white-label) project and made some changes
 
 His project has a nice way to dispatch domain events (`UserCreatedEvent`) after the aggregates changes are persisted and pick them up from the same module (`users/subscribers/AfterUserCreated.ts`) or a different one (`notification/subscribers/AfterUserCreated.ts`).
