@@ -3,7 +3,7 @@ import { BaseController } from "../../../../core/infra/BaseController";
 import { CreateUserUseCase } from "./CreateUserUseCase";
 import { CreateUserDTO } from "./CreateUserDTO";
 import { CreateUserErrors } from "./CreateUserErrors";
-import { TextUtils } from '../../../../shared/utils/TextUtils';
+import { TextUtils } from '../../../../utils/TextUtils';
 
 export class CreateUserController extends BaseController {
   private useCase: CreateUserUseCase;
