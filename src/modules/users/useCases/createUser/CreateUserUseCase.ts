@@ -47,31 +47,23 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
 
     try {
       const userAlreadyExists = await this.userRepo.exists(email);
-
       if (userAlreadyExists) {
         return left(
             new CreateUserErrors.EmailAlreadyExistsError(email.value)
         ) as Response;
       }
 
-      try {
-        const alreadyCreatedUserByUserName = await this.userRepo
-            .findUserByUsername(username);
-
-        const userNameTaken = !!alreadyCreatedUserByUserName;
-
-        if (userNameTaken) {
-          return left (
-              new CreateUserErrors.UsernameTakenError(username.value)
-          ) as Response;
-        }
-      } catch (err) {}
-
+      const alreadyCreatedUserByUserName = await this.userRepo
+          .findUserByUsername(username);
+      if (!!alreadyCreatedUserByUserName) {
+        return left (
+            new CreateUserErrors.UsernameTakenError(username.value)
+        ) as Response;
+      }
 
       const userOrError: Result<User> = User.create({
         email, password, username,
       });
-
       if (userOrError.isFailure) {
         const error = userOrError.error ? userOrError.error.toString() : userOrError.error;
         return left(
@@ -80,7 +72,6 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
       }
 
       const user = userOrError.getValue() as User;
-
       await this.userRepo.save(user);
 
       return right(Result.ok<void>())
