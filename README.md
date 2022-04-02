@@ -5,16 +5,18 @@ His project has a nice way to dispatch domain events (`UserCreatedEvent`) after 
 
 In the original project, dispatching the event (`DomainEvents.dispatchEventsForAggregate(<user id>)`) is done through Sequelize hooks (`afterCreate`, `afterDestroy`, `afterUpdate`, `afterSave`, `afterUpsert`) while I moved this to the repository, in the case Sequelize isn't being used.
 
-I've refactored the code to use Lambdas with Serverless Framework. Including `serverless-webpack` plugin to get small lambdas:
-* createUser: 100kB
-* notifySlackChannel: 15kB
-* someWork: 15kB
+I've made some changes to use Lambdas with Serverless Framework. Including `serverless-webpack` plugin to get small lambdas:
+  | Lambda                  | Size \[kB]    |
+  | ----------------------- | -------------:|
+  | createUser              |           100 |
+  | distributeDomainEvents  |           85  |
+  | notifySlackChannel      |            2  |
+  | someWork                |            2  |
 
 Unit tests added:
 * Value Objects: `User`, `UserEmail`, `User Password`
-* Domain event subscriber `src/modules/notification/subscribers/AfterUserCreated.ts`
 * Use cases: `CreateUserUseCase` (with faked repo), `NotifySlackChannel`
-* Mappers for UserCreatedEventMap.toDomain
+* Domain event registration and dispatching `CreateUserRegisterEvent.spec.ts`
 
 ## Instructions
 ```
