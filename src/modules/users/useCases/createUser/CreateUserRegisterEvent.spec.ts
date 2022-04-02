@@ -2,10 +2,15 @@ import { CreateUserUseCase } from './CreateUserUseCase';
 import { UserRepoFake } from '../../repos/implementations/fake';
 import { DispatcherFake } from '../../../../core/infra/DispatcherFake';
 
+let userRepoFake, createUserUseCase: CreateUserUseCase, dispatcherFake, spy: any;
+beforeEach(() => {
+    userRepoFake = new UserRepoFake();
+    dispatcherFake = new DispatcherFake();
+    spy = jest.spyOn(dispatcherFake, 'dispatch');
+    createUserUseCase = new CreateUserUseCase(new UserRepoFake(), dispatcherFake);
+})
+
 test('Domain event dispatcher calls distributeDomainEvents with user data for UserCreatedEvent', async () => {
-    const dispatcherFake = new DispatcherFake();
-    const spy = jest.spyOn(dispatcherFake, 'dispatch');
-    const createUserUseCase = new CreateUserUseCase(new UserRepoFake(), dispatcherFake);
 
     const dto = {
         username: 'test_username',
@@ -25,4 +30,17 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
     })
     expect(spy).toHaveBeenCalledWith(dispatcherIntake, expect.stringContaining('distributeDomainEvents'));
     expect(spy).toBeCalledTimes(1);
+});
+
+test(`distributeDomainEvents isn't called when saving to DB fails`, async () => {
+
+    const dto = {
+        username: 'FAIL WHEN SAVE',
+        email: 'test@email.com',
+        password: 'passwordd',
+    }
+
+    await createUserUseCase.execute(dto);
+
+    expect(spy).toBeCalledTimes(0);
 });
