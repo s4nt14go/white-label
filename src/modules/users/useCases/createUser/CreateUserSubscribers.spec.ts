@@ -2,7 +2,7 @@ import { CreateUserUseCase } from './CreateUserUseCase';
 import { UserRepoFake } from '../../repos/implementations/fake';
 import { DispatcherFake } from '../../../../core/infra/DispatcherFake';
 
-test('Domain event dispatcher calls notifySlackChannel & someWork with user data for UserCreatedEvent', async () => {
+test('Domain event dispatcher calls distributeDomainEvents with user data for UserCreatedEvent', async () => {
     const dispatcherFake = new DispatcherFake();
     const spy = jest.spyOn(dispatcherFake, 'dispatch');
     const createUserUseCase = new CreateUserUseCase(new UserRepoFake(), dispatcherFake);
@@ -23,7 +23,6 @@ test('Domain event dispatcher calls notifySlackChannel & someWork with user data
             email: 'test@email.com',
         }
     })
-    expect(spy).toHaveBeenCalledWith(dispatcherIntake, expect.stringContaining('notifySlackChannel'));
-    expect(spy).toHaveBeenCalledWith(dispatcherIntake, expect.stringContaining('someWork'));
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith(dispatcherIntake, expect.stringContaining('distributeDomainEvents'));
+    expect(spy).toBeCalledTimes(1);
 });

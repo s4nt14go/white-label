@@ -37,3 +37,6 @@ functions:
 
   someWork:
     handler: src/modules/users/useCases/someWork/index.handler
+
+  distributeDomainEvents:
+    handler: src/core/infra/DistributeDomainEvents.handler

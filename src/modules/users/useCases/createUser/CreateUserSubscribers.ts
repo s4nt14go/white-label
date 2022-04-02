@@ -11,8 +11,6 @@ export class CreateUserSubscribers {
     constructor(dispatcher: IDispatcher) {
         this.dispatcher = dispatcher;
         new DomainEvents(this.dispatcher);
-        ['notifySlackChannel', 'someWork'].forEach(lambda => {
-            DomainEvents.register(`${prefix}-${lambda}`, UserCreatedEvent.name);
-        })
+        DomainEvents.register(`${prefix}-distributeDomainEvents`, UserCreatedEvent.name);
     }
 }
