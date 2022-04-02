@@ -5,7 +5,7 @@ import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
 const { service, stage } = Context;
 const prefix = `${service}-${stage}`;
 
-export class CreateUserSubscribers {
+export class CreateUserRegisterEvent {
     private readonly dispatcher: IDispatcher;
 
     constructor(dispatcher: IDispatcher) {

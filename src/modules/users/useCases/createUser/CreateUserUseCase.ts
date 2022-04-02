@@ -9,7 +9,7 @@ import { IUserRepo } from "../../repos/userRepo";
 import { CreateUserErrors } from "./CreateUserErrors";
 import { AppError } from "../../../../core/logic/AppError";
 import { UserName } from '../../domain/userName';
-import { CreateUserSubscribers } from './CreateUserSubscribers';
+import { CreateUserRegisterEvent } from './CreateUserRegisterEvent';
 import { IDispatcher } from '../../../../core/domain/events/DomainEvents';
 
 type Response = Either<
@@ -25,7 +25,7 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
 
   constructor (userRepo: IUserRepo, dispatcher: IDispatcher) {
     this.userRepo = userRepo;
-    new CreateUserSubscribers(dispatcher);
+    new CreateUserRegisterEvent(dispatcher);
   }
 
   async execute (request: CreateUserDTO): Promise<Response> {
