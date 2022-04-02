@@ -21,7 +21,7 @@ type Response = Either<
     >
 
 export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Response>> {
-  private userRepo: IUserRepo;
+  private readonly userRepo: IUserRepo;
 
   constructor (userRepo: IUserRepo, dispatcher: IDispatcher) {
     this.userRepo = userRepo;
