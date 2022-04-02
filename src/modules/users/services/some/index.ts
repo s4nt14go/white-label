@@ -1,12 +1,15 @@
-import { User } from '../../domain/user';
+type UserCreatedDTO = {
+  email: string;
+  username: string;
+}
 
 export interface IExternalService {
-  sendToExternal (user: User): Promise<any>
+  sendToExternal (user: UserCreatedDTO): Promise<any>
 }
 
 export class ExternalService implements IExternalService {
 
-  async sendToExternal (user: User): Promise<any> {
+  async sendToExternal (user: UserCreatedDTO): Promise<any> {
     console.log('Send to some external service:', user);
   }
 

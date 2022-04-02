@@ -1,7 +1,11 @@
 import { UseCase } from "../../../../core/domain/UseCase";
 import { ISlackService } from "../../services/slack";
 import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
-import { User } from '../../../users/domain/user';
+
+type UserCreatedDTO = {
+  email: string;
+  username: string;
+}
 
 export class NotifySlackChannel implements UseCase<UserCreatedEvent, Promise<void>> {
   private slackService: ISlackService;
@@ -10,9 +14,9 @@ export class NotifySlackChannel implements UseCase<UserCreatedEvent, Promise<voi
     this.slackService = slackService;
   }
 
-  private static craftSlackMessage (user: User): string {
-    return `Hey! Guess who just joined us? => ${user.username.value}\n
-      Need to reach 'em? Their email is ${user.email.value}.`
+  private static craftSlackMessage (user: UserCreatedDTO): string {
+    return `Hey! Guess who just joined us? => ${user.username}\n
+      Need to reach 'em? Their email is ${user.email}.`
   }
 
   async execute (event: UserCreatedEvent): Promise<void> {

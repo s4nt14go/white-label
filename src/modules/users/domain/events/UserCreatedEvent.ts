@@ -1,17 +1,17 @@
 import { IDomainEvent } from "../../../../core/domain/events/IDomainEvent";
-import { UniqueEntityID } from "../../../../core/domain/UniqueEntityID";
 import { User } from "../user";
 
 export class UserCreatedEvent implements IDomainEvent {
   public dateTimeOccurred: Date;
-  public user: User;
+  public aggregateId: string;
+  public user;
 
   constructor (user: User, dateTimeOccurred?: Date) {
     this.dateTimeOccurred = dateTimeOccurred? dateTimeOccurred : new Date();
-    this.user = user;
-  }
-  
-  getAggregateId (): UniqueEntityID {
-    return this.user.id;
+    this.aggregateId = user.id.toString();
+    this.user = {
+      email: user.email.value,
+      username: user.username.value,
+    }
   }
 }

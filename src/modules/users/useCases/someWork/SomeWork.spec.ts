@@ -12,5 +12,5 @@ test('External service is called for some work', async () => {
 
     await useCase.execute(event);
 
-    expect(spy).toHaveBeenCalledWith(user);
+    expect(spy).toHaveBeenCalledWith({email: 'test@email.com', username: 'test_user'});
 })
