@@ -17,56 +17,38 @@ export abstract class BaseController {
 
   }
 
-  public static jsonResponse (code: number, message: string) {
+  public static jsonResponse (code: number, body: string) {
     return {
       statusCode: code,
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({
-        message: message,
-      })
+      body,
     };
   }
 
   public ok<T> (dto?: T) {
     if (!!dto) {
-      return {
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({
-          message: dto,
-        })
-      };
+      return BaseController.jsonResponse( 200, JSON.stringify({
+        message: dto,
+      }));
     } else {
-      return {
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({
-          message: `All good ${new Date().toISOString()}`,
-        })
-      };
+      return BaseController.jsonResponse( 200, JSON.stringify({
+        message: `All good ${new Date().toISOString()}`,
+      }));
     }
   }
 
   public conflict (message?: string) {
-    return BaseController.jsonResponse( 409, message ? message : 'Conflict');
+    return BaseController.jsonResponse( 409, JSON.stringify({
+      message: message ? message : 'Conflict',
+    }));
   }
 
   public async fail (error: Error | string) {
     console.log(`Error in ${this.constructor.name}:`, error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({
-        message: error.toString(),
-      })
-    };
+    return BaseController.jsonResponse( 500, JSON.stringify({
+      message: error.toString(),
+    }));
   }
 }
