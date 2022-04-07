@@ -3,17 +3,15 @@ import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context }
 export abstract class BaseController {
   protected abstract executeImpl (req: APIGatewayProxyEvent): Promise<void | any>;
 
-  public execute (event: APIGatewayEvent,
+  public async execute (event: APIGatewayEvent,
                   _context: Context): Promise<APIGatewayProxyResult> {
     try {
       let req = event;
       if (typeof event.body === "string") {
         req.body = JSON.parse(event.body);
       }
-      return this.executeImpl(req);
+      return await this.executeImpl(req);
     } catch (err) {
-      console.log(`[BaseController]: Uncaught controller error`);
-      console.log(err);
       return this.fail('An unexpected error occurred')
     }
 
@@ -60,7 +58,7 @@ export abstract class BaseController {
   }
 
   public async fail (error: Error | string) {
-    console.log(error);
+    console.log(`Error in ${this.constructor.name}:`, error);
     return {
       statusCode: 500,
       headers: {
