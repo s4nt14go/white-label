@@ -22,13 +22,9 @@ export class NotifySlackChannel implements UseCase<UserCreatedEvent, Promise<voi
   async execute (event: UserCreatedEvent): Promise<void> {
     const { user } = event;
 
-    try {
-      await this.slackService.sendMessage(
-          NotifySlackChannel.craftSlackMessage(user),
-        'growth'
-      )
-    } catch (err) {
-      console.log(`Error@${this.constructor.name}`, err);
-    }
+    await this.slackService.sendMessage(
+        NotifySlackChannel.craftSlackMessage(user),
+      'growth'
+    )
   }
 }

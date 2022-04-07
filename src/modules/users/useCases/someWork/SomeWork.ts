@@ -12,11 +12,7 @@ export class SomeWork implements UseCase<UserCreatedEvent, Promise<void>> {
   async execute (event: UserCreatedEvent): Promise<void> {
     const { user } = event;
 
-    try {
-      await this.externalService.sendToExternal(user);
-    } catch (err) {
-      console.log(`Error@${this.constructor.name}`, err);
-    }
+    await this.externalService.sendToExternal(user);
   }
 
 }
