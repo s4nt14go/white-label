@@ -1,4 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { Envelope } from './Envelope';
 
 export abstract class BaseController {
   protected abstract executeImpl (req: APIGatewayProxyEvent): Promise<void | any>;
@@ -27,28 +28,21 @@ export abstract class BaseController {
     };
   }
 
-  public ok<T> (dto?: T) {
-    if (!!dto) {
-      return BaseController.jsonResponse( 200, JSON.stringify({
-        message: dto,
-      }));
-    } else {
-      return BaseController.jsonResponse( 200, JSON.stringify({
-        message: `All good ${new Date().toISOString()}`,
-      }));
-    }
+  public ok<T> (result?: T) {
+    return BaseController.jsonResponse( 200, JSON.stringify(
+        { ...Envelope.ok(result) },
+    ));
   }
 
   public conflict (message?: string) {
-    return BaseController.jsonResponse( 409, JSON.stringify({
-      message: message ? message : 'Conflict',
-    }));
+    return BaseController.jsonResponse( 409, JSON.stringify(
+      { ...Envelope.error(message? message : 'Conflict') },
+    ));
   }
 
-  public async fail (error: Error | string) {
-    console.log(`Error in ${this.constructor.name}:`, error);
-    return BaseController.jsonResponse( 500, JSON.stringify({
-      message: error.toString(),
-    }));
+  public fail (error: Error | string) {
+    return BaseController.jsonResponse( 500, JSON.stringify(
+    { ...Envelope.error(error.toString()) },
+    ));
   }
 }
