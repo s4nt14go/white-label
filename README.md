@@ -16,7 +16,7 @@ I've made some changes to use Lambdas with Serverless Framework. Including `serv
 Unit tests added:
 * Value Objects: `User`, `UserEmail`, `User Password`
 * Use cases: `CreateUserUseCase` (with faked repo), `NotifySlackChannel`
-* Domain event registration and dispatching `CreateUserRegisterEvent.spec.ts`
+* Domain event registration and dispatching `CreateUserEvents.spec.ts`
 
 ## Instructions
 ```

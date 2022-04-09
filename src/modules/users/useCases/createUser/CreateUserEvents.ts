@@ -5,12 +5,9 @@ import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
 const { service, stage } = Context;
 const prefix = `${service}-${stage}`;
 
-export class CreateUserRegisterEvent {
-    private readonly dispatcher: IDispatcher;
-
-    constructor(dispatcher: IDispatcher) {
-        this.dispatcher = dispatcher;
-        new DomainEvents(this.dispatcher);
+export class CreateUserEvents {
+    static registration(dispatcher: IDispatcher) {
+        DomainEvents.setDispatcher(dispatcher);
         DomainEvents.register(`${prefix}-distributeDomainEvents`, UserCreatedEvent.name);
     }
 }

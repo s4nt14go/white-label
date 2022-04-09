@@ -11,7 +11,7 @@ export class DomainEvents {
   private static markedAggregates: AggregateRoot<any>[] = [];
   private static dispatcher: IDispatcher;
 
-  constructor (dispatcher: IDispatcher) {
+  public static setDispatcher (dispatcher: IDispatcher) {
     DomainEvents.dispatcher = dispatcher;
   }
 
