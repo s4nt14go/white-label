@@ -20,7 +20,7 @@ type Response = Either<
     Result<void>
     >
 
-export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Response>> {
+export class CreateUser implements UseCase<CreateUserDTO, Promise<Response>> {
   private readonly userRepo: IUserRepo;
 
   constructor (userRepo: IUserRepo, dispatcher: IDispatcher) {

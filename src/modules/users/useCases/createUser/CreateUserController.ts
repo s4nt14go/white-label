@@ -1,14 +1,14 @@
 
 import { BaseController } from "../../../../core/infra/BaseController";
-import { CreateUserUseCase } from "./CreateUserUseCase";
+import { CreateUser } from "./CreateUser";
 import { CreateUserDTO } from "./CreateUserDTO";
 import { CreateUserErrors } from "./CreateUserErrors";
 import { TextUtils } from '../../../../utils/TextUtils';
 
 export class CreateUserController extends BaseController {
-  private useCase: CreateUserUseCase;
+  private useCase: CreateUser;
 
-  constructor(useCase: CreateUserUseCase) {
+  constructor(useCase: CreateUser) {
     super();
     this.useCase = useCase;
   }
