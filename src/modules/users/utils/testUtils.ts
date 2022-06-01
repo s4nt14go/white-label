@@ -3,7 +3,6 @@ import { User } from '../domain/user';
 import { UserName } from '../domain/userName';
 import { UserPassword } from '../domain/userPassword';
 import { UserEmail } from '../domain/userEmail';
-import { Result } from '../../../core/logic/Result';
 
 type CreateUserInput = {
     email?: string;
@@ -14,12 +13,12 @@ type CreateUserInput = {
 }
 
 export function createUser({
-                               email = 'default_email',
+                               email = 'default@email.com',
                                password = 'default_pass',
                                username = 'default_uname',
                                isEmailVerified = false,
                                id,
-                           }: CreateUserInput): Result<User> {
+                           }: CreateUserInput): User {
 
     const props = {
         email: UserEmail.create(email).getValue() as UserEmail,

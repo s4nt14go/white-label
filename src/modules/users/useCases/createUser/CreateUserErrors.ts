@@ -1,24 +1,20 @@
-
-import { UseCaseError } from "../../../../core/logic/UseCaseError";
-import { Result } from "../../../../core/logic/Result";
+import { BaseError } from '../../../../core/logic/AppError';
+import { patch } from '../../../../core/infra/utils';
 
 export namespace CreateUserErrors {
 
-  export class EmailAlreadyExistsError extends Result<UseCaseError> {
+  export class EmailAlreadyTaken extends BaseError {
     constructor (email: string) {
-      super(false, {
-        message: `The email ${email} associated for this account already exists`
-      } as UseCaseError)
+      super(`The email ${email} is already taken`)
     }
   }
 
-  export class UsernameTakenError extends Result<UseCaseError> {
+  export class UsernameAlreadyTaken extends BaseError {
     constructor (username: string) {
-      super(false, {
-        message: `The username ${username} was already taken`
-      } as UseCaseError)
+      super(`The username ${username} is already taken`)
     }
   }
-
 
 }
+
+patch({ CreateUserErrors });

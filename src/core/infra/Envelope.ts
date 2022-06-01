@@ -1,21 +1,27 @@
-﻿export class Envelope<T> {
-    public result: T | null;
-    public errorMessage: string | null;
-    public timeGenerated: Date;
+﻿import { BaseError } from '../logic/AppError';
 
-    public constructor(result: T | null, errorMessage: string | null) {
-        this.result = result;
-        this.errorMessage = errorMessage;
-        this.timeGenerated = new Date();
+export class Envelope<T> {
+    readonly result?: T;
+    readonly errorMessage?: string;
+    readonly errorType?: string;
+    readonly timeGenerated: string;
+
+    public constructor(result?: T, error?: BaseError) {
+        if (this.result !== undefined) this.result = result;
+        if (error !== undefined) {
+            this.errorMessage = error.message
+            this.errorType = error.type
+        }
+        this.timeGenerated = new Date().toJSON();
 
         Object.freeze(this);
     }
 
-    public static ok<U> (result: U) : Envelope<U> {
-        return new Envelope<U>(result || null, null);
+    public static ok<U> (result?: U) : Envelope<U> {
+        return new Envelope<U>(result);
     }
 
-    public static error<U> (errorMessage: string) : Envelope<U> {
-        return new Envelope<U>(null, errorMessage);
+    public static error<U> (error: BaseError) : Envelope<U> {
+        return new Envelope<U>(undefined, error);
     }
 }

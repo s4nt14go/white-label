@@ -1,13 +1,13 @@
-import { CreateUser } from './CreateUser';
+import { CreateUserController } from './CreateUserController';
 import { UserRepoFake } from '../../repos/implementations/fake';
 import { DispatcherFake } from '../../../../core/infra/DispatcherFake';
 
-let userRepoFake, createUser: CreateUser, dispatcherFake, spy: any;
+let userRepoFake, createUserController: CreateUserController, dispatcherFake, spyOnDispatch: any;
 beforeEach(() => {
     userRepoFake = new UserRepoFake();
     dispatcherFake = new DispatcherFake();
-    spy = jest.spyOn(dispatcherFake, 'dispatch');
-    createUser = new CreateUser(new UserRepoFake(), dispatcherFake);
+    spyOnDispatch = jest.spyOn(dispatcherFake, 'dispatch');
+    createUserController = new CreateUserController(new UserRepoFake(), dispatcherFake);
 })
 
 test('Domain event dispatcher calls distributeDomainEvents with user data for UserCreatedEvent', async () => {
@@ -18,7 +18,7 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
         password: 'passwordd',
     }
 
-    await createUser.execute(dto);
+    await createUserController.executeImpl(dto);
 
     const dispatcherIntake = expect.objectContaining({
         aggregateId: expect.any(String),
@@ -28,8 +28,8 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
             email: 'test@email.com',
         }
     })
-    expect(spy).toHaveBeenCalledWith(dispatcherIntake, expect.stringContaining('distributeDomainEvents'));
-    expect(spy).toBeCalledTimes(1);
+    expect(spyOnDispatch).toHaveBeenCalledWith(dispatcherIntake, expect.stringContaining('distributeDomainEvents'));
+    expect(spyOnDispatch).toBeCalledTimes(1);
 });
 
 test(`distributeDomainEvents isn't called when saving to DB fails`, async () => {
@@ -40,7 +40,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails`, async () => 
         password: 'passwordd',
     }
 
-    await createUser.execute(dto);
+    await createUserController.executeImpl(dto);
 
-    expect(spy).toBeCalledTimes(0);
+    expect(spyOnDispatch).toBeCalledTimes(0);
 });

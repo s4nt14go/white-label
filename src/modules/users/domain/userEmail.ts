@@ -1,7 +1,7 @@
-
 import { ValueObject } from "../../../core/domain/ValueObject";
 import { Result } from "../../../core/logic/Result";
 import { Guard } from "../../../core/logic/Guard";
+import { CreateEmailErrors } from './userEmailErrors';
 
 interface UserEmailProps {
   value: string;
@@ -16,12 +16,16 @@ export class UserEmail extends ValueObject<UserEmailProps> {
     super(props);
   }
 
-  public static create (email: string): Result<UserEmail> {
-    const guardResult = Guard.againstNullOrUndefined(email, 'email');
-    if (!guardResult.succeeded) {
-      return Result.fail<UserEmail>(guardResult.message);
-    } else {
-      return Result.ok<UserEmail>(new UserEmail({ value: email }))
-    }
+  public static create (email: string): Result<UserEmail | null> {
+    const guardNulls = Guard.againstNullOrUndefined(email, new CreateEmailErrors.EmailNotDefined());
+    const guardType = Guard.isType(email, 'string', new CreateEmailErrors.EmailNotString());
+    const combined = Guard.combine([guardNulls, guardType]);
+    if (!combined.succeeded) return Result.fail(combined.error);
+
+    const trimmed = email.trim();
+    const validEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(trimmed)
+    if (!validEmail) return Result.fail(new CreateEmailErrors.EmailNotValid());
+
+    return Result.ok<UserEmail>(new UserEmail({ value: trimmed }))
   }
 }

@@ -1,5 +1,5 @@
-
 import { UserName } from "./userName";
+import { CreateNameErrors } from './userNameErrors';
 
 test('Creation', () => {
   const validData = {
@@ -18,7 +18,7 @@ test('Creation fails without username', () => {
 
   const result = UserName.create(invalidData);
   expect(result.isFailure).toBe(true);
-  expect(result.error).toContain('username');
+  expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotDefined);
 });
 
 test('Creation fails with a short username', () => {
@@ -28,7 +28,7 @@ test('Creation fails with a short username', () => {
 
   const result = UserName.create(invalidData);
   expect(result.isFailure).toBe(true);
-  expect(result.error).toContain('at least');
+  expect(result.error).toBeInstanceOf(CreateNameErrors.TooShort)
 });
 
 test('Creation fails with a long username', () => {
@@ -38,5 +38,5 @@ test('Creation fails with a long username', () => {
 
   const result = UserName.create(invalidData);
   expect(result.isFailure).toBe(true);
-  expect(result.error).toContain('greater');
+  expect(result.error).toBeInstanceOf(CreateNameErrors.TooLong);
 });

@@ -1,9 +1,7 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
-import { Result } from "../../../core/logic/Result";
 import { UserId } from "./userId";
 import { UserEmail } from "./userEmail";
-import { Guard } from "../../../core/logic/Guard";
 import { UserCreatedEvent } from "./events/UserCreatedEvent";
 import { UserPassword } from "./userPassword";
 import { UserName } from './userName';
@@ -55,36 +53,22 @@ export class User extends AggregateRoot<UserProps> {
     super(props, id);
   }
 
-  public static create (props: UserProps, id?: UniqueEntityID): Result<User> {
+  public static create (props: UserProps, id?: UniqueEntityID): User {
 
-    const guardedProps = [
-      { argument: props.email, argumentName: 'email' },
-      { argument: props.username, argumentName: 'username' },
-      { argument: props.password, argumentName: 'password' }
-    ];
+    const user = new User({
+      ...props,
+      isDeleted: props.isDeleted ? props.isDeleted : false,
+      isEmailVerified: props.isEmailVerified ? props.isEmailVerified : false,
+      isAdminUser: props.isAdminUser ? props.isAdminUser : false
+    }, id);
 
-    const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
+    const idWasProvided = !!id;
 
-    if (!guardResult.succeeded) {
-      return Result.fail<User>(guardResult.message)
-    } 
-    
-    else {
-      const user = new User({
-        ...props,
-        isDeleted: props.isDeleted ? props.isDeleted : false,
-        isEmailVerified: props.isEmailVerified ? props.isEmailVerified : false,
-        isAdminUser: props.isAdminUser ? props.isAdminUser : false
-      }, id);
-
-      const idWasProvided = !!id;
-
-      if (!idWasProvided) {
-        user.addDomainEvent(new UserCreatedEvent(user));
-      }
-
-      return Result.ok<User>(user);
+    if (!idWasProvided) {
+      user.addDomainEvent(new UserCreatedEvent(user));
     }
+
+    return user;
   }
 
   public delete (): void {
