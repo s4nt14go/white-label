@@ -21,9 +21,9 @@ export function createUser({
                            }: CreateUserInput): User {
 
     const props = {
-        email: UserEmail.create(email).getValue() as UserEmail,
-        password: UserPassword.create({ value: password }).getValue() as UserPassword,
-        username: UserName.create({ name: username }).getValue() as UserName,
+        email: UserEmail.create(email).value as UserEmail,
+        password: UserPassword.create({ value: password }).value as UserPassword,
+        username: UserName.create({ name: username }).value as UserName,
         isEmailVerified,
     };
 

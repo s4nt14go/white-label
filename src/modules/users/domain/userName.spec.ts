@@ -8,7 +8,7 @@ test('Creation', () => {
 
   const result = UserName.create(validData);
   expect(result.isSuccess).toBe(true);
-  const username = result.getValue() as UserName;
+  const username = result.value as UserName;
   expect(username.value).toBe('test_name');
 });
 
@@ -39,4 +39,16 @@ test('Creation fails with a long username', () => {
   const result = UserName.create(invalidData);
   expect(result.isFailure).toBe(true);
   expect(result.error).toBeInstanceOf(CreateNameErrors.TooLong);
+});
+
+test('Creation fails with invalid characters', () => {
+  const invalidData = {
+    name: 'USer123$%^&{',
+  };
+
+  const result = UserName.create(invalidData);
+  expect(result.isFailure).toBe(true);
+  expect(result.error).toBeInstanceOf(CreateNameErrors.InvalidCharacters);
+  const msg = (result.error as CreateNameErrors.InvalidCharacters).message
+  expect('$%^&{'.split('').every(item => msg.includes(item))).toBe(true);
 });

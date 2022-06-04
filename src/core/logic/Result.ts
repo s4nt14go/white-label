@@ -4,7 +4,7 @@ export class Result<T> {
   public isSuccess: boolean;
   public isFailure: boolean
   public error?: T | null | BaseError;
-  private _value?: T;
+  private readonly _value?: T;
 
   public constructor (isSuccess: boolean, error?: T | null | BaseError, value?: T) {
     if (isSuccess && error) {
@@ -22,17 +22,11 @@ export class Result<T> {
     Object.freeze(this);
   }
 
-  public getValue () : T | undefined {
+  get value(): T | undefined {
     if (!this.isSuccess) {
-      console.log(this.error,);
       throw new Error("Can't get the value of an error result. Use 'errorValue' instead.")
     }
-
     return this._value;
-  }
-
-  public errorValue (): T {
-    return this.error as T;
   }
 
   public static ok<U> (value?: U) : Result<U> {
@@ -48,5 +42,15 @@ export class Result<T> {
       if (result.isFailure) return result;
     }
     return Result.ok();
+  }
+
+  public ensure (func: any, error: BaseError) : Result<any> {
+    if (this.isFailure) return this;
+    if (!func(this._value)) return Result.fail(error)
+    return this;
+  }
+
+  public onBoth (func: any) : Result<any> {
+    return func(this);
   }
 }

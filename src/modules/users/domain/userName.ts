@@ -24,19 +24,17 @@ export class UserName extends ValueObject<UserNameProps> {
     const guardNulls = Guard.againstNullOrUndefined(props.name, new CreateNameErrors.NameNotDefined());
     const guardType = Guard.isType(props.name, 'string', new CreateNameErrors.NameNotString());
     const combined = Guard.combine([guardNulls, guardType]);
-    if (!combined.succeeded) return Result.fail(combined.error);
+    if (combined.isFailure) return Result.fail(combined.error);
 
     const trimmed = props.name.trim();
-    const minLengthResult = Guard.againstAtLeast(this.minLength, trimmed, new CreateNameErrors.TooShort(this.minLength));
-    if (!minLengthResult.succeeded) {
-      return Result.fail(minLengthResult.error)
-    }
-
-    const maxLengthResult = Guard.againstAtMost(this.maxLength, trimmed, new CreateNameErrors.TooLong(this.maxLength));
-    if (!maxLengthResult.succeeded) {
-      return Result.fail(maxLengthResult.error)
-    }
-
-    return Result.ok<UserName>(new UserName({ name: trimmed }));
+    const invalidChars = trimmed.match(/[^a-z0-9.\-_+]/ig)
+    if (invalidChars) return Result.fail(new CreateNameErrors.InvalidCharacters(invalidChars));
+    return Result.ok(trimmed)
+        .ensure((value: string) => { return value.length >= this.minLength}, new CreateNameErrors.TooShort(this.minLength))
+        .ensure((value: string) => { return value.length <= this.maxLength}, new CreateNameErrors.TooLong(this.maxLength))
+        .onBoth((result: Result<any>) =>
+            result.isSuccess?
+                Result.ok<UserName>(new UserName({ name: result.value })) :
+                Result.fail(result.error))
   }
 }

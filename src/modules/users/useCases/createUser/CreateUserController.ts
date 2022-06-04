@@ -33,9 +33,9 @@ export class CreateUserController extends BaseController {
       return this.fail(dtoResult.error);
     }
 
-    const email = emailOrError.getValue() as UserEmail;
-    const password = passwordOrError.getValue() as UserPassword;
-    const username = usernameOrError.getValue() as UserName;
+    const email = emailOrError.value as UserEmail;
+    const password = passwordOrError.value as UserPassword;
+    const username = usernameOrError.value as UserName;
 
     const userAlreadyExists = await this.userRepo.exists(email);
     if (userAlreadyExists) return this.conflict(new CreateUserErrors.EmailAlreadyTaken(email.value))

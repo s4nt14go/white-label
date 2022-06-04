@@ -20,7 +20,7 @@ export class UserEmail extends ValueObject<UserEmailProps> {
     const guardNulls = Guard.againstNullOrUndefined(email, new CreateEmailErrors.EmailNotDefined());
     const guardType = Guard.isType(email, 'string', new CreateEmailErrors.EmailNotString());
     const combined = Guard.combine([guardNulls, guardType]);
-    if (!combined.succeeded) return Result.fail(combined.error);
+    if (combined.isFailure) return Result.fail(combined.error);
 
     const trimmed = email.trim();
     const validEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(trimmed)

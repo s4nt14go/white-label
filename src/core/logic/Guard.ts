@@ -1,4 +1,5 @@
 import { BaseError } from './AppError';
+import { Result } from './Result';
 
 export interface IGuardResult {
   succeeded: boolean;
@@ -13,48 +14,42 @@ export interface IGuardArgument {
 export type GuardArgumentCollection = IGuardArgument[];
 
 export class Guard {
-  public static combine (guardResults: IGuardResult[]): IGuardResult {
+  public static combine (guardResults: Result<any>[]): Result<any> {
     for (let result of guardResults) {
-      if (!result.succeeded) return result;
+      if (result.isFailure) return result;
     }
 
-    return { succeeded: true };
+    return guardResults[0];
   }
 
-  public static againstAtLeast(numChars: number, text: string, error: BaseError): IGuardResult {
+  public static againstAtLeast(numChars: number, text: string, error: BaseError): Result<any> {
     return text.length >= numChars
-        ? { succeeded: true }
-        : { succeeded: false, error }
+        ? Result.ok()
+        : Result.fail(error)
   }
 
-  public static againstAtMost (numChars: number, text: string, error: BaseError): IGuardResult {
-    return text.length <= numChars
-        ? { succeeded: true }
-        : { succeeded: false, error }
-  }
-
-  public static againstNullOrUndefined (value: any, error: BaseError): IGuardResult {
+  public static againstNullOrUndefined (value: any, error: BaseError): Result<any> {
     if (value === null || value === undefined) {
-      return { succeeded: false, error }
+      return Result.fail(error)
     } else {
-      return { succeeded: true }
+      return Result.ok()
     }
   }
 
-  public static againstNullOrUndefinedBulk(args: GuardArgumentCollection): IGuardResult {
+  public static againstNullOrUndefinedBulk(args: GuardArgumentCollection): Result<any> {
     for (let arg of args) {
       const result = this.againstNullOrUndefined(arg.value, arg.error);
-      if (!result.succeeded) return result;
+      if (result.isFailure) return result;
     }
 
-    return { succeeded: true }
+    return Result.ok()
   }
 
-  public static isType (value: any, type: string, error: BaseError) : IGuardResult {
+  public static isType (value: any, type: string, error: BaseError) : /*IGuardResult | */Result<any> {
     if (typeof value === type) {
-      return { succeeded: true }
+      return Result.ok()
     } else {
-      return { succeeded: false, error}
+      return Result.fail(error)
     }
   }
 }

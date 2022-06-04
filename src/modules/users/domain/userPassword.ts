@@ -71,12 +71,12 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     const guardNulls = Guard.againstNullOrUndefined(props.value, new CreatePasswordErrors.PasswordNotDefined());
     const guardType = Guard.isType(props.value, 'string', new CreatePasswordErrors.PasswordNotString());
     const combined = Guard.combine([guardNulls, guardType]);
-    if (!combined.succeeded) return Result.fail(combined.error);
+    if (combined.isFailure) return Result.fail(combined.error);
 
     if (!props.hashed) {
       const trimmed = props.value.trim();
       const minLengthResult = Guard.againstAtLeast(this.minLength, trimmed, new CreatePasswordErrors.TooShort(this.minLength));
-      if (!minLengthResult.succeeded) return Result.fail(minLengthResult.error)
+      if (minLengthResult.isFailure) return Result.fail(minLengthResult.error)
     }
 
     return Result.ok<UserPassword>(new UserPassword({

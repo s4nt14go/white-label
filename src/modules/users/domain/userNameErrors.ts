@@ -27,6 +27,12 @@ export namespace CreateNameErrors {
     }
   }
 
+  export class InvalidCharacters extends BaseError {
+    constructor (chars: string[]) {
+      super(`Invalid characters detected: ${chars.join(' ')}`)
+    }
+  }
+
 }
 
 patch({ CreateNameErrors });

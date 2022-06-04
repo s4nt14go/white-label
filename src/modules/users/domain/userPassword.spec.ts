@@ -5,7 +5,7 @@ test('Create with plain text', async () => {
     const passwordOrError = UserPassword.create({ value: 'super_secret'});
 
     expect(passwordOrError.isSuccess).toBe(true);
-    const password = passwordOrError.getValue() as UserPassword;
+    const password = passwordOrError.value as UserPassword;
     expect(password.value).toBe('super_secret');
 
     const passwordValid = await password.comparePassword('super_secret');
@@ -40,7 +40,7 @@ test('Create with hashed text', async () => {
     const passwordOrError = UserPassword.create({ value: hash, hashed: true});
 
     expect(passwordOrError.isSuccess).toBe(true);
-    const password = passwordOrError.getValue() as UserPassword;
+    const password = passwordOrError.value as UserPassword;
     const passwordValid = await password.comparePassword('super_secret');
     expect(passwordValid).toBe(true);
     expect(password.isAlreadyHashed()).toBe(true);
