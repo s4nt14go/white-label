@@ -9,12 +9,14 @@ export abstract class BaseController {
                   _context: Context): Promise<APIGatewayProxyResult> {
     try {
       if (typeof event.body === "string") {
+        let parsed;
         try {
-          return await this.executeImpl(JSON.parse(event.body));
+          parsed = JSON.parse(event.body);
         } catch (err) {
           console.log('Malformed request', err);
           return this.fail(new MalformedRequest())
         }
+        return await this.executeImpl(parsed);
       }
       return await this.executeImpl(event);
     } catch (err) {
