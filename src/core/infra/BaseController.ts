@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { Envelope } from './Envelope';
-import { BaseError, UnexpectedError } from '../logic/AppError';
+import { BaseError, MalformedRequest, UnexpectedError } from '../logic/AppError';
 
 export abstract class BaseController {
   protected abstract executeImpl (dto: any): any;
@@ -8,11 +8,15 @@ export abstract class BaseController {
   public async execute (event: APIGatewayEvent,
                   _context: Context): Promise<APIGatewayProxyResult> {
     try {
-      let req = event;
       if (typeof event.body === "string") {
-        return await this.executeImpl(JSON.parse(event.body));
+        try {
+          return await this.executeImpl(JSON.parse(event.body));
+        } catch (err) {
+          console.log('Malformed request', err);
+          return this.fail(new MalformedRequest())
+        }
       }
-      return await this.executeImpl(req);
+      return await this.executeImpl(event);
     } catch (err) {
       console.log(`An unexpected error occurred`, err);
       return this.serverError()

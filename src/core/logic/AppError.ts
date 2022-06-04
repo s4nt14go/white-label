@@ -11,3 +11,9 @@ export class UnexpectedError extends BaseError {
     super('An unexpected error occurred')
   }
 }
+
+export class MalformedRequest extends BaseError {
+  constructor () {
+    super('Malformed request')
+  }
+}

@@ -2,6 +2,7 @@ import { CreateUserController } from './CreateUserController';
 import { UserRepoFake } from '../../repos/implementations/fake';
 import { CreateUserDTO } from './CreateUserDTO';
 import { DispatcherFake } from '../../../../core/infra/DispatcherFake';
+import { APIGatewayEvent, Context } from 'aws-lambda';
 
 let userRepoFake, createUserController: CreateUserController;
 beforeAll(() => {
@@ -60,4 +61,15 @@ test('User creation fails for taken username', async () => {
 
   expect(result.statusCode).toBe(409);
   expect(result.body).toContain('CreateUserErrors.UsernameAlreadyTaken');
+});
+
+test('User creation fails for non-parsable string', async () => {
+  const event = {
+    body: 'non-parsable'
+  }
+
+  const result = await createUserController.execute(event as APIGatewayEvent, {} as Context);
+
+  expect(result.statusCode).toBe(400);
+  expect(result.body).toContain('MalformedRequest');
 });
