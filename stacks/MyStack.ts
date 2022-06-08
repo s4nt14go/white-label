@@ -3,6 +3,17 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 
 export function MyStack({ stack }: StackContext) {
 
+  stack.setDefaultFunctionProps({
+    logRetention: 14,
+    bundle: {
+      format: "esm" as "esm",
+      minify: true,
+      esbuildConfig: {
+        keepNames: true,
+      },
+    }
+  })
+
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
   });
