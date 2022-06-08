@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { UserName } from "./userName";
 import { CreateNameErrors } from './userNameErrors';
 

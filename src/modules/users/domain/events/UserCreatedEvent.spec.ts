@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { createUser } from '../../utils/testUtils';
 
 test('UserCreatedEvent is added to user during creation', () => {

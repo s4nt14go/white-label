@@ -3,6 +3,7 @@ import { IDomainEvent } from '../domain/events/IDomainEvent';
 
 const { Lambda } = require("@aws-sdk/client-lambda");
 const stringify = require('json-stringify-safe');
+const { TextEncoder } = require('util');
 
 export class Dispatcher implements IDispatcher {
   private lambdaClient = new Lambda({});

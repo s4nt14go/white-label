@@ -1,3 +1,4 @@
+import { expect, test, beforeAll } from 'vitest';
 import { CreateUserController } from './CreateUserController';
 import { UserRepoFake } from '../../repos/implementations/fake';
 import { CreateUserDTO } from './CreateUserDTO';

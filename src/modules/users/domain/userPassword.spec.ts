@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { UserPassword } from './userPassword';
 import { CreatePasswordErrors } from './userPasswordErrors';
 

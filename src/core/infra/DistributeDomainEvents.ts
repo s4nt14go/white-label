@@ -2,15 +2,13 @@ import { Dispatcher } from './Dispatcher';
 import { IDispatcher } from '../domain/events/DomainEvents';
 import { IDomainEvent } from '../domain/events/IDomainEvent';
 import { DomainEventTypes } from '../domain/events/DomainEventTypes';
-import { Context } from './Context';
+import { Env } from './Env';
 
-const { service, stage } = Context;
-const prefix = `${service}-${stage}`;
-
+const { notifySlackChannel, someWork } = Env as Record<string, string>;
 const { UserCreatedEvent } = DomainEventTypes;
 
 const subscribers = {
-    [UserCreatedEvent]: ['notifySlackChannel', 'someWork'],
+    [UserCreatedEvent]: [notifySlackChannel, someWork],
 }
 
 class DistributeDomainEvents {
@@ -26,7 +24,7 @@ class DistributeDomainEvents {
         console.log('event', event);
 
         await Promise.all(subscribers[event.type].map(lambda => {
-            return this.dispatcher.dispatch(event,`${prefix}-${lambda}`);
+            return this.dispatcher.dispatch(event, lambda);
         }));
 
         if (!subscribers[event.type] || !subscribers[event.type].length) {

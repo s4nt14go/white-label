@@ -3,3 +3,5 @@
 /setAwsProfile.sh
 /.serverless/
 /coverage/
+.sst
+.build
