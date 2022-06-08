@@ -1,9 +1,8 @@
-import { DBerror, IUserRepo } from '../userRepo';
+import { IUserRepo } from '../userRepo';
 import { UserEmail } from '../../domain/userEmail';
 import { User } from '../../domain/user';
 import { DomainEvents } from '../../../../core/domain/events/DomainEvents';
 import { createUser } from '../../utils/testUtils';
-import { Result } from '../../../../core/logic/Result';
 
 export class UserRepoFake implements IUserRepo {
     findUserByEmail(email: UserEmail): Promise<User> {
@@ -30,15 +29,8 @@ export class UserRepoFake implements IUserRepo {
         });
     }
 
-    async save(user: User): Promise<Result<void | null>> {
-        try {
-            if (user.username.value === 'FAIL WHEN SAVE') { // noinspection ExceptionCaughtLocallyJS
-                throw Error('Faked failure when saving');
-            }
-            await DomainEvents.dispatchEventsForAggregate(user.id);   // NOTE: Dispatch the events after the aggregate changes we're interested to emit (i.e. create, update, delete), are done in the real/faked repository.
-            return Result.ok()
-        } catch (err) {
-            return Result.fail(new DBerror())
-        }
+    async save(user: User) {
+        if (user.username.value === 'THROW_WHEN_SAVE') throw Error('Faked failure when saving');
+        await DomainEvents.dispatchEventsForAggregate(user.id);   // NOTE: Dispatch the events after the aggregate changes we're interested to emit (i.e. create, update, delete), are done in the real/faked repository.
     }
 }

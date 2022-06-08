@@ -48,8 +48,7 @@ export class CreateUserController extends BaseController {
       email, password, username,
     });
 
-    const saveResult = await this.userRepo.save(user);
-    if (saveResult.isFailure) return this.serverError();
+    await this.userRepo.save(user);
 
     return this.created();
   }
