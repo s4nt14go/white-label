@@ -21,7 +21,9 @@ export abstract class BaseController {
       return await this.executeImpl(event);
     } catch (err) {
       console.log(`An unexpected error occurred`, err);
-      return this.serverError()
+      console.log(`Context`, _context);
+      console.log(`Event`, event);
+      return this.serverError(_context)
     }
 
   }
@@ -60,9 +62,14 @@ export abstract class BaseController {
     ));
   }
 
-  public serverError () {
+  public serverError (context: Context) {
     return BaseController.jsonResponse( 500, JSON.stringify(
-        { ...Envelope.error(new UnexpectedError()) },
+        {
+          ...Envelope.error(new UnexpectedError()),
+          logGroup: context.logGroupName,
+          logStream: context.logStreamName,
+          awsRequest: context.awsRequestId,
+        },
     ));
   }
 }
