@@ -1,7 +1,7 @@
 import { patch } from '../../../core/infra/utils';
 import { BaseError } from '../../../core/logic/AppError';
 
-export namespace CreatePasswordErrors {
+export namespace CreatePasswordErrors { // eslint-disable-line @typescript-eslint/no-namespace
 
   export class PasswordNotDefined extends BaseError {
     constructor () {

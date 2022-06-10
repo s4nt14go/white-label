@@ -10,8 +10,9 @@
     "remove": "sst remove",
     "console": "sst console",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "watch": "vitest --watch"
+    "test": "jest",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint-and-fix": "eslint . --ext .ts --max-warnings=0 --fix"
   },
   "repository": {
     "type": "git",
@@ -26,12 +27,15 @@
     "@tsconfig/node16": "^1.0.2",
     "@types/aws-lambda": "^8.10.93",
     "@types/bcrypt-nodejs": "0.0.31",
+    "@types/jest": "^28.1.1",
+    "@types/json-stringify-safe": "^5.0.0",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "eslint": "^8.17.0",
-    "typescript": "^4.7.3",
-    "vitest": "^0.13.1"
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.4",
+    "typescript": "^4.7.3"
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.55.0",

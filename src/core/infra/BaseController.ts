@@ -3,7 +3,7 @@ import { Envelope } from './Envelope';
 import { BaseError, MalformedRequest, UnexpectedError } from '../logic/AppError';
 
 export abstract class BaseController {
-  protected abstract executeImpl (dto: any): any;
+  protected abstract executeImpl (dto: unknown | APIGatewayEvent): Promise<APIGatewayProxyResult>;
 
   public async execute (event: APIGatewayEvent,
                   _context: Context): Promise<APIGatewayProxyResult> {

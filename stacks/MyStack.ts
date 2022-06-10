@@ -6,7 +6,7 @@ export function MyStack({ stack }: StackContext) {
   stack.setDefaultFunctionProps({
     logRetention: 14,
     bundle: {
-      format: "esm" as "esm",
+      format: "esm" as const,
       minify: true,
       esbuildConfig: {
         keepNames: true,

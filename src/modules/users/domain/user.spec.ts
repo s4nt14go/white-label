@@ -1,4 +1,3 @@
-import { expect, test } from 'vitest';
 import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
 import { createUser } from '../utils/testUtils';
 

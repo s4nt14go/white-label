@@ -37,12 +37,12 @@ export class CreateUserController extends BaseController {
     const password = passwordOrError.value as UserPassword;
     const username = usernameOrError.value as UserName;
 
-    const userAlreadyExists = await this.userRepo.exists(email);
-    if (userAlreadyExists) return this.conflict(new CreateUserErrors.EmailAlreadyTaken(email.value))
+    const emailAlreadyTaken = await this.userRepo.exists(email);
+    if (emailAlreadyTaken) return this.conflict(new CreateUserErrors.EmailAlreadyTaken(email.value))
 
-    const alreadyCreatedUserByUserName = await this.userRepo
+    const usernameAlreadyTaken = await this.userRepo
         .findUserByUsername(username.props.name);
-    if (!!alreadyCreatedUserByUserName) return this.conflict(new CreateUserErrors.UsernameAlreadyTaken(username.value))
+    if (usernameAlreadyTaken) return this.conflict(new CreateUserErrors.UsernameAlreadyTaken(username.value))
 
     const user = User.create({
       email, password, username,

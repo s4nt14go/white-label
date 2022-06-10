@@ -1,7 +1,7 @@
 import { patch } from '../../../core/infra/utils';
 import { BaseError } from '../../../core/logic/AppError';
 
-export namespace CreateEmailErrors {
+export namespace CreateEmailErrors {  // eslint-disable-line @typescript-eslint/no-namespace
 
   export class EmailNotDefined extends BaseError {
     constructor () {

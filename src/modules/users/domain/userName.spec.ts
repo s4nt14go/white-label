@@ -1,4 +1,3 @@
-import { expect, test } from 'vitest';
 import { UserName } from "./userName";
 import { CreateNameErrors } from './userNameErrors';
 
@@ -14,10 +13,7 @@ test('Creation', () => {
 });
 
 test('Creation fails without username', () => {
-  const invalidData = {
-  } as any;
-
-  const result = UserName.create(invalidData);
+  const result = UserName.create({} as any);  // eslint-disable-line @typescript-eslint/no-explicit-any
   expect(result.isFailure).toBe(true);
   expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotDefined);
 });

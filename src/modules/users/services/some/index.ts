@@ -4,12 +4,12 @@ type UserCreatedDTO = {
 }
 
 export interface IExternalService {
-  sendToExternal (user: UserCreatedDTO): Promise<any>
+  sendToExternal (user: UserCreatedDTO): void
 }
 
 export class ExternalService implements IExternalService {
 
-  async sendToExternal (user: UserCreatedDTO): Promise<any> {
+  sendToExternal (user: UserCreatedDTO) {
     console.log('Send to some external service:', user);
   }
 

@@ -1,15 +1,13 @@
-import { expect, test, beforeEach, vi } from 'vitest';
 // Set env var distributeDomainEvents used by CreateUserController -> loads CreateUserEvents -> loads Env -> reads process.env.distributeDomainEvents
 process.env.distributeDomainEvents = 'distributeDomainEventsLambda';
 import { CreateUserController } from './CreateUserController';
 import { UserRepoFake } from '../../repos/implementations/fake';
 import { DispatcherFake } from '../../../../core/infra/DispatcherFake';
 
-let userRepoFake, createUserController: CreateUserController, dispatcherFake, spyOnDispatch: any;
+let createUserController: CreateUserController, dispatcherFake, spyOnDispatch: unknown;
 beforeEach(() => {
-    userRepoFake = new UserRepoFake();
     dispatcherFake = new DispatcherFake();
-    spyOnDispatch = vi.spyOn(dispatcherFake, 'dispatch');
+    spyOnDispatch = jest.spyOn(dispatcherFake, 'dispatch');
     createUserController = new CreateUserController(new UserRepoFake(), dispatcherFake);
 })
 
@@ -48,6 +46,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails`, async () => 
 
     try {
         await createUserController.executeImpl(dto);
+    // eslint-disable-next-line no-empty
     } catch {}
 
     expect(spyOnDispatch).toBeCalledTimes(0);

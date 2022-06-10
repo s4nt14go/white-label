@@ -10,7 +10,7 @@ interface UserPasswordProps {
 }
 
 export class UserPassword extends ValueObject<UserPasswordProps> {
-  public static minLength: number = 8;
+  public static minLength = 8;
   
   get value (): string {
     return this.props.value;
@@ -36,7 +36,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
   }
 
   private bcryptCompare (plainText: string, hashed: string): Promise<boolean> {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       bcrypt.compare(plainText, hashed, (err, compareResult) => {
         if (err) return resolve(false);
         return resolve(compareResult);

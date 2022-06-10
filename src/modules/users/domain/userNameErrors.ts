@@ -1,7 +1,7 @@
 import { patch } from '../../../core/infra/utils';
 import { BaseError } from '../../../core/logic/AppError';
 
-export namespace CreateNameErrors {
+export namespace CreateNameErrors { // eslint-disable-line @typescript-eslint/no-namespace
 
   export class NameNotDefined extends BaseError {
     constructor () {

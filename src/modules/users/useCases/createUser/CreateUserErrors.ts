@@ -1,7 +1,7 @@
 import { BaseError } from '../../../../core/logic/AppError';
 import { patch } from '../../../../core/infra/utils';
 
-export namespace CreateUserErrors {
+export namespace CreateUserErrors { // eslint-disable-line @typescript-eslint/no-namespace
 
   export class EmailAlreadyTaken extends BaseError {
     constructor (email: string) {

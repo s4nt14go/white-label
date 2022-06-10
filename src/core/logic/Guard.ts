@@ -3,32 +3,32 @@ import { Result } from './Result';
 
 export interface IGuardResult {
   succeeded: boolean;
-  error?: any;
+  error?: unknown;
 }
 
 export interface IGuardArgument {
-  value: any;
+  value: unknown;
   error: BaseError;
 }
 
 export type GuardArgumentCollection = IGuardArgument[];
 
 export class Guard {
-  public static combine (guardResults: Result<any>[]): Result<any> {
-    for (let result of guardResults) {
+  public static combine (guardResults: Result<any>[]): Result<any> {  // eslint-disable-line @typescript-eslint/no-explicit-any
+    for (const result of guardResults) {
       if (result.isFailure) return result;
     }
 
     return guardResults[0];
   }
 
-  public static againstAtLeast(numChars: number, text: string, error: BaseError): Result<any> {
+  public static againstAtLeast(numChars: number, text: string, error: BaseError): Result<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     return text.length >= numChars
         ? Result.ok()
         : Result.fail(error)
   }
 
-  public static againstNullOrUndefined (value: any, error: BaseError): Result<any> {
+  public static againstNullOrUndefined (value: unknown, error: BaseError): Result<unknown> {
     if (value === null || value === undefined) {
       return Result.fail(error)
     } else {
@@ -36,8 +36,8 @@ export class Guard {
     }
   }
 
-  public static againstNullOrUndefinedBulk(args: GuardArgumentCollection): Result<any> {
-    for (let arg of args) {
+  public static againstNullOrUndefinedBulk(args: GuardArgumentCollection): Result<unknown> {
+    for (const arg of args) {
       const result = this.againstNullOrUndefined(arg.value, arg.error);
       if (result.isFailure) return result;
     }
@@ -45,7 +45,7 @@ export class Guard {
     return Result.ok()
   }
 
-  public static isType (value: any, type: string, error: BaseError) : /*IGuardResult | */Result<any> {
+  public static isType (value: unknown, type: string, error: BaseError) : Result<unknown> {
     if (typeof value === type) {
       return Result.ok()
     } else {

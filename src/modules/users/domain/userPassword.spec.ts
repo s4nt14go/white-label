@@ -1,4 +1,3 @@
-import { expect, test } from 'vitest';
 import { UserPassword } from './userPassword';
 import { CreatePasswordErrors } from './userPasswordErrors';
 
@@ -22,7 +21,7 @@ test('Fails with undefined', async () => {
 })
 
 test('Fails with a type different from string', async () => {
-    const passwordOrError = UserPassword.create({ value: 1 as any});
+    const passwordOrError = UserPassword.create({ value: 1 as any}); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     expect(passwordOrError.isFailure).toBe(true);
     expect(passwordOrError.error).toBeInstanceOf(CreatePasswordErrors.PasswordNotString)

@@ -1,13 +1,12 @@
-
 // import axios from 'axios'
 import { SlackChannel } from '../../domain/slackChannel';
 
 export interface ISlackService {
-  sendMessage (text: string, channel: SlackChannel): Promise<any>
+  sendMessage (text: string, channel: SlackChannel): void
 }
 
 export class SlackService implements ISlackService {
-  private growthChannelHookUrl = 'https://hooks.slack.com/services/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';
+  /*private growthChannelHookUrl = 'https://hooks.slack.com/services/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';
   private supportChannelHookUrl = 'https://hooks.slack.com/services/THKgeessd/Beese26CQ/mI66effeggeJCNa8bFVOwyAS';
 
   private getWebookUrl (channel: SlackChannel): string {
@@ -19,10 +18,10 @@ export class SlackService implements ISlackService {
       default:
         return "";
     }
-  }
+  }*/
 
-  sendMessage (text: string, channel: SlackChannel): Promise<any> {
-    return console.log('For now, skip sending slack message') as unknown as Promise<any>;
+  sendMessage (text: string, channel: SlackChannel) {
+    return console.log('For now, skip sending slack message:', { text, channel });
     /*const url: string = this.getWebookUrl(channel);
     return axios.post(url, { text });*/
   }

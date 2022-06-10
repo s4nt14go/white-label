@@ -9,8 +9,8 @@ interface UserNameProps {
 }
 
 export class UserName extends ValueObject<UserNameProps> {
-  public static maxLength: number = 15;
-  public static minLength: number = 2;
+  public static maxLength = 15;
+  public static minLength = 2;
 
   get value (): string {
     return this.props.name;
@@ -29,10 +29,10 @@ export class UserName extends ValueObject<UserNameProps> {
     const trimmed = props.name.trim();
     const invalidChars = trimmed.match(/[^a-z0-9.\-_+]/ig)
     if (invalidChars) return Result.fail(new CreateNameErrors.InvalidCharacters(invalidChars));
-    return Result.ok(trimmed)
+    return Result.convertValue(trimmed)
         .ensure((value: string) => { return value.length >= this.minLength}, new CreateNameErrors.TooShort(this.minLength))
         .ensure((value: string) => { return value.length <= this.maxLength}, new CreateNameErrors.TooLong(this.maxLength))
-        .onBoth((result: Result<any>) =>
+        .onBoth(result =>
             result.isSuccess?
                 Result.ok<UserName>(new UserName({ name: result.value })) :
                 Result.fail(result.error))

@@ -1,5 +1,5 @@
-// Classes' names are <namespace>.<class name> after patching
-export const patch = (ns: any, path?: string) => {
+// Classes' names are <module>.<class name> after patching
+export const patch = (ns: any, path?: string) => {  // eslint-disable-line @typescript-eslint/no-explicit-any
     Object.keys(ns).forEach((key) => {
         const value = ns[key];
         const currentPath = path ? `${path}.${key}` : key;
