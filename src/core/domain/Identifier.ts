@@ -1,10 +1,9 @@
-
 export class Identifier<T> {
   constructor(private value: T) {
     this.value = value;
   }
 
-  equals (id?: Identifier<T>): boolean {
+  equals(id?: Identifier<T>): boolean {
     if (id === null || id === undefined) {
       return false;
     }
@@ -14,7 +13,7 @@ export class Identifier<T> {
     return id.toValue() === this.value;
   }
 
-  toString () {
+  toString() {
     return String(this.value);
   }
 
@@ -22,7 +21,7 @@ export class Identifier<T> {
    * Return raw value of identifier
    */
 
-  toValue (): T {
+  toValue(): T {
     return this.value;
   }
 }

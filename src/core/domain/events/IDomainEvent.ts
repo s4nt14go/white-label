@@ -6,4 +6,3 @@ export interface IDomainEvent {
   type: DomainEventTypes.UserCreatedEvent;
   version: number;
 }
-

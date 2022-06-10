@@ -1,3 +1,3 @@
 export enum DomainEventTypes {
-    UserCreatedEvent = 1,
+  UserCreatedEvent = 1,
 }

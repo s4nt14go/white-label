@@ -1,9 +1,9 @@
-import { IDomainEvent } from "./IDomainEvent";
-import { AggregateRoot } from "../AggregateRoot";
-import { UniqueEntityID } from "../UniqueEntityID";
+import { IDomainEvent } from './IDomainEvent';
+import { AggregateRoot } from '../AggregateRoot';
+import { UniqueEntityID } from '../UniqueEntityID';
 
 export interface IDispatcher {
-  dispatch (event: IDomainEvent, handler: string): Promise<unknown>
+  dispatch(event: IDomainEvent, handler: string): Promise<unknown>;
 }
 
 export class DomainEvents {
@@ -11,7 +11,7 @@ export class DomainEvents {
   private static markedAggregates: AggregateRoot<unknown>[] = [];
   private static dispatcher: IDispatcher;
 
-  public static setDispatcher (dispatcher: IDispatcher) {
+  public static setDispatcher(dispatcher: IDispatcher) {
     DomainEvents.dispatcher = dispatcher;
   }
 
@@ -20,9 +20,9 @@ export class DomainEvents {
    * @static
    * @desc Called by aggregate root objects that have created domain
    * events to eventually be dispatched when the infrastructure commits
-   * the unit of work. 
+   * the unit of work.
    */
-  public static markAggregateForDispatch (aggregate: AggregateRoot<unknown>): void {
+  public static markAggregateForDispatch(aggregate: AggregateRoot<unknown>): void {
     const aggregateFound = !!this.findMarkedAggregateByID(aggregate.id);
 
     if (!aggregateFound) {
@@ -30,18 +30,26 @@ export class DomainEvents {
     }
   }
 
-  private static async dispatchAggregateEvents (aggregate: AggregateRoot<unknown>): Promise<void> {
-    await Promise.all(aggregate.domainEvents.map(event => {
-      return this.dispatch(event);
-    }));
+  private static async dispatchAggregateEvents(
+    aggregate: AggregateRoot<unknown>
+  ): Promise<void> {
+    await Promise.all(
+      aggregate.domainEvents.map((event) => {
+        return this.dispatch(event);
+      })
+    );
   }
 
-  private static removeAggregateFromMarkedDispatchList (aggregate: AggregateRoot<unknown>): void {
+  private static removeAggregateFromMarkedDispatchList(
+    aggregate: AggregateRoot<unknown>
+  ): void {
     const index = this.markedAggregates.findIndex((a) => a.equals(aggregate));
     this.markedAggregates.splice(index, 1);
   }
 
-  private static findMarkedAggregateByID (id: UniqueEntityID): AggregateRoot<unknown> | null {
+  private static findMarkedAggregateByID(
+    id: UniqueEntityID
+  ): AggregateRoot<unknown> | null {
     let found: AggregateRoot<unknown> | null = null;
     for (const aggregate of this.markedAggregates) {
       if (aggregate.id.equals(id)) {
@@ -52,7 +60,9 @@ export class DomainEvents {
     return found;
   }
 
-  public static async dispatchEventsForAggregate (id: UniqueEntityID): Promise<void> {
+  public static async dispatchEventsForAggregate(
+    id: UniqueEntityID
+  ): Promise<void> {
     const aggregate = this.findMarkedAggregateByID(id);
 
     if (aggregate) {
@@ -78,7 +88,7 @@ export class DomainEvents {
     this.markedAggregates = [];
   }
 
-  private static async dispatch (event: IDomainEvent): Promise<void> {
+  private static async dispatch(event: IDomainEvent): Promise<void> {
     const eventClassName: string = event.constructor.name;
 
     if (Object.prototype.hasOwnProperty.call(this.handlersMap, eventClassName)) {

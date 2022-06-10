@@ -1,5 +1,5 @@
-import { IDomainEvent } from "../../../../core/domain/events/IDomainEvent";
-import { User } from "../user";
+import { IDomainEvent } from '../../../../core/domain/events/IDomainEvent';
+import { User } from '../user';
 import { DomainEventTypes } from '../../../../core/domain/events/DomainEventTypes';
 
 export class UserCreatedEvent implements IDomainEvent {
@@ -9,8 +9,8 @@ export class UserCreatedEvent implements IDomainEvent {
   public type: DomainEventTypes;
   public version: number;
 
-  constructor (user: User, dateTimeOccurred?: Date) {
-    this.dateTimeOccurred = dateTimeOccurred? dateTimeOccurred : new Date();
+  constructor(user: User, dateTimeOccurred?: Date) {
+    this.dateTimeOccurred = dateTimeOccurred ? dateTimeOccurred : new Date();
     this.aggregateId = user.id.toString();
     this.user = {
       email: user.email.value,

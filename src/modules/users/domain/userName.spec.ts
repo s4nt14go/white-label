@@ -1,4 +1,4 @@
-import { UserName } from "./userName";
+import { UserName } from './userName';
 import { CreateNameErrors } from './userNameErrors';
 
 test('Creation', () => {
@@ -13,7 +13,7 @@ test('Creation', () => {
 });
 
 test('Creation fails without username', () => {
-  const result = UserName.create({} as any);  // eslint-disable-line @typescript-eslint/no-explicit-any
+  const result = UserName.create({} as any); // eslint-disable-line @typescript-eslint/no-explicit-any
   expect(result.isFailure).toBe(true);
   expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotDefined);
 });
@@ -25,7 +25,7 @@ test('Creation fails with a short username', () => {
 
   const result = UserName.create(invalidData);
   expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(CreateNameErrors.TooShort)
+  expect(result.error).toBeInstanceOf(CreateNameErrors.TooShort);
 });
 
 test('Creation fails with a long username', () => {
@@ -46,6 +46,6 @@ test('Creation fails with invalid characters', () => {
   const result = UserName.create(invalidData);
   expect(result.isFailure).toBe(true);
   expect(result.error).toBeInstanceOf(CreateNameErrors.InvalidCharacters);
-  const msg = (result.error as CreateNameErrors.InvalidCharacters).message
-  expect('$%^&{'.split('').every(item => msg.includes(item))).toBe(true);
+  const msg = (result.error as CreateNameErrors.InvalidCharacters).message;
+  expect('$%^&{'.split('').every((item) => msg.includes(item))).toBe(true);
 });

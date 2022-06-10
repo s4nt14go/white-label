@@ -2,7 +2,7 @@
 import { SlackChannel } from '../../domain/slackChannel';
 
 export interface ISlackService {
-  sendMessage (text: string, channel: SlackChannel): void
+  sendMessage(text: string, channel: SlackChannel): void;
 }
 
 export class SlackService implements ISlackService {
@@ -20,10 +20,9 @@ export class SlackService implements ISlackService {
     }
   }*/
 
-  sendMessage (text: string, channel: SlackChannel) {
+  sendMessage(text: string, channel: SlackChannel) {
     return console.log('For now, skip sending slack message:', { text, channel });
     /*const url: string = this.getWebookUrl(channel);
     return axios.post(url, { text });*/
   }
-
 }

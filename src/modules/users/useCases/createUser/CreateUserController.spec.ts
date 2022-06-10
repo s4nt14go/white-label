@@ -7,42 +7,51 @@ import { APIGatewayEvent, Context } from 'aws-lambda';
 let userRepoFake, createUserController: CreateUserController;
 beforeAll(() => {
   userRepoFake = new UserRepoFake();
-  createUserController = new CreateUserController(userRepoFake, new DispatcherFake());
-})
+  createUserController = new CreateUserController(
+    userRepoFake,
+    new DispatcherFake()
+  );
+});
 
 test('User creation', async () => {
   const validData = {
     username: 'test_username',
     email: 'test@email.com',
     password: 'passwordd',
-  }
+  };
 
   const result = await createUserController.executeImpl(validData);
 
   expect(result.statusCode).toBe(201);
-
 });
 
-test.each([['username', 'CreateNameErrors.NameNotDefined'], ['email', 'CreateEmailErrors.EmailNotDefined'], ['password', 'CreatePasswordErrors.PasswordNotDefined']])('User creation without %s fails with %s', async (field: string, errorType: string) => {
-  const badData: CreateUserDTO = {
-    username: 'test_username',
-    email: 'test@email.com',
-    password: 'passwordd',
-  };
-  delete badData[field as 'username' | 'email' | 'password'];
+test.each([
+  ['username', 'CreateNameErrors.NameNotDefined'],
+  ['email', 'CreateEmailErrors.EmailNotDefined'],
+  ['password', 'CreatePasswordErrors.PasswordNotDefined'],
+])(
+  'User creation without %s fails with %s',
+  async (field: string, errorType: string) => {
+    const badData: CreateUserDTO = {
+      username: 'test_username',
+      email: 'test@email.com',
+      password: 'passwordd',
+    };
+    delete badData[field as 'username' | 'email' | 'password'];
 
-  const result = await createUserController.executeImpl(badData);
+    const result = await createUserController.executeImpl(badData);
 
-  expect(result.statusCode).toBe(400);
-  expect(result.body).toContain(errorType);
-});
+    expect(result.statusCode).toBe(400);
+    expect(result.body).toContain(errorType);
+  }
+);
 
 test('User creation fails for taken email', async () => {
   const validData = {
     username: 'test_username',
     email: 'already@taken.com',
     password: 'passwordd',
-  }
+  };
 
   const result = await createUserController.executeImpl(validData);
 
@@ -55,7 +64,7 @@ test('User creation fails for taken username', async () => {
     username: 'taken_username',
     email: 'test@email.com',
     password: 'passwordd',
-  }
+  };
 
   const result = await createUserController.executeImpl(validData);
 
@@ -65,10 +74,13 @@ test('User creation fails for taken username', async () => {
 
 test('User creation fails for non-parsable string', async () => {
   const event = {
-    body: 'non-parsable'
-  }
+    body: 'non-parsable',
+  };
 
-  const result = await createUserController.execute(event as APIGatewayEvent, {} as Context);
+  const result = await createUserController.execute(
+    event as APIGatewayEvent,
+    {} as Context
+  );
 
   expect(result.statusCode).toBe(400);
   expect(result.body).toContain('MalformedRequest');

@@ -1,8 +1,5 @@
-
-import { SlackService } from "./slack";
+import { SlackService } from './slack';
 
 const slackService = new SlackService();
 
-export {
-  slackService
-}
+export { slackService };

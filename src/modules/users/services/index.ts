@@ -1,7 +1,5 @@
-import { ExternalService } from "./some";
+import { ExternalService } from './some';
 
 const externalService = new ExternalService();
 
-export {
-  externalService
-}
+export { externalService };
