@@ -5,11 +5,13 @@ import { UserEmail } from './userEmail';
 import { UserCreatedEvent } from './events/UserCreatedEvent';
 import { UserPassword } from './userPassword';
 import { UserName } from './userName';
+import { Alias } from './alias';
 
 interface UserProps {
   email: UserEmail;
   username: UserName;
   password: UserPassword;
+  alias: Alias;
   isEmailVerified?: boolean;
   isAdminUser?: boolean;
   isDeleted?: boolean;
@@ -39,6 +41,10 @@ export class User extends AggregateRoot<UserProps> {
 
   get username(): UserName {
     return this.props.username;
+  }
+
+  get alias(): Alias {
+    return this.props.alias;
   }
 
   get isDeleted(): boolean | undefined {

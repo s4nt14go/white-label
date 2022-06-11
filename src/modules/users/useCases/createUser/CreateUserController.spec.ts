@@ -13,7 +13,20 @@ beforeAll(() => {
   );
 });
 
-test('User creation', async () => {
+test('User creation with alias', async () => {
+  const validData = {
+    username: 'test_username',
+    email: 'test@email.com',
+    password: 'passwordd',
+    alias: 'test_alias',
+  };
+
+  const result = await createUserController.executeImpl(validData);
+
+  expect(result.statusCode).toBe(201);
+});
+
+test('User creation without alias', async () => {
   const validData = {
     username: 'test_username',
     email: 'test@email.com',

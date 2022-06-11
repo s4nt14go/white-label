@@ -1,7 +1,22 @@
 import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
 import { createUser } from '../utils/testUtils';
 
-test('Create user', () => {
+test('Create user with alias', () => {
+  const user = createUser({
+    username: 'test_username',
+    email: 'test@email.com',
+    alias: 'test_alias',
+    password: 'test_password',
+  });
+
+  expect(user.id.constructor.name).toBe('UniqueEntityID');
+  expect(user.username.value).toBe('test_username');
+  expect(user.alias.value).toBe('test_alias');
+  expect(user.email.value).toBe('test@email.com');
+  expect(user.password.value).toBe('test_password');
+});
+
+test('Create user without alias', () => {
   const user = createUser({
     username: 'test_username',
     email: 'test@email.com',
@@ -10,6 +25,7 @@ test('Create user', () => {
 
   expect(user.id.constructor.name).toBe('UniqueEntityID');
   expect(user.username.value).toBe('test_username');
+  expect(user.alias.value).toBe(null);
   expect(user.email.value).toBe('test@email.com');
   expect(user.password.value).toBe('test_password');
 });

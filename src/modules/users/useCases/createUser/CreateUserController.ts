@@ -9,6 +9,7 @@ import { User } from '../../domain/user';
 import { IUserRepo } from '../../repos/userRepo';
 import { IDispatcher } from '../../../../core/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
+import { Alias } from '../../domain/alias';
 
 export class CreateUserController extends BaseController {
   private readonly userRepo: IUserRepo;
@@ -23,11 +24,13 @@ export class CreateUserController extends BaseController {
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });
     const usernameOrError = UserName.create({ name: dto.username });
+    const aliasOrError = Alias.create({ value: dto.alias });
 
     const dtoResult = Result.combine([
       emailOrError,
       passwordOrError,
       usernameOrError,
+      aliasOrError,
     ]);
 
     if (dtoResult.isFailure) {
@@ -37,6 +40,7 @@ export class CreateUserController extends BaseController {
     const email = emailOrError.value as UserEmail;
     const password = passwordOrError.value as UserPassword;
     const username = usernameOrError.value as UserName;
+    const alias = aliasOrError.value as Alias;
 
     const emailAlreadyTaken = await this.userRepo.exists(email);
     if (emailAlreadyTaken)
@@ -54,6 +58,7 @@ export class CreateUserController extends BaseController {
       email,
       password,
       username,
+      alias,
     });
 
     await this.userRepo.save(user);
