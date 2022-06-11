@@ -18,6 +18,16 @@ test('Creation fails without username', () => {
   expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotDefined);
 });
 
+test('Creation fails with a non-string value', () => {
+  const invalidData = {
+    name: 1 as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  };
+
+  const result = UserName.create(invalidData);
+  expect(result.isFailure).toBe(true);
+  expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotString);
+});
+
 test('Creation fails with a short username', () => {
   const invalidData = {
     name: '1',

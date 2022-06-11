@@ -17,13 +17,13 @@ export namespace CreateNameErrors {
 
   export class TooShort extends BaseError {
     constructor(minLength: number) {
-      super(`Name should have at least ${minLength}`);
+      super(`Name should have at least ${minLength} characters long`);
     }
   }
 
   export class TooLong extends BaseError {
     constructor(maxLength: number) {
-      super(`Name should have at most ${maxLength}`);
+      super(`Name should have at most ${maxLength} characters long`);
     }
   }
 
