@@ -14,7 +14,7 @@ test('Slack service is called when notifying on a channel', async () => {
     email: 'test@email.com',
     username: 'test_user',
   });
-  const event = new UserCreatedEvent(userOrError as User, new Date());
+  const event = new UserCreatedEvent(userOrError as User);
 
   await notifySlackChannelUseCase.execute(event);
 
