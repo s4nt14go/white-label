@@ -7,7 +7,7 @@ export class Envelope<T> {
   readonly time: string;
 
   public constructor(result?: T, error?: BaseError) {
-    if (this.result !== undefined) this.result = result;
+    if (result !== undefined) this.result = result;
     if (error !== undefined) {
       this.errorMessage = error.message;
       this.errorType = error.type;
