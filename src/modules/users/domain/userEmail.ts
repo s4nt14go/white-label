@@ -16,7 +16,7 @@ export class UserEmail extends ValueObject<UserEmailProps> {
     super(props);
   }
 
-  public static create(email: string): Result<UserEmail | null> {
+  public static create(email: string): Result<UserEmail> {
     const guardNulls = Guard.againstNullOrUndefined(
       email,
       new CreateEmailErrors.EmailNotDefined()
@@ -30,7 +30,9 @@ export class UserEmail extends ValueObject<UserEmailProps> {
     if (combined.isFailure) return Result.fail(combined.error);
 
     const trimmed = email.trim();
-    const validEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(trimmed);
+    const validEmail = /^\w+([.-\\+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(
+      trimmed
+    );
     if (!validEmail) return Result.fail(new CreateEmailErrors.EmailNotValid());
 
     return Result.ok<UserEmail>(new UserEmail({ value: trimmed }));

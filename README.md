@@ -8,8 +8,11 @@ In the original project, dispatching the event (`DomainEvents.dispatchEventsForA
 Unit tests added:
 * Value Objects: `User`, `UserEmail`, `User Password`
 * Use cases/controllers: `CreateUserController` (with faked repo), `NotifySlackChannel`, `SomeWork`
-* Domain event registration and dispatching `CreateUserEvents.spec.ts`
+* Domain event registration and dispatching `CreateUserEvents.unit.ts`
 * Aggregate `User`
+
+Integration test:
+* `CreateUserController` (with real repo)
 
 I've used [Serverless Stack](https://serverless-stack.com) as it allows debugging lambda code locally while being invoked remotely by resources in AWS.
 

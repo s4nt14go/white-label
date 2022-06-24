@@ -1,7 +1,21 @@
 import { StackContext, Api, Function } from '@serverless-stack/resources';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { Table } from "@serverless-stack/resources";
 
 export function MyStack({ stack }: StackContext) {
+
+  const UsersTable = new Table(stack, 'Users', {
+    fields: {
+      id: 'string',
+      username: 'string',
+      email: 'string',
+    },
+    primaryIndex: { partitionKey: 'id' },
+    globalIndexes: { 
+      byUsername: { partitionKey: 'username' }, 
+      byEmail: { partitionKey: 'email' }, 
+    },
+  });
 
   stack.setDefaultFunctionProps({
     logRetention: 14,
@@ -26,6 +40,7 @@ export function MyStack({ stack }: StackContext) {
     environment: {
       notifySlackChannel: notifySlackChannel.functionName,
       someWork: someWork.functionName,
+      UsersTable: UsersTable.tableName,
     },
   });
   distributeDomainEvents.attachPermissions([
@@ -41,6 +56,7 @@ export function MyStack({ stack }: StackContext) {
     handler: 'modules/users/useCases/createUser/index.handler',
     environment: {
       distributeDomainEvents: distributeDomainEvents.functionName,
+      UsersTable: UsersTable.tableName,
     },
   });
   createUser.attachPermissions([
@@ -48,6 +64,11 @@ export function MyStack({ stack }: StackContext) {
       actions: ['lambda:InvokeFunction'],
       effect: iam.Effect.ALLOW,
       resources: [distributeDomainEvents.functionArn],
+    }),
+    new iam.PolicyStatement({
+      actions: ['dynamodb:Query', 'dynamodb:PutItem'],
+      effect: iam.Effect.ALLOW,
+      resources: [`${UsersTable.tableArn}*`],
     }),
   ]);
 

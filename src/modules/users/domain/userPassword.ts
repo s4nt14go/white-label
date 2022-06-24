@@ -1,7 +1,7 @@
 import { ValueObject } from '../../../core/domain/ValueObject';
 import { Result } from '../../../core/logic/Result';
 import { Guard } from '../../../core/logic/Guard';
-import * as bcrypt from 'bcrypt-nodejs';
+import * as bcrypt from 'bcryptjs';
 import { CreatePasswordErrors } from './userPasswordErrors';
 
 interface UserPasswordProps {
@@ -48,13 +48,9 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     return this.props.hashed;
   }
 
-  private hashPassword(password: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      bcrypt.hash(password, 'secret', null, (err, hash) => {
-        if (err) return reject(err);
-        resolve(hash);
-      });
-    });
+  private static async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
   }
 
   public getHashedValue(): Promise<string> {
@@ -62,7 +58,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
       if (this.isAlreadyHashed()) {
         return resolve(this.props.value);
       } else {
-        return resolve(this.hashPassword(this.props.value));
+        return resolve(UserPassword.hashPassword(this.props.value));
       }
     });
   }
@@ -70,7 +66,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
   public static create(props: {
     value: string;
     hashed?: boolean;
-  }): Result<UserPassword | null> {
+  }): Result<UserPassword> {
     const guardNulls = Guard.againstNullOrUndefined(
       props.value,
       new CreatePasswordErrors.PasswordNotDefined()

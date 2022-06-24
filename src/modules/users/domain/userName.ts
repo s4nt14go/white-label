@@ -19,7 +19,7 @@ export class UserName extends ValueObject<UserNameProps> {
     super(props);
   }
 
-  public static create(props: UserNameProps): Result<UserName | null> {
+  public static create(props: UserNameProps): Result<UserName> {
     const guardNulls = Guard.againstNullOrUndefined(
       props.name,
       new CreateNameErrors.NameNotDefined()

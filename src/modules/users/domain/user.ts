@@ -15,7 +15,6 @@ interface UserProps {
   isEmailVerified?: boolean;
   isAdminUser?: boolean;
   isDeleted?: boolean;
-  lastLogin?: Date;
 }
 
 export class User extends AggregateRoot<UserProps> {

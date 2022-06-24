@@ -36,18 +36,17 @@ export class CreateUserController extends BaseController {
     if (dtoResult.isFailure) {
       return this.fail(dtoResult.error);
     }
-
-    const email = emailOrError.value as UserEmail;
-    const password = passwordOrError.value as UserPassword;
-    const username = usernameOrError.value as UserName;
-    const alias = aliasOrError.value as Alias;
+    const email = emailOrError.value;
+    const password = passwordOrError.value;
+    const username = usernameOrError.value;
+    const alias = aliasOrError.value;
 
     const emailAlreadyTaken = await this.userRepo.exists(email);
     if (emailAlreadyTaken)
       return this.conflict(new CreateUserErrors.EmailAlreadyTaken(email.value));
 
     const usernameAlreadyTaken = await this.userRepo.findUserByUsername(
-      username.props.name
+      username.value
     );
     if (usernameAlreadyTaken)
       return this.conflict(
@@ -63,6 +62,6 @@ export class CreateUserController extends BaseController {
 
     await this.userRepo.save(user);
 
-    return this.created();
+    return this.created(user.id.toString());
   }
 }

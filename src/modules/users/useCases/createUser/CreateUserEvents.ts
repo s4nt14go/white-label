@@ -1,11 +1,11 @@
+import '../../../../../environment';
 import {
   DomainEvents,
   IDispatcher,
 } from '../../../../core/domain/events/DomainEvents';
 import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
-import { Env } from '../../../../core/infra/Env';
 
-const { distributeDomainEvents } = Env;
+const { distributeDomainEvents } = process.env;
 
 export class CreateUserEvents {
   static registration(dispatcher: IDispatcher) {

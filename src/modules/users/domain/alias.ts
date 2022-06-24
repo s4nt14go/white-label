@@ -24,7 +24,7 @@ export class Alias extends ValueObject<AliasProps> {
     super(props);
   }
 
-  public static create(props: AliasInput): Result<Alias | null> {
+  public static create(props: AliasInput): Result<Alias> {
     if (
       props.value === null ||
       props.value === undefined ||

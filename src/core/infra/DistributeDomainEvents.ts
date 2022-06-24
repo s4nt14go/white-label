@@ -1,10 +1,10 @@
+import '../../../environment';
 import { Dispatcher } from './Dispatcher';
 import { IDispatcher } from '../domain/events/DomainEvents';
 import { IDomainEvent } from '../domain/events/IDomainEvent';
 import { DomainEventTypes } from '../domain/events/DomainEventTypes';
-import { Env } from './Env';
 
-const { notifySlackChannel, someWork } = Env as Record<string, string>;
+const { notifySlackChannel, someWork } = process.env;
 const { UserCreatedEvent } = DomainEventTypes;
 
 const subscribers = {

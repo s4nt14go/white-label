@@ -48,8 +48,11 @@ export abstract class BaseController {
     );
   }
 
-  public created() {
-    return BaseController.jsonResponse(201, JSON.stringify({ ...Envelope.ok() }));
+  public created(id: string) {
+    return BaseController.jsonResponse(
+      201,
+      JSON.stringify({ ...Envelope.ok({ id }) })
+    );
   }
 
   public conflict(error: BaseError) {

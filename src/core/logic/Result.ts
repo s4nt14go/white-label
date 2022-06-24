@@ -6,7 +6,7 @@ export class Result<T> {
   public error?: T | null | BaseError;
   private readonly _value?: T;
 
-  public constructor(isSuccess: boolean, error?: T | null | BaseError, value?: T) {
+  public constructor(isSuccess: boolean, error?: null | BaseError, value?: T) {
     if (isSuccess && error) {
       throw new Error(
         'InvalidOperation: A result cannot be successful and contain an error'
@@ -26,11 +26,14 @@ export class Result<T> {
     Object.freeze(this);
   }
 
-  get value(): T | undefined {
+  get value(): T {
     if (!this.isSuccess) {
-      throw new Error(
-        "Can't get the value of an error result. Use 'errorValue' instead."
-      );
+      console.log('this:', this);
+      throw new Error("Can't cast value when Result didn't succeeded.");
+    }
+    if (this._value === undefined) {
+      console.log('this:', this);
+      throw new Error(`Can't cast value when Result._value is undefined.`);
     }
     return this._value;
   }
@@ -43,8 +46,10 @@ export class Result<T> {
     return new Result<T>(true, null, value);
   }
 
-  public static fail(error: BaseError): Result<null> {
-    return new Result<null>(false, error);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static fail(error: BaseError): Result<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new Result<any>(false, error);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
