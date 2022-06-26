@@ -57,16 +57,20 @@ export const parsePayload = (payload?: Uint8Array) => {
   return parsed;
 };
 
-export const deleteUsers = (users: { id: string }[], DocumentClient: DynamoDB.DocumentClient) => users.map(async u => {
-  return await DocumentClient.delete({
-    TableName: process.env.UsersTable,
-    Key: {
-      ...u,
-    },
-  }).promise();
-});
+export const deleteUsers = (
+  users: { id: string }[],
+  DocumentClient: DynamoDB.DocumentClient
+) =>
+  users.map(async (u) => {
+    return await DocumentClient.delete({
+      TableName: process.env.UsersTable,
+      Key: {
+        ...u,
+      },
+    }).promise();
+  });
 
 export const loadEnv = async () => {
   const stage = await fs.readFile(`./.sst/stage`, 'utf8');
   dotenv.config({ path: `./.env.${stage}` });
-}
+};

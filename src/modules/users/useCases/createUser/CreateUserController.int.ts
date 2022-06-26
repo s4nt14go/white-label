@@ -7,7 +7,7 @@ import {
   deleteUsers,
   getNewUser,
   loadEnv,
-  parsePayload
+  parsePayload,
 } from '../../utils/testUtils';
 
 const lambdaClient = new Lambda({});

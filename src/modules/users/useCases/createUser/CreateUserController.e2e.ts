@@ -24,17 +24,17 @@ test('User creation', async () => {
   const response = await fetch(process.env.apiUrl + '/createUser', {
     method: 'post',
     body: JSON.stringify(getNewUser()),
-    headers: {'Content-Type': 'application/json'}
+    headers: { 'Content-Type': 'application/json' },
   });
-  const data = await response.json()
+  const data = await response.json();
 
-  expect(response.status).toBe(201)
+  expect(response.status).toBe(201);
   expect(data).toMatchObject({
     result: {
       id: expect.any(String),
     },
     time: expect.any(String),
-  })
+  });
 
   createdUsers.push({ id: data.result.id });
 });
