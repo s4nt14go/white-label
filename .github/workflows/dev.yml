@@ -35,7 +35,7 @@ jobs:
 #        run: npm run test-unit
 
       - name: Deploy
-        run: npm run deploy -- stage dev
+        run: npm run deploy -- --stage dev
 
       - name: Create .env
         run: npm run create-env
