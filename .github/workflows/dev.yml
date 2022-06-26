@@ -8,7 +8,8 @@ on:
 env:
   AWS_REGION: us-east-1
 
-permissions: write-all
+permissions:
+  contents: read
 
 jobs:
 
@@ -31,14 +32,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-#      - name: Unit tests
-#        run: npm run test-unit
+      - name: Unit tests
+        run: npm run test-unit
 
-      - name: Deploy
-        run: npm run deploy -- --stage dev
-
-      - name: Create .env
-        run: npm run create-env
+      - name: Deploy and create .env
+        run: |
+          npm run deploy -- --stage dev
+          npm run create-env
 
       - name: Integration tests
         run: npm run test-int
