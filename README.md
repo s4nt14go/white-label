@@ -11,7 +11,7 @@ Unit tests added:
 * Domain event registration and dispatching `CreateUserEvents.unit.ts`
 * Aggregate `User`
 
-Integration test:
+Integration and e2e tests:
 * `CreateUserController` (with real repo)
 
 I've used [Serverless Stack](https://serverless-stack.com) as it allows debugging lambda code locally while being invoked remotely by resources in AWS.
