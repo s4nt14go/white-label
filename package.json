@@ -41,7 +41,7 @@
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
-    "aws-testing-library": "^1.1.4",
+    "aws-testing-library": "^1.1.6",
     "chance": "^1.1.8",
     "dotenv": "^16.0.1",
     "eslint": "^8.17.0",
