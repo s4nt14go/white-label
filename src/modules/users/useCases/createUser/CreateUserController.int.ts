@@ -1,20 +1,20 @@
-import '../../../../../environment';
-import * as dotenv from 'dotenv';
-import { TextEncoder, TextDecoder } from 'util';
-import { promises as fs } from 'fs';
+import 'aws-testing-library/lib/jest';
+import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify = require('json-stringify-safe');
-import Chance = require('chance');
 import DynamoDB = require('aws-sdk/clients/dynamodb');
+import {
+  deleteUsers,
+  getNewUser,
+  loadEnv,
+  parsePayload
+} from '../../utils/testUtils';
 
 const lambdaClient = new Lambda({});
 let DocumentClient: DynamoDB.DocumentClient;
-const chance = new Chance();
 
 beforeAll(async () => {
-  const stage = await fs.readFile(`./.sst/stage`, 'utf8');
-  dotenv.config({ path: `./.env.${stage}` });
-
+  await loadEnv();
   // Add all process.env used:
   const { UsersTable, createUser, AWS_REGION } = process.env;
   if (!UsersTable || !createUser || !AWS_REGION) {
@@ -24,36 +24,16 @@ beforeAll(async () => {
   DocumentClient = new DynamoDB.DocumentClient({ region: AWS_REGION });
 });
 
-const createdUsers: Record<string, string>[] = [];
-const getNewUser = () => ({
-  username: chance.first(),
-  email: chance.email(),
-  password: 'passwordd',
-  alias: 'test_alias',
-});
-const parsePayload = (payload?: Uint8Array) => {
-  const decoded = new TextDecoder().decode(payload);
-  console.log('decoded', decoded);
-  const parsed = JSON.parse(decoded);
-  parsed.body = JSON.parse(parsed.body);
-  return parsed;
-};
-
+const createdUsers: { id: string }[] = [];
 afterAll(async () => {
-  createdUsers.map(async (u) => {
-    return await DocumentClient.delete({
-      TableName: process.env.UsersTable,
-      Key: {
-        ...u,
-      },
-    }).promise();
-  });
+  deleteUsers(createdUsers, DocumentClient);
 });
 
 test('User creation', async () => {
+  const { createUser, AWS_REGION, UsersTable } = process.env;
   const newUser = getNewUser();
   const req = {
-    FunctionName: process.env.createUser,
+    FunctionName: createUser,
     Payload: new TextEncoder().encode(stringify(newUser)),
   };
 
@@ -62,4 +42,16 @@ test('User creation', async () => {
   const parsed = parsePayload(result.Payload);
   createdUsers.push({ id: parsed.body.result.id });
   expect(parsed.statusCode).toBe(201);
+
+  await expect({
+    region: AWS_REGION,
+    table: UsersTable,
+    timeout: 0,
+  }).toHaveItem(
+    { id: parsed.body.result.id },
+    expect.objectContaining({
+      ...newUser,
+      password: expect.any(String),
+    })
+  );
 });

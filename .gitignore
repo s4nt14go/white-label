@@ -5,5 +5,4 @@
 .sst
 .build
 /awsConfig.sh
-/.env.sstdev
-/deployed.json
+/.env*

@@ -9,6 +9,7 @@ await $`aws cloudformation describe-stack-resources \
     --stack-name ${stage}-${project}-${stack} > deployed.json`
 
 const resources = require('./deployed.json').StackResources;
+await $`rm deployed.json`
 
 const deployedLambdas = resources.filter(r => r.ResourceType === 'AWS::Lambda::Function');
 
@@ -30,3 +31,11 @@ const idTables = localConstructs.filter(c => c.type === 'Table').map(t => `${t.i
 idTables.map(async id => {
     await $`echo ${id}Table=${stage}-${project}-${id} >> ${envFile}`    // Expects to name tables like <id>Table
 });
+
+await $`aws apigatewayv2 get-apis > apis.json`
+
+let apis = require('./apis.json').Items;
+await $`rm apis.json`
+apis = apis.filter(api => !api.Name.includes('debug'));
+const apiUrls = apis.map(api => api.ApiEndpoint);
+await $`echo apiUrl=${apiUrls[0]} >> ${envFile}`

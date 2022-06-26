@@ -6,6 +6,9 @@ switch (process.env.TEST_MODE) {  // eslint-disable-line no-undef
   case 'int':
     testRegex = '\\.int' + testRegex;
     break;
+  case 'e2e':
+    testRegex = '\\.e2e' + testRegex;
+    break;
 
   default:
     throw new Error(`Unknown testRegex: ${testRegex}`);
