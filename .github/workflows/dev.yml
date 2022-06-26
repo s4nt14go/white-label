@@ -36,7 +36,7 @@ jobs:
 
       - name: Deploy
         run: |
-          echo ${{ jobs.deploy.environment }} > .sst/stage
+          echo ${{ job.environment }} > .sst/stage
           sst deploy
 
       - name: Create .env
