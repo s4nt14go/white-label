@@ -9,8 +9,6 @@ import { TextDecoder } from 'util';
 import Chance = require('chance');
 import DynamoDB = require('aws-sdk/clients/dynamodb');
 import { CreateUserDTO } from '../useCases/createUser/CreateUserDTO';
-import { promises as fs } from 'fs';
-import * as dotenv from 'dotenv';
 
 const chance = new Chance();
 
@@ -69,8 +67,3 @@ export const deleteUsers = (
       },
     }).promise();
   });
-
-export const loadEnv = async () => {
-  const stage = await fs.readFile(`./.sst/stage`, 'utf8');
-  dotenv.config({ path: `./.env.${stage}` });
-};

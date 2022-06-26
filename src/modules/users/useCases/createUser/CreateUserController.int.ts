@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import 'aws-testing-library/lib/jest';
 import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
@@ -6,23 +8,19 @@ import DynamoDB = require('aws-sdk/clients/dynamodb');
 import {
   deleteUsers,
   getNewUser,
-  loadEnv,
   parsePayload,
 } from '../../utils/testUtils';
 
 const lambdaClient = new Lambda({});
-let DocumentClient: DynamoDB.DocumentClient;
 
-beforeAll(async () => {
-  await loadEnv();
-  // Add all process.env used:
-  const { UsersTable, createUser, AWS_REGION } = process.env;
-  if (!UsersTable || !createUser || !AWS_REGION) {
-    console.log('process.env', process.env);
-    throw new Error(`Undefined env var!`);
-  }
-  DocumentClient = new DynamoDB.DocumentClient({ region: AWS_REGION });
-});
+// Add all process.env used:
+const { UsersTable, createUser, AWS_REGION } = process.env;
+if (!UsersTable || !createUser || !AWS_REGION) {
+  console.log('process.env', process.env);
+  throw new Error(`Undefined env var!`);
+}
+
+const DocumentClient = new DynamoDB.DocumentClient({ region: AWS_REGION });
 
 const createdUsers: { id: string }[] = [];
 afterAll(async () => {
