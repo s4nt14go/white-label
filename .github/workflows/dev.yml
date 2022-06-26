@@ -35,14 +35,16 @@ jobs:
       - name: Unit tests
         run: npm run test-unit
 
-      - name: Deploy and create .env
-        run: |
-          npm run deploy -- --stage dev
-          npm run create-env
+# Skip deployment for now, leave the already deployed infra as is
 
-      - name: Integration tests
-        run: npm run test-int
+#      - name: Deploy and create .env
+#        run: |
+#          npm run deploy -- --stage dev
+#          npm run create-env
 
-      - name: E2E tests
-        run: npm run test-e2e
+#      - name: Integration tests
+#        run: npm run test-int
+
+#      - name: E2E tests
+#        run: npm run test-e2e
 
