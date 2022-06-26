@@ -1,0 +1,50 @@
+name: Deploy to dev
+
+on:
+  push:
+    branches:
+      - $default-branch
+
+env:
+  AWS_REGION: us-east-1
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm run test-unit
+
+      - name: Deploy
+        run: |
+          echo ${{ jobs.deploy.environment }} > .sst/stage
+          sst deploy
+
+      - name: Create .env
+        run: npm run create-env
+
+      - name: Integration tests
+        run: npm run test-int
+
+      - name: E2E tests
+        run: npm run test-e2e
+
