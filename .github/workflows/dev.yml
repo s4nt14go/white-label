@@ -6,7 +6,6 @@ on:
       - master
 
 env:
-  name: dev
   AWS_REGION: us-east-1
 
 permissions:
@@ -17,7 +16,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    environment: ${{ env.name }}
+    environment: dev
 
     steps:
       - name: Checkout
@@ -38,7 +37,7 @@ jobs:
 
       - name: Deploy
         run: |
-          echo ${{ env.name }} > .sst/stage
+          echo dev > .sst/stage
           sst deploy
 
       - name: Create .env
