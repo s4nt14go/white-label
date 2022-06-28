@@ -1,8 +1,8 @@
-import '../../../environment';
-import { Dispatcher } from './Dispatcher';
-import { IDispatcher } from '../domain/events/DomainEvents';
-import { IDomainEvent } from '../domain/events/IDomainEvent';
-import { DomainEventTypes } from '../domain/events/DomainEventTypes';
+import '../../../../environment';
+import { DispatcherLambda } from './DispatcherLambda';
+import { IDispatcher } from '../../domain/events/DomainEvents';
+import { IDomainEvent } from '../../domain/events/IDomainEvent';
+import { DomainEventTypes } from '../../domain/events/DomainEventTypes';
 
 const { notifySlackChannel, someWork } = process.env;
 const { UserCreatedEvent } = DomainEventTypes;
@@ -15,7 +15,7 @@ class DistributeDomainEvents {
   private dispatcher: IDispatcher;
 
   constructor() {
-    this.dispatcher = new Dispatcher();
+    this.dispatcher = new DispatcherLambda();
   }
 
   async execute(event: IDomainEvent) {

@@ -6,16 +6,23 @@ import { UserPassword } from '../../domain/userPassword';
 import { UserName } from '../../domain/userName';
 import { Result } from '../../../../core/logic/Result';
 import { User } from '../../domain/user';
-import { IUserRepo } from '../../repos/userRepo';
+import { IUserRepo } from '../../repos/IUserRepo';
 import { IDispatcher } from '../../../../core/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/alias';
+import { UnitOfWork } from '../../../../core/infra/unitOfWork/UnitOfWork';
 
 export class CreateUserController extends BaseController {
+  private readonly unitOfWork: UnitOfWork;
   private readonly userRepo: IUserRepo;
 
-  constructor(userRepo: IUserRepo, dispatcher: IDispatcher) {
+  constructor(
+    unitOfWork: UnitOfWork,
+    userRepo: IUserRepo,
+    dispatcher: IDispatcher
+  ) {
     super();
+    this.unitOfWork = unitOfWork;
     this.userRepo = userRepo;
     CreateUserEvents.registration(dispatcher);
   }
@@ -61,6 +68,9 @@ export class CreateUserController extends BaseController {
     });
 
     await this.userRepo.save(user);
+
+    await this.unitOfWork.commit();
+    await CreateUserEvents.dispatchEventsForAggregates(user.id);
 
     return this.created(user.id.toString());
   }

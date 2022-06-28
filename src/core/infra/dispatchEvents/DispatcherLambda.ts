@@ -1,10 +1,10 @@
-import { IDispatcher } from '../domain/events/DomainEvents';
-import { IDomainEvent } from '../domain/events/IDomainEvent';
+import { IDispatcher } from '../../domain/events/DomainEvents';
+import { IDomainEvent } from '../../domain/events/IDomainEvent';
 import { Lambda } from '@aws-sdk/client-lambda';
-import stringify from 'json-stringify-safe';
+import stringify = require('json-stringify-safe');
 import { TextEncoder } from 'util';
 
-export class Dispatcher implements IDispatcher {
+export class DispatcherLambda implements IDispatcher {
   private lambdaClient = new Lambda({});
 
   async dispatch(event: IDomainEvent, handler: string) {

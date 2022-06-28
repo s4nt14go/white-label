@@ -36,7 +36,7 @@ export function MyStack({ stack }: StackContext) {
   });
 
   const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
-    handler: 'core/infra/DistributeDomainEvents.handler',
+    handler: 'core/infra/dispatchEvents/DistributeDomainEvents.handler',
     environment: {
       notifySlackChannel: notifySlackChannel.functionName,
       someWork: someWork.functionName,

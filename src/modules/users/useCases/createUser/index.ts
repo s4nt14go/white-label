@@ -1,7 +1,10 @@
 import { CreateUserController } from './CreateUserController';
-import { UserRepoDynamo } from '../../repos/implementations/dynamo';
-import { Dispatcher } from '../../../../core/infra/Dispatcher';
+import { UserRepoDynamo } from '../../repos/UserRepoDynamo';
+import { DispatcherLambda } from '../../../../core/infra/dispatchEvents/DispatcherLambda';
+import { UnitOfWorkDynamo } from '../../../../core/infra/unitOfWork/UnitOfWorkDynamo';
 
-const repo = new UserRepoDynamo();
-const controller = new CreateUserController(repo, new Dispatcher());
+const unitOfWork = new UnitOfWorkDynamo();
+const dispatcher = new DispatcherLambda();
+const repo = new UserRepoDynamo(unitOfWork);
+const controller = new CreateUserController(unitOfWork, repo, dispatcher);
 export const handler = controller.execute.bind(controller);

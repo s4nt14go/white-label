@@ -1,15 +1,21 @@
-import '../../../../../environment';
-import { IUserRepo } from '../userRepo';
-import { UserEmail } from '../../domain/userEmail';
-import { User } from '../../domain/user';
-import { DomainEvents } from '../../../../core/domain/events/DomainEvents';
+import '../../../../environment';
+import { IUserRepo } from './IUserRepo';
+import { UserEmail } from '../domain/userEmail';
+import { User } from '../domain/user';
 import DynamoDB = require('aws-sdk/clients/dynamodb');
-import { UserMap } from '../../mappers/UserMap';
+import { UserMap } from '../mappers/UserMap';
+import { UnitOfWorkDynamo } from '../../../core/infra/unitOfWork/UnitOfWorkDynamo';
 
 const { UsersTable: TableName } = process.env;
 const DocumentClient = new DynamoDB.DocumentClient();
 
 export class UserRepoDynamo implements IUserRepo {
+  private unitOfWork: UnitOfWorkDynamo;
+
+  constructor(unitOfWork: UnitOfWorkDynamo) {
+    this.unitOfWork = unitOfWork;
+  }
+
   async findUserByUsername(username: string): Promise<User | null> {
     const { Items } = await DocumentClient.query({
       TableName,
@@ -46,10 +52,11 @@ export class UserRepoDynamo implements IUserRepo {
 
   async save(user: User) {
     const Item = await UserMap.toPersistence(user);
-    await DocumentClient.put({
-      TableName,
-      Item,
-    }).promise();
-    await DomainEvents.dispatchEventsForAggregate(user.id); // NOTE: Dispatch the events after the aggregate changes we're interested to emit (i.e. create, update, delete), are done in the real/faked repository.
+    this.unitOfWork.addTransaction({
+      Put: {
+        TableName,
+        Item,
+      },
+    });
   }
 }

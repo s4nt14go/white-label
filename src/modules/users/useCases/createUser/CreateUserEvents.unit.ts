@@ -1,17 +1,20 @@
 // Set env var distributeDomainEvents used by CreateUserController -> loads CreateUserEvents -> loads Env -> reads process.env.distributeDomainEvents
 process.env.distributeDomainEvents = 'distributeDomainEventsLambda';
 import { CreateUserController } from './CreateUserController';
-import { UserRepoFake } from '../../repos/implementations/fake';
-import { DispatcherFake } from '../../../../core/infra/DispatcherFake';
+import { UserRepoFake } from '../../repos/UserRepoFake';
+import { DispatcherFake } from '../../../../core/infra/dispatchEvents/DispatcherFake';
+import { UnitOfWorkFake } from '../../../../core/infra/unitOfWork/UnitOfWorkFake';
 
 let createUserController: CreateUserController,
   dispatcherFake,
   spyOnDispatch: unknown;
+const unitOfWorkFake = new UnitOfWorkFake();
 beforeEach(() => {
   dispatcherFake = new DispatcherFake();
   spyOnDispatch = jest.spyOn(dispatcherFake, 'dispatch');
   createUserController = new CreateUserController(
-    new UserRepoFake(),
+    unitOfWorkFake,
+    new UserRepoFake(unitOfWorkFake),
     dispatcherFake
   );
 });
