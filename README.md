@@ -3,7 +3,9 @@ I took some files from Khalil Stemmler's [white-label](https://github.com/stemml
 
 His project has a nice way to dispatch domain events (`UserCreatedEvent`) after the aggregates changes are persisted and pick them up from the same module (`users/subscribers/AfterUserCreated.ts`) or a different one (`notification/subscribers/AfterUserCreated.ts`).
 
-In the original project, dispatching the event (`DomainEvents.dispatchEventsForAggregate(<user id>)`) is done through Sequelize hooks (`afterCreate`, `afterDestroy`, `afterUpdate`, `afterSave`, `afterUpsert`) while I moved this to the repository, in the case Sequelize isn't being used.
+In the original project, dispatching the event (`DomainEvents.dispatchEventsForAggregate(<user id>)`) is done through Sequelize hooks (`afterCreate`, `afterDestroy`, `afterUpdate`, `afterSave`, `afterUpsert`) while I moved this to the controller, in the case Sequelize isn't being used.
+
+Also, I made other changes based on [Vladimir Khorikov](https://enterprisecraftsmanship.com) courses where he tackles DDD in a great way.
 
 Unit tests added:
 * Value Objects: `User`, `UserEmail`, `User Password`
@@ -14,7 +16,7 @@ Unit tests added:
 Integration and e2e tests:
 * `CreateUserController` (with real repo)
 
-I've used [Serverless Stack](https://serverless-stack.com) as it allows debugging lambda code locally while being invoked remotely by resources in AWS.
+I've used [SST Serverless Stack](https://sst.dev) as it allows debugging lambda code locally while being invoked remotely by resources in AWS.
 
 ## Instructions
 ```
