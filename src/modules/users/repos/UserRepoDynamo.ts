@@ -2,7 +2,7 @@ import '../../../../environment';
 import { IUserRepo } from './IUserRepo';
 import { UserEmail } from '../domain/userEmail';
 import { User } from '../domain/user';
-import DynamoDB = require('aws-sdk/clients/dynamodb');
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { UserMap } from '../mappers/UserMap';
 import { UnitOfWorkDynamo } from '../../../core/infra/unitOfWork/UnitOfWorkDynamo';
 

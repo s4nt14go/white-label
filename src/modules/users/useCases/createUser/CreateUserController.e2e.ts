@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import DynamoDB = require('aws-sdk/clients/dynamodb');
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import fetch from 'node-fetch';
 import { deleteUsers, getNewUser } from '../../utils/testUtils';
 

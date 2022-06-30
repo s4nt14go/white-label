@@ -6,8 +6,8 @@ import { UserPassword } from '../domain/userPassword';
 import { UserEmail } from '../domain/userEmail';
 import { Alias } from '../domain/alias';
 import { TextDecoder } from 'util';
-import Chance = require('chance');
-import DynamoDB = require('aws-sdk/clients/dynamodb');
+import Chance from 'chance';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { CreateUserDTO } from '../useCases/createUser/CreateUserDTO';
 
 const chance = new Chance();

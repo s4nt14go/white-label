@@ -3,8 +3,8 @@ dotenv.config();
 import 'aws-testing-library/lib/jest';
 import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
-import stringify = require('json-stringify-safe');
-import DynamoDB = require('aws-sdk/clients/dynamodb');
+import stringify from 'json-stringify-safe';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { deleteUsers, getNewUser, parsePayload } from '../../utils/testUtils';
 
 const lambdaClient = new Lambda({});

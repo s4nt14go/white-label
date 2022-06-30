@@ -1,7 +1,7 @@
 import { IDispatcher } from '../../domain/events/DomainEvents';
 import { IDomainEvent } from '../../domain/events/IDomainEvent';
 import { Lambda } from '@aws-sdk/client-lambda';
-import stringify = require('json-stringify-safe');
+import stringify from 'json-stringify-safe';
 import { TextEncoder } from 'util';
 
 export class DispatcherLambda implements IDispatcher {

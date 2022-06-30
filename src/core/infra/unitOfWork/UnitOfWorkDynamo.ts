@@ -1,4 +1,4 @@
-import DynamoDB = require('aws-sdk/clients/dynamodb');
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { UnitOfWork } from './UnitOfWork';
 
 const DocumentClient = new DynamoDB.DocumentClient();
