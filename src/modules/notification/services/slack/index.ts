@@ -21,8 +21,12 @@ export class SlackService implements ISlackService {
   }*/
 
   sendMessage(text: string, channel: SlackChannel) {
-    return console.log('For now, skip sending slack message:', { text, channel });
+    // For now, skip sending slack message
     /*const url: string = this.getWebookUrl(channel);
     return axios.post(url, { text });*/
+    console.log('SlackService.sendMessage finished without errors', {
+      text,
+      channel,
+    }); // This message is checked in integration tests, keep it in sync with them
   }
 }

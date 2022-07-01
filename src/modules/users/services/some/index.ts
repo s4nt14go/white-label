@@ -9,6 +9,8 @@ export interface IExternalService {
 
 export class ExternalService implements IExternalService {
   sendToExternal(user: UserCreatedDTO) {
-    console.log('Send to some external service:', user);
+    console.log('ExternalService.sendToExternal finished without errors', {
+      user,
+    }); // This message is checked in integration tests, keep it in sync with them
   }
 }

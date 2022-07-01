@@ -10,8 +10,15 @@ import { deleteUsers, getNewUser, parsePayload } from '../../utils/testUtils';
 const lambdaClient = new Lambda({});
 
 // Add all process.env used:
-const { UsersTable, createUser, AWS_REGION } = process.env;
-if (!UsersTable || !createUser || !AWS_REGION) {
+const { UsersTable, createUser, AWS_REGION, notifySlackChannel, someWork } =
+  process.env;
+if (
+  !UsersTable ||
+  !createUser ||
+  !AWS_REGION ||
+  !notifySlackChannel ||
+  !someWork
+) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
@@ -40,12 +47,32 @@ test('User creation', async () => {
   await expect({
     region: AWS_REGION,
     table: UsersTable,
-    timeout: 0,
+    timeout: 10000,
   }).toHaveItem(
     { id: parsed.body.result.id },
     expect.objectContaining({
       ...newUser,
       password: expect.any(String),
     })
+  );
+
+  await expect({
+    region: AWS_REGION,
+    function: notifySlackChannel,
+    timeout: 10000,
+  }).toHaveLog(
+    `SlackService.sendMessage finished without errors` &&
+      `${newUser.username}` &&
+      `${newUser.email}`
+  );
+
+  await expect({
+    region: AWS_REGION,
+    function: someWork,
+    timeout: 10000,
+  }).toHaveLog(
+    `ExternalService.sendToExternal finished without errors` &&
+      `${newUser.username}` &&
+      `${newUser.email}`
   );
 });
