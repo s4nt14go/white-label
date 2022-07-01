@@ -28,6 +28,7 @@ export class CreateUserController extends BaseController {
   }
 
   async executeImpl(dto: CreateUserDTO) {
+    this.unitOfWork.clear();
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });
     const usernameOrError = UserName.create({ name: dto.username });

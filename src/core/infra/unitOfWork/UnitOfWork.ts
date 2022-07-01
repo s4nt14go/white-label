@@ -8,6 +8,10 @@ type Put = {
 export abstract class UnitOfWork {
   protected transactions: Put[] = [];
 
+  clear() {
+    this.transactions = [];
+  }
+
   addTransaction(transaction: Put) {
     this.transactions.push(transaction);
     if (this.transactions.length > 25) {
