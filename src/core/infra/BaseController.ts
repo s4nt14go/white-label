@@ -49,10 +49,7 @@ export abstract class BaseController {
   }
 
   public created() {
-    return BaseController.jsonResponse(
-      201,
-      JSON.stringify({ ...Envelope.ok() })
-    );
+    return BaseController.jsonResponse(201, JSON.stringify({ ...Envelope.ok() }));
   }
 
   public conflict(error: BaseError) {

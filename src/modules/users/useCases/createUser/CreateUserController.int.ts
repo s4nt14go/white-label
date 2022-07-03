@@ -6,9 +6,10 @@ import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
 import {
   CreatedUser,
-  deleteUsers, findByUsernameWithRetry,
+  deleteUsers,
+  findByUsernameWithRetry,
   getNewUser,
-  parsePayload
+  parsePayload,
 } from '../../utils/testUtils';
 
 const lambdaClient = new Lambda({});
@@ -50,7 +51,7 @@ test('User creation', async () => {
   expect(user.username.value).toEqual(newUser.username);
   expect(user.email.value).toEqual(newUser.email);
   expect(user.alias.value).toEqual(newUser.alias);
-  createdUsers.push({id: user.id.toString()});
+  createdUsers.push({ id: user.id.toString() });
 
   await expect({
     region: AWS_REGION,

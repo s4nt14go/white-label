@@ -35,5 +35,5 @@ test('User creation', async () => {
   expect(user.username.value).toEqual(newUser.username);
   expect(user.email.value).toEqual(newUser.email);
   expect(user.alias.value).toEqual(newUser.alias);
-  createdUsers.push({id: user.id.toString()});
+  createdUsers.push({ id: user.id.toString() });
 });

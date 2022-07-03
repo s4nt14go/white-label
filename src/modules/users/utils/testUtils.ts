@@ -60,11 +60,11 @@ export const parsePayload = (payload?: Uint8Array) => {
   return parsed;
 };
 
-export type CreatedUser = { id: string }
+export type CreatedUser = { id: string };
 export const deleteUsers = (
   users: CreatedUser[],
   UsersTable: string,
-  AWS_REGION: string,
+  AWS_REGION: string
 ) => {
   const DocumentClient = new DynamoDB.DocumentClient({ region: AWS_REGION });
   users.map(async (u) => {
@@ -75,15 +75,21 @@ export const deleteUsers = (
       },
     }).promise();
   });
-}
+};
 
-export const findByUsernameWithRetry = async (username: string, retries: number) : Promise<User> => {
-  return await retry(async (_bail, _attempt) => {
-    console.log(`find attempt: ${_attempt}`);
-    const user = await repo.findUserByUsername(username);
-    if (!user) throw new Error(`User not found`);
-    return user;
-  }, {
-    retries,
-  });
-}
+export const findByUsernameWithRetry = async (
+  username: string,
+  retries: number
+): Promise<User> => {
+  return await retry(
+    async (_bail, _attempt) => {
+      console.log(`find attempt: ${_attempt}`);
+      const user = await repo.findUserByUsername(username);
+      if (!user) throw new Error(`User not found`);
+      return user;
+    },
+    {
+      retries,
+    }
+  );
+};
