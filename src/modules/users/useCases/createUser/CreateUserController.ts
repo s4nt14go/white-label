@@ -29,6 +29,7 @@ export class CreateUserController extends BaseController {
 
   async executeImpl(dto: CreateUserDTO) {
     this.unitOfWork.clear();
+
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });
     const usernameOrError = UserName.create({ name: dto.username });
@@ -73,6 +74,6 @@ export class CreateUserController extends BaseController {
     await this.unitOfWork.commit();
     await CreateUserEvents.dispatchEventsForAggregates(user.id);
 
-    return this.created(user.id.toString());
+    return this.created();
   }
 }

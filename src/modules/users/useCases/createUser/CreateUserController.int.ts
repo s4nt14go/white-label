@@ -4,8 +4,12 @@ import 'aws-testing-library/lib/jest';
 import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
-import DynamoDB from 'aws-sdk/clients/dynamodb';
-import { deleteUsers, getNewUser, parsePayload } from '../../utils/testUtils';
+import {
+  CreatedUser,
+  deleteUsers, findByUsernameWithRetry,
+  getNewUser,
+  parsePayload
+} from '../../utils/testUtils';
 
 const lambdaClient = new Lambda({});
 
@@ -23,15 +27,13 @@ if (
   throw new Error(`Undefined env var!`);
 }
 
-const DocumentClient = new DynamoDB.DocumentClient({ region: AWS_REGION });
-
-const createdUsers: { id: string }[] = [];
+const createdUsers: CreatedUser[] = [];
 afterAll(async () => {
-  deleteUsers(createdUsers, DocumentClient);
+  deleteUsers(createdUsers, UsersTable, AWS_REGION);
 });
 
 test('User creation', async () => {
-  const { createUser, AWS_REGION, UsersTable } = process.env;
+  const { createUser, AWS_REGION } = process.env;
   const newUser = getNewUser();
   const req = {
     FunctionName: createUser,
@@ -41,20 +43,14 @@ test('User creation', async () => {
   const result = await lambdaClient.invoke(req);
 
   const parsed = parsePayload(result.Payload);
-  createdUsers.push({ id: parsed.body.result.id });
   expect(parsed.statusCode).toBe(201);
 
-  await expect({
-    region: AWS_REGION,
-    table: UsersTable,
-    timeout: 10000,
-  }).toHaveItem(
-    { id: parsed.body.result.id },
-    expect.objectContaining({
-      ...newUser,
-      password: expect.any(String),
-    })
-  );
+  const user = await findByUsernameWithRetry(newUser.username, 2);
+
+  expect(user.username.value).toEqual(newUser.username);
+  expect(user.email.value).toEqual(newUser.email);
+  expect(user.alias.value).toEqual(newUser.alias);
+  createdUsers.push({id: user.id.toString()});
 
   await expect({
     region: AWS_REGION,

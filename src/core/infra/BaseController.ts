@@ -48,10 +48,10 @@ export abstract class BaseController {
     );
   }
 
-  public created(id: string) {
+  public created() {
     return BaseController.jsonResponse(
       201,
-      JSON.stringify({ ...Envelope.ok({ id }) })
+      JSON.stringify({ ...Envelope.ok() })
     );
   }
 
