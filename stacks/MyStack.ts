@@ -1,5 +1,4 @@
 import { StackContext, Api, Function } from '@serverless-stack/resources';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import { Table } from "@serverless-stack/resources";
 
 export function MyStack({ stack }: StackContext) {
@@ -32,14 +31,8 @@ export function MyStack({ stack }: StackContext) {
       UsersTable: UsersTable.tableName,
     },
   });
-  distributeDomainEvents.attachPermissions([
-    new iam.PolicyStatement({
-      actions: ['lambda:InvokeFunction'],
-      effect: iam.Effect.ALLOW,
-      resources: [notifySlackChannel.functionArn, someWork.functionArn],
-    }),
-  ]);
-
+  notifySlackChannel.grantInvoke(distributeDomainEvents);
+  someWork.grantInvoke(distributeDomainEvents);
 
   const createUser = new Function(stack, 'createUser', {
     handler: 'modules/users/useCases/createUser/index.handler',
@@ -48,18 +41,8 @@ export function MyStack({ stack }: StackContext) {
       UsersTable: UsersTable.tableName,
     },
   });
-  createUser.attachPermissions([
-    new iam.PolicyStatement({
-      actions: ['lambda:InvokeFunction'],
-      effect: iam.Effect.ALLOW,
-      resources: [distributeDomainEvents.functionArn],
-    }),
-    new iam.PolicyStatement({
-      actions: ['dynamodb:Query', 'dynamodb:PutItem'],
-      effect: iam.Effect.ALLOW,
-      resources: [`${UsersTable.tableArn}*`],
-    }),
-  ]);
+  distributeDomainEvents.grantInvoke(createUser);
+  UsersTable.cdk.table.grantReadWriteData(createUser)
 
   new Api(stack, 'api', {
     routes: {
