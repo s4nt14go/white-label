@@ -44,9 +44,13 @@ export function MyStack({ stack }: StackContext) {
   distributeDomainEvents.grantInvoke(createUser);
   UsersTable.cdk.table.grantReadWriteData(createUser)
 
-  new Api(stack, 'api', {
+  const api = new Api(stack, 'api', {
     routes: {
       'POST /createUser': createUser,
     },
+  });
+
+  stack.addOutputs({
+    ApiEndpoint: api.url,
   });
 }
