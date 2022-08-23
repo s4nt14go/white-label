@@ -1,5 +1,7 @@
 let testRegex = '\\.(ts|tsx)$';
-switch (process.env.TEST_MODE) {  // eslint-disable-line no-undef
+switch (
+  process.env.TEST_MODE // eslint-disable-line no-undef
+) {
   case 'unit':
     testRegex = '\\.unit' + testRegex;
     break;
@@ -14,9 +16,10 @@ switch (process.env.TEST_MODE) {  // eslint-disable-line no-undef
     throw new Error(`Unknown testRegex: ${testRegex}`);
 }
 
-module.exports = {  // eslint-disable-line no-undef
-  transform: {'^.+\\.ts?$': 'ts-jest'},
+// eslint-disable-next-line no-undef
+module.exports = {
+  transform: { '^.+\\.ts?$': 'ts-jest' },
   testEnvironment: 'node',
   testRegex,
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 };
