@@ -16,10 +16,9 @@ export class UserMap {
       email: user.email.value,
       password: await user.password.getHashedValue(),
       alias: user.alias.value,
-      isDeleted,
-      isEmailVerified,
-      isAdminUser,
-      createdAt: new Date().toJSON(),
+      is_deleted: isDeleted,
+      is_email_verified: isEmailVerified,
+      is_admin_user: isAdminUser,
     };
   }
 
@@ -47,7 +46,12 @@ export class UserMap {
     const username = usernameOrError.value;
     const alias = aliasOrError.value;
 
-    const { isEmailVerified, isAdminUser, isDeleted, id } = raw;
+    const {
+      is_email_verified: isEmailVerified,
+      is_admin_user: isAdminUser,
+      is_deleted: isDeleted,
+      id,
+    } = raw;
     return User.create(
       {
         email,

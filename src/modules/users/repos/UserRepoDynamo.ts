@@ -52,6 +52,7 @@ export class UserRepoDynamo implements IUserRepo {
 
   async save(user: User) {
     const Item = await UserMap.toPersistence(user);
+    Item.updated_at = new Date().toJSON();
     this.unitOfWork.addTransaction({
       Put: {
         TableName,
