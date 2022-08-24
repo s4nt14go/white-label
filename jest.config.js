@@ -1,25 +1,25 @@
+/* eslint-disable no-undef */
 let testRegex = '\\.(ts|tsx)$';
-switch (
-  process.env.TEST_MODE // eslint-disable-line no-undef
-) {
+const options = {};
+switch (process.env.TEST_MODE) {
   case 'unit':
-    testRegex = '\\.unit' + testRegex;
+    options.testRegex = '\\.unit' + testRegex;
     break;
   case 'int':
-    testRegex = '\\.int' + testRegex;
+    options.testRegex = '\\.int' + testRegex;
     break;
   case 'e2e':
-    testRegex = '\\.e2e' + testRegex;
+    options.testRegex = '\\.e2e' + testRegex;
+    options.testTimeout = 15000;
     break;
 
   default:
-    throw new Error(`Unknown testRegex: ${testRegex}`);
+    throw new Error(`Unknown TEST_MODE: ${process.env.TEST_MODE}`);
 }
 
-// eslint-disable-next-line no-undef
 module.exports = {
   transform: { '^.+\\.ts?$': 'ts-jest' },
   testEnvironment: 'node',
-  testRegex,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  ...options,
 };

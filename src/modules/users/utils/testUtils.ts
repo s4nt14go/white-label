@@ -7,15 +7,12 @@ import { UserEmail } from '../domain/userEmail';
 import { Alias } from '../domain/alias';
 import { TextDecoder } from 'util';
 import Chance from 'chance';
-import DynamoDB from 'aws-sdk/clients/dynamodb';
 import { CreateUserDTO } from '../useCases/createUser/CreateUserDTO';
-import retry from 'async-retry';
-import { UnitOfWorkDynamo } from '../../../core/infra/unitOfWork/UnitOfWorkDynamo';
-import { UserRepoDynamo } from '../repos/UserRepoDynamo';
+import models from '../../../shared/sequelize/models';
+import { UserRepo } from '../repos/UserRepo';
 
 const chance = new Chance();
-const unitOfWork = new UnitOfWorkDynamo();
-const repo = new UserRepoDynamo(unitOfWork);
+export const repo = new UserRepo(models);
 
 type CreateUserInput = {
   email?: string;
@@ -61,35 +58,10 @@ export const parsePayload = (payload?: Uint8Array) => {
 };
 
 export type CreatedUser = { id: string };
-export const deleteUsers = (
-  users: CreatedUser[],
-  UsersTable: string,
-  AWS_REGION: string
-) => {
-  const DocumentClient = new DynamoDB.DocumentClient({ region: AWS_REGION });
-  users.map(async (u) => {
-    return await DocumentClient.delete({
-      TableName: UsersTable,
-      Key: {
-        ...u,
-      },
-    }).promise();
-  });
-};
-
-export const findByUsernameWithRetry = async (
-  username: string,
-  retries: number
-): Promise<User> => {
-  return await retry(
-    async (_bail, _attempt) => {
-      console.log(`find attempt: ${_attempt}`);
-      const user = await repo.findUserByUsername(username);
-      if (!user) throw new Error(`User not found`);
-      return user;
-    },
-    {
-      retries,
-    }
+export const deleteUsers = async (users: CreatedUser[]) => {
+  return Promise.all(
+    users.map(async (u) => {
+      return repo.delete(u.id);
+    })
   );
 };

@@ -7,30 +7,23 @@ import stringify from 'json-stringify-safe';
 import {
   CreatedUser,
   deleteUsers,
-  findByUsernameWithRetry,
   getNewUser,
   parsePayload,
+  repo,
 } from '../../utils/testUtils';
 
 const lambdaClient = new Lambda({});
 
 // Add all process.env used:
-const { UsersTable, createUser, AWS_REGION, notifySlackChannel, someWork } =
-  process.env;
-if (
-  !UsersTable ||
-  !createUser ||
-  !AWS_REGION ||
-  !notifySlackChannel ||
-  !someWork
-) {
+const { createUser, AWS_REGION, notifySlackChannel, someWork } = process.env;
+if (!createUser || !AWS_REGION || !notifySlackChannel || !someWork) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
 
 const createdUsers: CreatedUser[] = [];
 afterAll(async () => {
-  deleteUsers(createdUsers, UsersTable, AWS_REGION);
+  await deleteUsers(createdUsers);
 });
 
 test('User creation', async () => {
@@ -46,7 +39,8 @@ test('User creation', async () => {
   const parsed = parsePayload(result.Payload);
   expect(parsed.statusCode).toBe(201);
 
-  const user = await findByUsernameWithRetry(newUser.username, 2);
+  const user = await repo.findUserByUsername(newUser.username);
+  if (!user) throw new Error(`User not found`);
 
   expect(user.username.value).toEqual(newUser.username);
   expect(user.email.value).toEqual(newUser.email);
@@ -56,7 +50,7 @@ test('User creation', async () => {
   await expect({
     region: AWS_REGION,
     function: notifySlackChannel,
-    timeout: 10000,
+    timeout: 12000,
   }).toHaveLog(
     `SlackService.sendMessage finished without errors` &&
       `${newUser.username}` &&

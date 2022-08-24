@@ -42,6 +42,9 @@ jobs:
 #          npm run deploy -- --stage dev
 #          npm run create-env
 
+#      - name: Run migrations
+#        run: npm run db-migrate
+
 #      - name: Integration tests
 #        run: npm run test-int
 

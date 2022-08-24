@@ -1,20 +1,21 @@
 import { StackContext, Api, Function } from '@serverless-stack/resources';
-import { Table } from "@serverless-stack/resources";
+import { SSM } from 'aws-sdk';
 
-export function MyStack({ stack }: StackContext) {
-
-  const UsersTable = new Table(stack, 'Users', {
-    fields: {
-      id: 'string',
-      username: 'string',
-      email: 'string',
-    },
-    primaryIndex: { partitionKey: 'id' },
-    globalIndexes: { 
-      byUsername: { partitionKey: 'username' }, 
-      byEmail: { partitionKey: 'email' }, 
-    },
-  });
+export async function MyStack({ stack, app }: StackContext) {
+  const ssm = new SSM();
+  const ssmGetResponse = await ssm
+    .getParameter({ Name: `/${app.name}/${app.stage}/cockroach` })
+    .promise();
+  if (
+    !ssmGetResponse ||
+    !ssmGetResponse.Parameter ||
+    !ssmGetResponse.Parameter.Value
+  ) {
+    throw Error('No data found in SSM');
+  }
+  const cockroach = ssmGetResponse.Parameter.Value;
+  const [username, password, database, host, dialect, port, cluster] =
+    cockroach.split(',');
 
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
@@ -28,7 +29,6 @@ export function MyStack({ stack }: StackContext) {
     environment: {
       notifySlackChannel: notifySlackChannel.functionName,
       someWork: someWork.functionName,
-      UsersTable: UsersTable.tableName,
     },
   });
   notifySlackChannel.grantInvoke(distributeDomainEvents);
@@ -38,11 +38,16 @@ export function MyStack({ stack }: StackContext) {
     handler: 'modules/users/useCases/createUser/index.handler',
     environment: {
       distributeDomainEvents: distributeDomainEvents.functionName,
-      UsersTable: UsersTable.tableName,
+      COCKROACH_username: username,
+      COCKROACH_password: password,
+      COCKROACH_database: database,
+      COCKROACH_host: host,
+      COCKROACH_dialect: dialect,
+      COCKROACH_port: port,
+      COCKROACH_cluster: cluster,
     },
   });
   distributeDomainEvents.grantInvoke(createUser);
-  UsersTable.cdk.table.grantReadWriteData(createUser)
 
   const api = new Api(stack, 'api', {
     routes: {

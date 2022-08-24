@@ -27,11 +27,6 @@ localLambdas.map(async l => {
     await $`echo ${l}=${deployed.PhysicalResourceId} >> ${envFile}`
 });
 
-const idTables = localConstructs.filter(c => c.type === 'Table').map(t => `${t.id}`);
-idTables.map(async id => {
-    await $`echo ${id}Table=${stage}-${project}-${id} >> ${envFile}`    // Expects to name tables in stacks/MyStack.ts like <id>Table
-});
-
 await $`aws apigatewayv2 get-apis > apis.json`
 
 let apis = require('./apis.json').Items;
@@ -39,3 +34,16 @@ await $`rm apis.json`
 apis = apis.filter(api => !api.Name.includes('debug'));
 const apiUrls = apis.map(api => api.ApiEndpoint);
 await $`echo apiUrl=${apiUrls[0]} >> ${envFile}`
+
+$.verbose = false // Don't log sensitive database data
+await $`aws ssm get-parameter --name /${project}/${stage}/cockroach > cockroach.json`
+let cockroach = require('./cockroach.json').Parameter.Value;
+await $`rm cockroach.json`
+const [ username, password, database, host, dialect, port, cluster ] = cockroach.split(',');
+await $`echo COCKROACH_username=${username} >> ${envFile}`
+await $`echo COCKROACH_password=${password} >> ${envFile}`
+await $`echo COCKROACH_database=${database} >> ${envFile}`
+await $`echo COCKROACH_host=${host} >> ${envFile}`
+await $`echo COCKROACH_dialect=${dialect} >> ${envFile}`
+await $`echo COCKROACH_port=${port} >> ${envFile}`
+await $`echo COCKROACH_cluster=${cluster} >> ${envFile}`

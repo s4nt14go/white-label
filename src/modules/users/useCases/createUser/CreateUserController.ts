@@ -10,26 +10,17 @@ import { IUserRepo } from '../../repos/IUserRepo';
 import { IDispatcher } from '../../../../core/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/alias';
-import { UnitOfWork } from '../../../../core/infra/unitOfWork/UnitOfWork';
 
 export class CreateUserController extends BaseController {
-  private readonly unitOfWork: UnitOfWork;
   private readonly userRepo: IUserRepo;
 
-  constructor(
-    unitOfWork: UnitOfWork,
-    userRepo: IUserRepo,
-    dispatcher: IDispatcher
-  ) {
+  constructor(userRepo: IUserRepo, dispatcher: IDispatcher) {
     super();
-    this.unitOfWork = unitOfWork;
     this.userRepo = userRepo;
     CreateUserEvents.registration(dispatcher);
   }
 
   async executeImpl(dto: CreateUserDTO) {
-    this.unitOfWork.clear();
-
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });
     const usernameOrError = UserName.create({ name: dto.username });
@@ -71,7 +62,6 @@ export class CreateUserController extends BaseController {
 
     await this.userRepo.save(user);
 
-    await this.unitOfWork.commit();
     await CreateUserEvents.dispatchEventsForAggregates(user.id);
 
     return this.created();

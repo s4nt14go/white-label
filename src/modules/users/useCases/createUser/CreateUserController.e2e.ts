@@ -1,23 +1,18 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import fetch from 'node-fetch';
-import {
-  CreatedUser,
-  deleteUsers,
-  findByUsernameWithRetry,
-  getNewUser,
-} from '../../utils/testUtils';
+import { CreatedUser, deleteUsers, getNewUser, repo } from '../../utils/testUtils';
 
 // Add all process.env used:
-const { AWS_REGION, apiUrl, UsersTable } = process.env;
-if (!AWS_REGION || !apiUrl || !UsersTable) {
+const { apiUrl } = process.env;
+if (!apiUrl) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
 
 const createdUsers: CreatedUser[] = [];
 afterAll(async () => {
-  deleteUsers(createdUsers, UsersTable, AWS_REGION);
+  await deleteUsers(createdUsers);
 });
 
 test('User creation', async () => {
@@ -30,7 +25,8 @@ test('User creation', async () => {
 
   expect(response.status).toBe(201);
 
-  const user = await findByUsernameWithRetry(newUser.username, 2);
+  const user = await repo.findUserByUsername(newUser.username);
+  if (!user) throw new Error(`User not found`);
 
   expect(user.username.value).toEqual(newUser.username);
   expect(user.email.value).toEqual(newUser.email);
