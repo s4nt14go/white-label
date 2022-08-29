@@ -37,17 +37,17 @@ jobs:
 
 # Skip deployment for now, leave the already deployed infra as is
 
-      - name: Deploy and create .env
-        run: |
-          npm run deploy -- --stage dev
-          npm run create-env
+#      - name: Deploy and create .env
+#        run: |
+#          npm run deploy -- --stage dev
+#          npm run create-env
 
-      - name: Run migrations
-        run: npm run db-migrate
+#      - name: Run migrations
+#        run: npm run db-migrate
 
-      - name: Integration tests
-        run: npm run test-int
+#      - name: Integration tests
+#        run: npm run test-int
 
-      - name: E2E tests
-        run: npm run test-e2e
+#      - name: E2E tests
+#        run: npm run test-e2e
 
