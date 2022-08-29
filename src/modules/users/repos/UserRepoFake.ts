@@ -1,7 +1,7 @@
 import { IUserRepo } from './IUserRepo';
 import { UserEmail } from '../domain/userEmail';
 import { User } from '../domain/user';
-import { createUser } from '../utils/testUtils';
+import { createUser } from '../../../shared/utils/test';
 
 export class UserRepoFake implements IUserRepo {
   findUserByUsername(username: string): Promise<User | null> {

@@ -1,13 +1,18 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import setHooks from '../../../../shared/sequelize/hooks';
-import { DispatcherFake } from '../../../../core/infra/dispatchEvents/DispatcherFake';
+import setHooks from '../../../../shared/infra/database/sequelize/hooks';
+import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { CreateUserController } from './CreateUserController';
-import { CreatedUser, deleteUsers, getNewUser, repo } from '../../utils/testUtils';
+import {
+  CreatedUser,
+  deleteUsers,
+  getNewUser,
+  repo,
+} from '../../../../shared/utils/test';
 import { UserEmail } from '../../domain/userEmail';
 import { UserRepoFake } from '../../repos/UserRepoFake';
-import { IDispatcher } from '../../../../core/domain/events/DomainEvents';
-import { IDomainEvent } from '../../../../core/domain/events/IDomainEvent';
+import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
+import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
 
 let createUserController: CreateUserController,
   dispatcherFake: IDispatcher,

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import models from '../models';
-import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
-import { DomainEvents } from '../../../core/domain/events/DomainEvents';
+import { UniqueEntityID } from '../../../../domain/UniqueEntityID';
+import { DomainEvents } from '../../../../domain/events/DomainEvents';
 
 const dispatchEventsCallback = async (
   model: any,

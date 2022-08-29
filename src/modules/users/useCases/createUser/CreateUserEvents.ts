@@ -2,9 +2,9 @@ import '../../../../../environment';
 import {
   DomainEvents,
   IDispatcher,
-} from '../../../../core/domain/events/DomainEvents';
+} from '../../../../shared/domain/events/DomainEvents';
 import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
-import { UniqueEntityID } from '../../../../core/domain/UniqueEntityID';
+import { UniqueEntityID } from '../../../../shared/domain/UniqueEntityID';
 
 const { distributeDomainEvents } = process.env;
 

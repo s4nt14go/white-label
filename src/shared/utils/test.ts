@@ -1,15 +1,15 @@
-import '../../../../environment';
-import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
-import { User } from '../domain/user';
-import { UserName } from '../domain/userName';
-import { UserPassword } from '../domain/userPassword';
-import { UserEmail } from '../domain/userEmail';
-import { Alias } from '../domain/alias';
+import '../../../environment';
+import { UniqueEntityID } from '../domain/UniqueEntityID';
+import { User } from '../../modules/users/domain/user';
+import { UserName } from '../../modules/users/domain/userName';
+import { UserPassword } from '../../modules/users/domain/userPassword';
+import { UserEmail } from '../../modules/users/domain/userEmail';
+import { Alias } from '../../modules/users/domain/alias';
 import { TextDecoder } from 'util';
 import Chance from 'chance';
-import { CreateUserDTO } from '../useCases/createUser/CreateUserDTO';
-import models from '../../../shared/sequelize/models';
-import { UserRepo } from '../repos/UserRepo';
+import { CreateUserDTO } from '../../modules/users/useCases/createUser/CreateUserDTO';
+import models from '../infra/database/sequelize/models';
+import { UserRepo } from '../../modules/users/repos/UserRepo';
 
 const chance = new Chance();
 export const repo = new UserRepo(models);

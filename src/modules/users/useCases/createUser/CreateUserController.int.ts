@@ -10,7 +10,7 @@ import {
   getNewUser,
   parsePayload,
   repo,
-} from '../../utils/testUtils';
+} from '../../../../shared/utils/test';
 
 const lambdaClient = new Lambda({});
 

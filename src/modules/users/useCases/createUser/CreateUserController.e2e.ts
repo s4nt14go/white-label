@@ -1,7 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import fetch from 'node-fetch';
-import { CreatedUser, deleteUsers, getNewUser, repo } from '../../utils/testUtils';
+import {
+  CreatedUser,
+  deleteUsers,
+  getNewUser,
+  repo,
+} from '../../../../shared/utils/test';
 
 // Add all process.env used:
 const { apiUrl } = process.env;

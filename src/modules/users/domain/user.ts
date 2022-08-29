@@ -1,5 +1,5 @@
-import { AggregateRoot } from '../../../core/domain/AggregateRoot';
-import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
+import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
+import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
 import { UserId } from './userId';
 import { UserEmail } from './userEmail';
 import { UserCreatedEvent } from './events/UserCreatedEvent';

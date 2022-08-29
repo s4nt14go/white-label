@@ -1,7 +1,7 @@
 import { SomeWork } from './SomeWork';
 import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
 import { externalService } from '../../services';
-import { createUser } from '../../utils/testUtils';
+import { createUser } from '../../../../shared/utils/test';
 
 test('External service is called for some work', async () => {
   const spy = jest

@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { Envelope } from './Envelope';
-import { BaseError, MalformedRequest, UnexpectedError } from '../logic/AppError';
+import { BaseError, MalformedRequest, UnexpectedError } from './AppError';
 
 export abstract class BaseController {
   protected abstract executeImpl(

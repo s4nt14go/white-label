@@ -1,5 +1,5 @@
-import { BaseError } from '../../../../core/logic/AppError';
-import { patch } from '../../../../core/infra/utils';
+import { BaseError } from '../../../../shared/core/AppError';
+import { patch } from '../../../../shared/core/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CreateUserErrors {

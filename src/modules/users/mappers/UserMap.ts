@@ -1,10 +1,10 @@
 import { User } from '../domain/user';
-import { UniqueEntityID } from '../../../core/domain/UniqueEntityID';
+import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
 import { UserEmail } from '../domain/userEmail';
 import { UserPassword } from '../domain/userPassword';
 import { UserName } from '../domain/userName';
 import { Alias } from '../domain/alias';
-import { Result } from '../../../core/logic/Result';
+import { Result } from '../../../shared/core/Result';
 
 export class UserMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

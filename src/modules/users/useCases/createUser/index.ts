@@ -1,8 +1,8 @@
 import { CreateUserController } from './CreateUserController';
-import setHooks from '../../../../shared/sequelize/hooks';
-import models from '../../../../shared/sequelize/models';
+import setHooks from '../../../../shared/infra/database/sequelize/hooks';
+import models from '../../../../shared/infra/database/sequelize/models';
 import { UserRepo } from '../../repos/UserRepo';
-import { DispatcherLambda } from '../../../../core/infra/dispatchEvents/DispatcherLambda';
+import { DispatcherLambda } from '../../../../shared/infra/dispatchEvents/DispatcherLambda';
 
 setHooks();
 const dispatcher = new DispatcherLambda();

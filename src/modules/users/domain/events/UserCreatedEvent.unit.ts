@@ -1,4 +1,4 @@
-import { createUser } from '../../utils/testUtils';
+import { createUser } from '../../../../shared/utils/test';
 
 test('UserCreatedEvent is added to user during creation', () => {
   const user = createUser({});

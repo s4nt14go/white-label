@@ -1,4 +1,4 @@
-import { UseCase } from '../../../../core/domain/UseCase';
+import { UseCase } from '../../../../shared/core/UseCase';
 import { ISlackService } from '../../services/slack';
 import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
 

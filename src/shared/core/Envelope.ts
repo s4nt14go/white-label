@@ -1,4 +1,4 @@
-﻿import { BaseError } from '../logic/AppError';
+﻿import { BaseError } from './AppError';
 
 export class Envelope<T> {
   readonly result?: T;

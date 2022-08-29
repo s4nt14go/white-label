@@ -1,6 +1,6 @@
-import { IDomainEvent } from '../../../../core/domain/events/IDomainEvent';
+import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
 import { User } from '../user';
-import { DomainEventTypes } from '../../../../core/domain/events/DomainEventTypes';
+import { DomainEventTypes } from '../../../../shared/domain/events/DomainEventTypes';
 
 export class UserCreatedEvent implements IDomainEvent {
   public dateTimeOccurred: Date;

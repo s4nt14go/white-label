@@ -1,4 +1,4 @@
-import { UseCase } from '../../../../core/domain/UseCase';
+import { UseCase } from '../../../../shared/core/UseCase';
 import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
 import { IExternalService } from '../../services/some';
 

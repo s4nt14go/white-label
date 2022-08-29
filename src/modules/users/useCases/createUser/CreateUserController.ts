@@ -1,13 +1,13 @@
-import { BaseController } from '../../../../core/infra/BaseController';
+import { BaseController } from '../../../../shared/core/BaseController';
 import { CreateUserDTO } from './CreateUserDTO';
 import { CreateUserErrors } from './CreateUserErrors';
 import { UserEmail } from '../../domain/userEmail';
 import { UserPassword } from '../../domain/userPassword';
 import { UserName } from '../../domain/userName';
-import { Result } from '../../../../core/logic/Result';
+import { Result } from '../../../../shared/core/Result';
 import { User } from '../../domain/user';
 import { IUserRepo } from '../../repos/IUserRepo';
-import { IDispatcher } from '../../../../core/domain/events/DomainEvents';
+import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/alias';
 

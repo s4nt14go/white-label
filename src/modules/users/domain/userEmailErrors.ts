@@ -1,5 +1,5 @@
-import { patch } from '../../../core/infra/utils';
-import { BaseError } from '../../../core/logic/AppError';
+import { patch } from '../../../shared/core/utils';
+import { BaseError } from '../../../shared/core/AppError';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CreateEmailErrors {

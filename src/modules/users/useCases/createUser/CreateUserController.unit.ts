@@ -1,7 +1,7 @@
 import { CreateUserController } from './CreateUserController';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { CreateUserDTO } from './CreateUserDTO';
-import { DispatcherFake } from '../../../../core/infra/dispatchEvents/DispatcherFake';
+import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { APIGatewayEvent, Context } from 'aws-lambda';
 
 let userRepo, createUserController: CreateUserController;

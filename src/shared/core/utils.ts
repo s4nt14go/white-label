@@ -1,4 +1,4 @@
-// Classes' names are <module>.<class name> after patching
+// Error names are <namespace>.<class name> after patching
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const patch = (ns: any, path?: string) => {
   Object.keys(ns).forEach((key) => {
