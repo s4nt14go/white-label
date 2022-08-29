@@ -7,7 +7,7 @@ switch (process.env.TEST_MODE) {
     break;
   case 'int':
     options.testRegex = '\\.int' + testRegex;
-    options.testTimeout = 10000;
+    options.testTimeout = 20000;
     break;
   case 'e2e':
     options.testRegex = '\\.e2e' + testRegex;

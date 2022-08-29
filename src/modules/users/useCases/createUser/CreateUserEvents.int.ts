@@ -4,11 +4,13 @@ import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { CreateUserController } from './CreateUserController';
 import {
+  getNewUser,
+} from '../../../../shared/utils/test';
+import {
   CreatedUser,
   deleteUsers,
-  getNewUser,
   repo,
-} from '../../../../shared/utils/test';
+} from '../../../../shared/utils/realRepoForTests';
 import { UserEmail } from '../../domain/UserEmail';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';

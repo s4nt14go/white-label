@@ -5,12 +5,14 @@ import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
 import {
-  CreatedUser,
-  deleteUsers,
   getNewUser,
   parsePayload,
-  repo,
 } from '../../../../shared/utils/test';
+import {
+  CreatedUser,
+  deleteUsers,
+  repo,
+} from '../../../../shared/utils/realRepoForTests';
 
 const lambdaClient = new Lambda({});
 

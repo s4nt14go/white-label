@@ -7,11 +7,8 @@ import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder } from 'util';
 import Chance from 'chance';
 import { CreateUserDTO } from '../../modules/users/useCases/createUser/CreateUserDTO';
-import models from '../infra/database/sequelize/models';
-import { UserRepo } from '../../modules/users/repos/UserRepo';
 
 const chance = new Chance();
-export const repo = new UserRepo(models);
 
 type CreateUserInput = {
   email?: string;
@@ -54,13 +51,4 @@ export const parsePayload = (payload?: Uint8Array) => {
   const parsed = JSON.parse(decoded);
   parsed.body = JSON.parse(parsed.body);
   return parsed;
-};
-
-export type CreatedUser = { id: string };
-export const deleteUsers = async (users: CreatedUser[]) => {
-  return Promise.all(
-    users.map(async (u) => {
-      return repo.delete(u.id);
-    })
-  );
 };
