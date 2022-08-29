@@ -1,33 +1,67 @@
 # Serverless Domain-Driven Design (DDD) with unit tests
 
-I took some files from Khalil Stemmler's [white-label](https://github.com/stemmlerjs/white-label) project and made some changes
+Domain events ([UserCreatedEvent](src/modules/users/domain/events/UserCreatedEvent.ts)) are dispatched after the aggregates changes are persisted in the database and pick them up from the same module ([SomeWork](src/modules/users/useCases/someWork/SomeWork.ts)) or a different one ([NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.ts)).
 
-His project has a nice way to dispatch domain events (`UserCreatedEvent`) after the aggregates changes are persisted and pick them up from the same module (`users/subscribers/AfterUserCreated.ts`) or a different one (`notification/subscribers/AfterUserCreated.ts`).
+The lambda entry point for `CreateUser` use case is [src/modules/users/useCases/createUser/index.ts](src/modules/users/useCases/createUser/index.ts), there we:
+* Create [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.ts)
+* In `CreateUserController.constructor` we register `UserCreatedEvent` to an intermediate lambda [DistributeDomainEvents](src/shared/infra/dispatchEvents/DistributeDomainEvents.ts) that will invoke all its subscribers (`NotifySlackChannel` and `SomeWork` lambdas).
 
-In the original project, dispatching the event (`DomainEvents.dispatchEventsForAggregate(<user id>)`) is done through Sequelize hooks (`afterCreate`, `afterDestroy`, `afterUpdate`, `afterSave`, `afterUpsert`) while I moved this to the controller, in the case Sequelize isn't being used. As a domain event dispatcher I'm using an intermediate lambda (`DistributeDomainEvents`) which invokes the lambdas (`NotifySlackChannel` and `SomeWork`) that care about a certain domain event (`UserCreatedEvent`). This is the transaction tracing from [Lumigo](https://lumigo.io):
+This is the transaction tracing from [Lumigo](https://lumigo.io):
 
 <br />
 <p align="center">
     <img alt="graph" src="doc/graph.png" />
-    <br /><br /><br />
-    <img alt="timeline" src="doc/timeline.png" />
 </p>
 <br />
 
-Also, I made other changes based on [Vladimir Khorikov](https://enterprisecraftsmanship.com) courses where he tackles DDD in a great way.
+## Timelines
+
+For the first request all four lambdas have cold start and they take ~2s:
+
+<br />
+<p align="center">
+    <img alt="timeline1" src="doc/timeline1.png" />
+</p>
+<br />
+
+If we repeat a request in the next 5m, we don't have cold starts and they take ~500ms:
+
+<br />
+<p align="center">
+    <img alt="timeline1" src="doc/timeline2.png" />
+</p>
+<br />
+
+## Tests
 
 Unit tests added:
 
-- Value Objects: `User`, `UserEmail`, `UserPassword`, `Alias`
-- Use cases/controllers: `CreateUserController` (with faked repo), `NotifySlackChannel`, `SomeWork`
-- Domain event registration and dispatching `CreateUserEvents.int.ts`
-- Aggregate `User`
+- Value Objects: [UserName](src/modules/users/domain/UserEmail.unit.ts), [UserEmail](src/modules/users/domain/UserEmail.unit.ts), [UserPassword](src/modules/users/domain/UserPassword.unit.ts), [Alias](src/modules/users/domain/Alias.unit.ts)
+- Aggregate [User](src/modules/users/domain/User.unit.ts)
+- Use cases/controllers: [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.unit.ts) (with faked repo), [NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.unit.ts), [SomeWork](src/modules/users/useCases/someWork/SomeWork.unit.ts)
 
-Integration and e2e tests:
+Integration tests:
 
-- `CreateUserController` (with real repo)
+- Domain event registration and dispatching [CreateUserEvents](src/modules/users/useCases/createUser/CreateUserEvents.int.ts)
+- [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.int.ts) (with real repo)
 
-I've used [SST Serverless Stack](https://sst.dev) as it allows debugging lambda code locally while being invoked remotely by resources in AWS.
+E2E test:
+
+- [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.e2e.ts)
+
+## Stack
+
+* DB: PostgreSQL [CockroachDB](https://www.cockroachlabs.com) Serverless
+* ORM: [Sequelize](https://sequelize.org)
+* IaC: [SST Serverless Stack](https://sst.dev)
+* AWS services: Lambda, API Gateway, Systems Manager Parameter Store 
+* Testing: Jest
+
+I've used **SST Serverless Stack** as it allows debugging lambda code locally while being invoked remotely by resources in AWS.
+
+## Credits
+
+I started this project using Khalil Stemmler's [white-label](https://github.com/stemmlerjs/white-label) one, applied some concepts based on [Vladimir Khorikov](https://enterprisecraftsmanship.com) courses where he tackles DDD in a great way and then I turned it into serverless.
 
 ## Instructions
 
