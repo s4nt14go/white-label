@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  'config':          path.resolve('src', 'shared', 'sequelize', 'config', 'config.js'),
-  'migrations-path': path.resolve('src', 'shared', 'sequelize', 'migrations'),
-  'models-path': path.resolve('src', 'shared', 'sequelize', 'models'),
+  'config':          path.resolve('src', 'shared', 'infra', 'database', 'sequelize', 'config', 'config.js'),
+  'migrations-path': path.resolve('src', 'shared', 'infra', 'database', 'sequelize', 'migrations'),
+  'models-path': path.resolve('src', 'shared', 'infra', 'database', 'sequelize', 'models'),
 }
