@@ -8,7 +8,7 @@ import {
   CreatedUser,
   deleteUsers,
   repo,
-} from '../../../../shared/utils/realRepoForTests';
+} from '../../../../shared/utils/repo';
 
 // Add all process.env used:
 const { apiUrl } = process.env;

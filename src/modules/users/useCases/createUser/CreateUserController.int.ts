@@ -12,7 +12,7 @@ import {
   CreatedUser,
   deleteUsers,
   repo,
-} from '../../../../shared/utils/realRepoForTests';
+} from '../../../../shared/utils/repo';
 
 const lambdaClient = new Lambda({});
 

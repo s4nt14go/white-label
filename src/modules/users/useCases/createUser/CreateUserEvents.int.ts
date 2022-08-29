@@ -10,7 +10,7 @@ import {
   CreatedUser,
   deleteUsers,
   repo,
-} from '../../../../shared/utils/realRepoForTests';
+} from '../../../../shared/utils/repo';
 import { UserEmail } from '../../domain/UserEmail';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
