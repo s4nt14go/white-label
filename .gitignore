@@ -6,3 +6,4 @@
 .build
 /awsConfig.sh
 /.env*
+/notes.txt

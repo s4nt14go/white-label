@@ -62,8 +62,6 @@ export class CreateUserController extends BaseController {
 
     await this.userRepo.save(user);
 
-    await CreateUserEvents.dispatchEventsForAggregates(user.id);
-
     return this.created();
   }
 }
