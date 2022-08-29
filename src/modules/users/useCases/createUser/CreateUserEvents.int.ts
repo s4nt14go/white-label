@@ -9,7 +9,7 @@ import {
   getNewUser,
   repo,
 } from '../../../../shared/utils/test';
-import { UserEmail } from '../../domain/userEmail';
+import { UserEmail } from '../../domain/UserEmail';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';

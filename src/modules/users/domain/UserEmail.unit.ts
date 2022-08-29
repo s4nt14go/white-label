@@ -1,5 +1,5 @@
-import { UserEmail } from './userEmail';
-import { CreateEmailErrors } from './userEmailErrors';
+import { UserEmail } from './UserEmail';
+import { CreateEmailErrors } from './UserEmailErrors';
 
 test('Creation', () => {
   const result = UserEmail.create('some@email.com');

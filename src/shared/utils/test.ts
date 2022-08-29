@@ -1,10 +1,9 @@
-import '../../../environment';
 import { UniqueEntityID } from '../domain/UniqueEntityID';
-import { User } from '../../modules/users/domain/user';
-import { UserName } from '../../modules/users/domain/userName';
-import { UserPassword } from '../../modules/users/domain/userPassword';
-import { UserEmail } from '../../modules/users/domain/userEmail';
-import { Alias } from '../../modules/users/domain/alias';
+import { User } from '../../modules/users/domain/User';
+import { UserName } from '../../modules/users/domain/UserName';
+import { UserPassword } from '../../modules/users/domain/UserPassword';
+import { UserEmail } from '../../modules/users/domain/UserEmail';
+import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder } from 'util';
 import Chance from 'chance';
 import { CreateUserDTO } from '../../modules/users/useCases/createUser/CreateUserDTO';

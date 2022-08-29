@@ -1,5 +1,5 @@
-import { Alias } from './alias';
-import { AliasErrors } from './aliasErrors';
+import { Alias } from './Alias';
+import { AliasErrors } from './AliasErrors';
 
 test('Creation', () => {
   const validData = {

@@ -1,6 +1,6 @@
 import { IUserRepo } from './IUserRepo';
-import { UserEmail } from '../domain/userEmail';
-import { User } from '../domain/user';
+import { UserEmail } from '../domain/UserEmail';
+import { User } from '../domain/User';
 import { createUser } from '../../../shared/utils/test';
 
 export class UserRepoFake implements IUserRepo {

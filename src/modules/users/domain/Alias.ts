@@ -1,7 +1,7 @@
 import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
-import { AliasErrors } from './aliasErrors';
+import { AliasErrors } from './AliasErrors';
 import { BaseError } from '../../../shared/core/AppError';
 
 interface AliasProps {

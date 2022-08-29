@@ -2,7 +2,7 @@ import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
 import * as bcrypt from 'bcryptjs';
-import { CreatePasswordErrors } from './userPasswordErrors';
+import { CreatePasswordErrors } from './UserPasswordErrors';
 
 interface UserPasswordProps {
   value: string;

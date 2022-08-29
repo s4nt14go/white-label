@@ -1,5 +1,5 @@
-import { UserName } from './userName';
-import { CreateNameErrors } from './userNameErrors';
+import { UserName } from './UserName';
+import { CreateNameErrors } from './UserNameErrors';
 
 test('Creation', () => {
   const validData = {

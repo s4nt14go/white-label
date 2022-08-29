@@ -1,5 +1,5 @@
 import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
-import { User } from '../user';
+import { User } from '../User';
 import { DomainEventTypes } from '../../../../shared/domain/events/DomainEventTypes';
 
 export class UserCreatedEvent implements IDomainEvent {

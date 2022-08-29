@@ -1,7 +1,7 @@
 import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
-import { CreateEmailErrors } from './userEmailErrors';
+import { CreateEmailErrors } from './UserEmailErrors';
 
 interface UserEmailProps {
   value: string;

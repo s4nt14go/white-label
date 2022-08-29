@@ -1,5 +1,5 @@
 // import axios from 'axios'
-import { SlackChannel } from '../../domain/slackChannel';
+import { SlackChannel } from '../../domain/SlackChannel';
 
 export interface ISlackService {
   sendMessage(text: string, channel: SlackChannel): void;

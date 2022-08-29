@@ -1,11 +1,11 @@
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
-import { UserId } from './userId';
-import { UserEmail } from './userEmail';
+import { UserId } from './UserId';
+import { UserEmail } from './UserEmail';
 import { UserCreatedEvent } from './events/UserCreatedEvent';
-import { UserPassword } from './userPassword';
-import { UserName } from './userName';
-import { Alias } from './alias';
+import { UserPassword } from './UserPassword';
+import { UserName } from './UserName';
+import { Alias } from './Alias';
 
 interface UserProps {
   email: UserEmail;

@@ -1,15 +1,15 @@
 import { BaseController } from '../../../../shared/core/BaseController';
 import { CreateUserDTO } from './CreateUserDTO';
 import { CreateUserErrors } from './CreateUserErrors';
-import { UserEmail } from '../../domain/userEmail';
-import { UserPassword } from '../../domain/userPassword';
-import { UserName } from '../../domain/userName';
+import { UserEmail } from '../../domain/UserEmail';
+import { UserPassword } from '../../domain/UserPassword';
+import { UserName } from '../../domain/UserName';
 import { Result } from '../../../../shared/core/Result';
-import { User } from '../../domain/user';
+import { User } from '../../domain/User';
 import { IUserRepo } from '../../repos/IUserRepo';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
-import { Alias } from '../../domain/alias';
+import { Alias } from '../../domain/Alias';
 
 export class CreateUserController extends BaseController {
   private readonly userRepo: IUserRepo;

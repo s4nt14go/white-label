@@ -1,7 +1,7 @@
 import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
-import { CreateNameErrors } from './userNameErrors';
+import { CreateNameErrors } from './UserNameErrors';
 
 interface UserNameProps {
   name: string;

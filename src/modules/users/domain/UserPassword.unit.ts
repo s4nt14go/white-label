@@ -1,5 +1,5 @@
-import { UserPassword } from './userPassword';
-import { CreatePasswordErrors } from './userPasswordErrors';
+import { UserPassword } from './UserPassword';
+import { CreatePasswordErrors } from './UserPasswordErrors';
 
 test('Create with plain text', async () => {
   const passwordOrError = UserPassword.create({ value: 'super_secret' });

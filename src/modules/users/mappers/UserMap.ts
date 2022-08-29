@@ -1,9 +1,9 @@
-import { User } from '../domain/user';
+import { User } from '../domain/User';
 import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
-import { UserEmail } from '../domain/userEmail';
-import { UserPassword } from '../domain/userPassword';
-import { UserName } from '../domain/userName';
-import { Alias } from '../domain/alias';
+import { UserEmail } from '../domain/UserEmail';
+import { UserPassword } from '../domain/UserPassword';
+import { UserName } from '../domain/UserName';
+import { Alias } from '../domain/Alias';
 import { Result } from '../../../shared/core/Result';
 
 export class UserMap {

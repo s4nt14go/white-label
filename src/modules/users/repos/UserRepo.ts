@@ -1,6 +1,6 @@
-import { User } from '../domain/user';
+import { User } from '../domain/User';
 import { UserMap } from '../mappers/UserMap';
-import { UserEmail } from '../domain/userEmail';
+import { UserEmail } from '../domain/UserEmail';
 import { IUserRepo } from './IUserRepo';
 
 export class UserRepo implements IUserRepo {
