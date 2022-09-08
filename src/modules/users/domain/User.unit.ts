@@ -9,7 +9,6 @@ test('Create user with alias', () => {
     password: 'test_password',
   });
 
-  expect(user.id.constructor.name).toBe('UniqueEntityID');
   expect(user.username.value).toBe('test_username');
   expect(user.alias.value).toBe('test_alias');
   expect(user.email.value).toBe('test+1@email.com');
@@ -23,7 +22,6 @@ test('Create user without alias', () => {
     password: 'test_password',
   });
 
-  expect(user.id.constructor.name).toBe('UniqueEntityID');
   expect(user.username.value).toBe('test_username');
   expect(user.alias.value).toBe(null);
   expect(user.email.value).toBe('test@email.com');

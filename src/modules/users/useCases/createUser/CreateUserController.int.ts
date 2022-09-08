@@ -4,10 +4,7 @@ import 'aws-testing-library/lib/jest';
 import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
-import {
-  getNewUser,
-  parsePayload,
-} from '../../../../shared/utils/test';
+import { getNewUser, parsePayload } from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,

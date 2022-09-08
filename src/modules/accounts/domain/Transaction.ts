@@ -1,7 +1,9 @@
 import { Amount } from './Amount';
 import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { Description } from './Description';
+import { Entity } from '../../../shared/domain/Entity';
+import { Result } from '../../../shared/core/Result';
+import { TransactionErrors } from './TransactionErrors';
 
 interface TransactionProps {
   balance: Amount;
@@ -10,14 +12,14 @@ interface TransactionProps {
   description: Description;
 }
 
-export class Transaction extends AggregateRoot<TransactionProps> {
+export class Transaction extends Entity<TransactionProps> {
   public static Initial(): Transaction {
     return this.create({
       description: Description.create({ value: 'Initial' }).value,
       balance: Amount.create({value: 0}).value,
       delta: Amount.create({value: 0}).value,
       date: new Date(),
-    });
+    }).value;
 }
 
   get id(): UniqueEntityID {
@@ -40,8 +42,10 @@ export class Transaction extends AggregateRoot<TransactionProps> {
     super(props, id);
   }
 
-  public static create(props: TransactionProps, id?: UniqueEntityID): Transaction {
-    if (props.balance.value < 0) throw Error(`Balance can't be negative but this transaction has ${props.balance.value}`);
-    return new Transaction(props, id);
+  public static create(props: TransactionProps, id?: UniqueEntityID): Result<Transaction> {
+    if (props.balance.value < 0)
+      return Result.fail(new TransactionErrors.NegativeBalance(props.balance.value))
+
+    return Result.ok(new Transaction(props, id));
   }
 }

@@ -13,9 +13,12 @@ import { Alias } from '../../domain/Alias';
 
 export class CreateUserController extends APIGatewayController {
   private readonly userRepo: IUserRepo;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public constructor(userRepo: IUserRepo, dispatcher: IDispatcher, getTransaction: any) {
+  public constructor(
+    userRepo: IUserRepo,
+    dispatcher: IDispatcher,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getTransaction: any
+  ) {
     super(getTransaction);
     this.userRepo = userRepo;
     CreateUserEvents.registration(dispatcher);

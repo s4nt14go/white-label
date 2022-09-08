@@ -2,6 +2,8 @@ import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
 import { Amount } from './Amount';
 import { Transaction } from './Transaction';
+import { Result } from '../../../shared/core/Result';
+import { AccountErrors } from './AccountErrors';
 
 interface AccountProps {
   balance: Amount;
@@ -20,7 +22,7 @@ export class Account extends AggregateRoot<AccountProps> {
     return Account.create({
       active: true,
       transactions: [initialTransaction],
-    })
+    }).value;
   }
   get id(): UniqueEntityID {
     return this._id;
@@ -39,12 +41,14 @@ export class Account extends AggregateRoot<AccountProps> {
     super(props, id);
   }
 
-  public static create(props: AccountInput, id?: UniqueEntityID): Account {
+  public static create(props: AccountInput, id?: UniqueEntityID): Result<Account> {
     const transactionsLength = props.transactions.length;
-    if ( transactionsLength < 1) throw Error(`Accounts should have at least one transaction but this has ${transactionsLength}`);
-    return new Account({
+    if ( transactionsLength < 1)
+      return Result.fail(new AccountErrors.NoTransactions());
+
+    return Result.ok(new Account({
       ...props,
       balance: props.transactions[0].balance,
-    }, id);
+    }, id));
   }
 }
