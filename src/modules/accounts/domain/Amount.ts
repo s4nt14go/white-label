@@ -7,10 +7,6 @@ interface AmountProps {
   value: number;
 }
 
-interface AmountInput {
-  value: number;
-}
-
 export class Amount extends ValueObject<AmountProps> {
   get value(): number {
     return this.props.value;
@@ -20,8 +16,11 @@ export class Amount extends ValueObject<AmountProps> {
     super(props);
   }
 
-  public static create(props: AmountInput): Result<Amount> {
-    const guardNull = Guard.againstNullOrUndefined(props.value, new AmountErrors.NotDefined());
+  public static create(props: AmountProps): Result<Amount> {
+    const guardNull = Guard.againstNullOrUndefined(
+      props.value,
+      new AmountErrors.NotDefined()
+    );
     const guardType = Guard.isType(
       props.value,
       'number',
@@ -30,7 +29,7 @@ export class Amount extends ValueObject<AmountProps> {
     const combined = Guard.combine([guardNull, guardType]);
     if (combined.isFailure) return Result.fail(combined.error);
 
-    const rounded = Math.round(props.value * 100) / 100;
+    const rounded = Math.round((props.value + Number.EPSILON) * 100) / 100;
 
     return Result.ok<Amount>(new Amount({ value: rounded }));
   }
