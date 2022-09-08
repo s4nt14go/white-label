@@ -2,6 +2,7 @@ import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
 import { Result } from '../../../shared/core/Result';
 import { Amount } from '../domain/Amount';
 import { Transaction } from '../domain/Transaction';
+import { Description } from '../domain/Description';
 
 export class TransactionMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,7 +12,7 @@ export class TransactionMap {
       balance: balance.value,
       delta: delta.value,
       date,
-      description,
+      description: description.value,
     };
   }
 
@@ -19,10 +20,12 @@ export class TransactionMap {
   public static toDomain(raw: any): Transaction {
     const balanceOrError = Amount.create({value: raw.balance });
     const deltaOrError = Amount.create({ value: raw.delta });
+    const descriptionOrError = Description.create({ value: raw.description });
 
     const dtoResult = Result.combine([
       balanceOrError,
       deltaOrError,
+      descriptionOrError,
     ]);
 
     if (dtoResult.isFailure) {
@@ -36,7 +39,7 @@ export class TransactionMap {
         balance: balanceOrError.value,
         delta: deltaOrError.value,
         date: raw.date,
-        description: raw.description,
+        description: descriptionOrError.value,
       },
       new UniqueEntityID(raw.id)
     );

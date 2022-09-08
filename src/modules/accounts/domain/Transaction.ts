@@ -1,18 +1,19 @@
 import { Amount } from './Amount';
 import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
+import { Description } from './Description';
 
 interface TransactionProps {
   balance: Amount;
   delta: Amount;
   date: Date;
-  description: string;
+  description: Description;
 }
 
 export class Transaction extends AggregateRoot<TransactionProps> {
   public static Initial(): Transaction {
     return this.create({
-      description: 'Initial',
+      description: Description.create({ value: 'Initial' }).value,
       balance: Amount.create({value: 0}).value,
       delta: Amount.create({value: 0}).value,
       date: new Date(),
@@ -31,7 +32,7 @@ export class Transaction extends AggregateRoot<TransactionProps> {
   get date(): Date {
     return this.props.date;
   }
-  get description(): string {
+  get description(): Description {
     return this.props.description;
   }
 
