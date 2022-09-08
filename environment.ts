@@ -5,6 +5,7 @@ declare global {
       // Need to declare this env vars to get rid of undefined errors for process.env.<var>
       notifySlackChannel: string;
       someWork: string;
+      createAccount: string;
     }
   }
 }

@@ -2,8 +2,9 @@ import { IUserRepo } from './IUserRepo';
 import { UserEmail } from '../domain/UserEmail';
 import { User } from '../domain/User';
 import { createUser } from '../../../shared/utils/test';
+import { Repository } from '../../../shared/core/Repository';
 
-export class UserRepoFake implements IUserRepo {
+export class UserRepoFake extends Repository<User> implements IUserRepo {
   findUserByUsername(username: string): Promise<User | null> {
     return new Promise((resolve) => {
       if (username === 'taken_username') {

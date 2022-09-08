@@ -1,14 +1,8 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import fetch from 'node-fetch';
-import {
-  getNewUser,
-} from '../../../../shared/utils/test';
-import {
-  CreatedUser,
-  deleteUsers,
-  repo,
-} from '../../../../shared/utils/repo';
+import { getNewUser } from '../../../../shared/utils/test';
+import { CreatedUser, deleteUsers, UserRepo } from '../../../../shared/utils/repo';
 
 // Add all process.env used:
 const { apiUrl } = process.env;
@@ -32,7 +26,7 @@ test('User creation', async () => {
 
   expect(response.status).toBe(201);
 
-  const user = await repo.findUserByUsername(newUser.username);
+  const user = await UserRepo.findUserByUsername(newUser.username);
   if (!user) throw new Error(`User not found`);
 
   expect(user.username.value).toEqual(newUser.username);

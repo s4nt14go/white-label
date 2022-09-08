@@ -4,14 +4,14 @@ import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { CreateUserController } from './CreateUserController';
 import {
+  fakeTransaction,
   getNewUser,
 } from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,
-  repo,
+  UserRepo,
 } from '../../../../shared/utils/repo';
-import { UserEmail } from '../../domain/UserEmail';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
@@ -38,7 +38,7 @@ afterAll(async () => {
 });
 
 test('Domain event dispatcher calls distributeDomainEvents with user data for UserCreatedEvent', async () => {
-  createUserController = new CreateUserController(repo, dispatcherFake);
+  createUserController = new CreateUserController(UserRepo, dispatcherFake, fakeTransaction);
 
   const newUser = getNewUser();
 
@@ -60,16 +60,13 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
     process.env.distributeDomainEvents
   );
   expect(spyOnDispatch).toBeCalledTimes(1);
-
-  const user = await repo.findUserByEmail(UserEmail.create(newUser.email).value);
-  if (!user) throw new Error('Created user not found??');
-  createdUsers.push({ id: user.id.toString() });
 });
 
 test(`distributeDomainEvents isn't called when saving to DB fails`, async () => {
   createUserController = new CreateUserController(
     new UserRepoFake(),
-    dispatcherFake
+    dispatcherFake,
+    fakeTransaction,
   );
 
   const newUser = {

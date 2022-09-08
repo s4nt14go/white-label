@@ -1,15 +1,16 @@
-import { UseCase } from '../../../../shared/core/UseCase';
+import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
 import { IExternalService } from '../../services/some';
 
-export class SomeWork implements UseCase<UserCreatedEvent, Promise<void>> {
+export class SomeWork extends SubscriberController<UserCreatedEvent> {
   private externalService: IExternalService;
 
   constructor(externalService: IExternalService) {
+    super();
     this.externalService = externalService;
   }
 
-  async execute(event: UserCreatedEvent): Promise<void> {
+  async executeImpl(event: UserCreatedEvent): Promise<void> {
     const { user } = event;
 
     await this.externalService.sendToExternal(user);

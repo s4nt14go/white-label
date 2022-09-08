@@ -1,4 +1,4 @@
-import { BaseController } from '../../../../shared/core/BaseController';
+import { APIGatewayController } from '../../../../shared/infra/http/APIGatewayController';
 import { CreateUserDTO } from './CreateUserDTO';
 import { CreateUserErrors } from './CreateUserErrors';
 import { UserEmail } from '../../domain/UserEmail';
@@ -11,16 +11,20 @@ import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/Alias';
 
-export class CreateUserController extends BaseController {
+export class CreateUserController extends APIGatewayController {
   private readonly userRepo: IUserRepo;
 
-  constructor(userRepo: IUserRepo, dispatcher: IDispatcher) {
-    super();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(userRepo: IUserRepo, dispatcher: IDispatcher, getTransaction: any) {
+    super(getTransaction);
     this.userRepo = userRepo;
     CreateUserEvents.registration(dispatcher);
   }
 
   async executeImpl(dto: CreateUserDTO) {
+    // As this use case is a command, include all repos queries in a serializable transaction
+    this.userRepo.setTransaction(this.transaction);
+
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });
     const usernameOrError = UserName.create({ name: dto.username });

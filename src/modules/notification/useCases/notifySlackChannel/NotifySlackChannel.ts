@@ -1,4 +1,4 @@
-import { UseCase } from '../../../../shared/core/UseCase';
+import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { ISlackService } from '../../services/slack';
 import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
 
@@ -8,11 +8,12 @@ type UserCreatedDTO = {
 };
 
 export class NotifySlackChannel
-  implements UseCase<UserCreatedEvent, Promise<void>>
+  extends SubscriberController<UserCreatedEvent>
 {
   private slackService: ISlackService;
 
   constructor(slackService: ISlackService) {
+    super();
     this.slackService = slackService;
   }
 
@@ -21,7 +22,7 @@ export class NotifySlackChannel
       Need to reach 'em? Their email is ${user.email}.`;
   }
 
-  async execute(event: UserCreatedEvent): Promise<void> {
+  async executeImpl(event: UserCreatedEvent): Promise<void> {
     const { user } = event;
 
     await this.slackService.sendMessage(

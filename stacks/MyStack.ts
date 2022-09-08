@@ -16,6 +16,15 @@ export async function MyStack({ stack, app }: StackContext) {
   const cockroach = ssmGetResponse.Parameter.Value;
   const [username, password, database, host, dialect, port, cluster] =
     cockroach.split(',');
+  const dbCreds = {
+    COCKROACH_username: username,
+    COCKROACH_password: password,
+    COCKROACH_database: database,
+    COCKROACH_host: host,
+    COCKROACH_dialect: dialect,
+    COCKROACH_port: port,
+    COCKROACH_cluster: cluster,
+  };
 
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
@@ -24,27 +33,28 @@ export async function MyStack({ stack, app }: StackContext) {
     handler: 'modules/users/useCases/someWork/index.handler',
   });
 
+  const createAccount = new Function(stack, 'createAccount', {
+    handler: 'modules/accounts/useCases/createAccount/index.handler',
+    environment: dbCreds,
+  });
+
   const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
     handler: 'shared/infra/dispatchEvents/DistributeDomainEvents.handler',
     environment: {
       notifySlackChannel: notifySlackChannel.functionName,
       someWork: someWork.functionName,
+      createAccount: createAccount.functionName,
     },
   });
   notifySlackChannel.grantInvoke(distributeDomainEvents);
   someWork.grantInvoke(distributeDomainEvents);
+  createAccount.grantInvoke(distributeDomainEvents);
 
   const createUser = new Function(stack, 'createUser', {
     handler: 'modules/users/useCases/createUser/index.handler',
     environment: {
+      ...dbCreds,
       distributeDomainEvents: distributeDomainEvents.functionName,
-      COCKROACH_username: username,
-      COCKROACH_password: password,
-      COCKROACH_database: database,
-      COCKROACH_host: host,
-      COCKROACH_dialect: dialect,
-      COCKROACH_port: port,
-      COCKROACH_cluster: cluster,
     },
   });
   distributeDomainEvents.grantInvoke(createUser);

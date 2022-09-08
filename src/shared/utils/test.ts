@@ -7,6 +7,7 @@ import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder } from 'util';
 import Chance from 'chance';
 import { CreateUserDTO } from '../../modules/users/useCases/createUser/CreateUserDTO';
+import { Transaction } from 'sequelize';
 
 const chance = new Chance();
 
@@ -52,3 +53,5 @@ export const parsePayload = (payload?: Uint8Array) => {
   parsed.body = JSON.parse(parsed.body);
   return parsed;
 };
+
+export const fakeTransaction = null as unknown as Promise<Transaction>;

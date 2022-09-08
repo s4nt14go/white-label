@@ -3,11 +3,12 @@ import { UserRepoFake } from '../../repos/UserRepoFake';
 import { CreateUserDTO } from './CreateUserDTO';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { APIGatewayEvent, Context } from 'aws-lambda';
+import { fakeTransaction } from '../../../../shared/utils/test';
 
 let userRepo, createUserController: CreateUserController;
 beforeAll(() => {
   userRepo = new UserRepoFake();
-  createUserController = new CreateUserController(userRepo, new DispatcherFake());
+  createUserController = new CreateUserController(userRepo, new DispatcherFake(), fakeTransaction);
 });
 
 test('User creation with alias', async () => {

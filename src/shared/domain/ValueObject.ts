@@ -11,6 +11,7 @@ interface ValueObjectProps {
 
 export abstract class ValueObject<T extends ValueObjectProps> {
   public readonly props: T;
+  private __proto__: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   constructor(props: T) {
     this.props = Object.freeze(props);
@@ -23,6 +24,7 @@ export abstract class ValueObject<T extends ValueObjectProps> {
     if (vo.props === undefined) {
       return false;
     }
+    if (this.__proto__.constructor.name !== vo.constructor.name) return false;
     return shallowEqual(this.props, vo.props);
   }
 }

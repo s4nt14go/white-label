@@ -3,6 +3,11 @@ const pg = require('pg');
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+// Workaround to fix DECIMALs being returned as strings instead of numbers
+Sequelize.postgres.DECIMAL.parse = function (value) {
+  return parseFloat(value);
+};
+
 const {
   COCKROACH_username,
   COCKROACH_password,

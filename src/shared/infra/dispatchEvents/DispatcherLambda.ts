@@ -13,7 +13,10 @@ export class DispatcherLambda implements IDispatcher {
       InvocationType: 'Event',
       Payload: new TextEncoder().encode(stringify(event)),
     };
-    console.log('Invoking...', req);
+    console.log('Invoking...', {
+      ...req,
+      event,
+    });
     const result = await this.lambdaClient.invoke(req);
     console.log('Invocation complete', result);
   }

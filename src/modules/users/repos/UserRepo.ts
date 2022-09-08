@@ -2,77 +2,88 @@ import { User } from '../domain/User';
 import { UserMap } from '../mappers/UserMap';
 import { UserEmail } from '../domain/UserEmail';
 import { IUserRepo } from './IUserRepo';
+import { Repository } from '../../../shared/core/Repository';
 
-export class UserRepo implements IUserRepo {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private User: any;
+export class UserRepo extends Repository<User> implements IUserRepo {
+  private User: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(models: any) {
+    super();
+    // Put this.transaction in all repos queries: this.<Model>.<find/create/destroy/etc>({...}, { transaction: this.transaction })
+    // If no getTransaction is passed to controller/use case, it's null and doesn't have effect (SQL transaction isn't' used)
     this.User = models.User;
   }
 
-  public async findUserByUsername(username: string): Promise<User | null> {
-    const user = await this.User.findOne({
-      where: {
-        username,
+  async findUserByUsername(username: string): Promise<User | null> {
+    const user = await this.User.findOne(
+      {
+        where: {
+          username,
+        },
       },
-    });
-    if (!!user === true) {
-      return UserMap.toDomain(user.get());
-    }
+      { transaction: this.transaction }
+    );
+    if (user) return UserMap.toDomain(user.get());
     return null;
   }
 
-  public async findUserByEmail(_email: UserEmail): Promise<User | null> {
+  async findUserByEmail(_email: UserEmail): Promise<User | null> {
     const email = _email.value.toString();
-    const user = await this.User.findOne({
-      where: {
-        email,
+    const user = await this.User.findOne(
+      {
+        where: {
+          email,
+        },
       },
-    });
-    if (!!user === true) return user;
+      { transaction: this.transaction }
+    );
+    if (user) return UserMap.toDomain(user.get());
     return null;
   }
 
-  public async exists(_email: UserEmail): Promise<boolean> {
+  async exists(_email: UserEmail): Promise<boolean> {
     const email = _email.value.toString();
-    const user = await this.User.findOne({
-      where: {
-        email,
+    const user = await this.User.findOne(
+      {
+        where: {
+          email,
+        },
       },
-    });
-    return !!user === true;
+      { transaction: this.transaction }
+    );
+    return !!user;
   }
 
-  public async save(user: User): Promise<void> {
+  async save(user: User): Promise<void> {
     const exists = await this.exists(user.email);
     const rawUser = await UserMap.toPersistence(user);
 
-    try {
-      if (!exists) {
-        // Create new
-        await this.User.create(rawUser);
-      } else {
-        // Save old
-        const sequelizeUserInstance = await this.User.findOne({
+    if (!exists) {
+      // Create new
+      await this.User.create(rawUser, { transaction: this.transaction });
+    } else {
+      // Save old
+      const sequelizeUserInstance = await this.User.findOne(
+        {
           where: {
             email: user.email.value,
           },
-        });
-        await sequelizeUserInstance.update(rawUser);
-      }
-    } catch (err) {
-      console.log(err);
+        },
+        { transaction: this.transaction }
+      );
+      await sequelizeUserInstance.update(rawUser);
     }
   }
 
-  public async delete(_id: string): Promise<void> {
-    const id = _id;
-    return this.User.destroy({
-      where: {
-        id,
+  async delete(id: string): Promise<void> {
+    return this.User.destroy(
+      {
+        where: {
+          id,
+        },
       },
-    });
+      { transaction: this.transaction }
+    );
   }
 }

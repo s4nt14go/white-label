@@ -4,11 +4,11 @@ import { IDispatcher } from '../../domain/events/DomainEvents';
 import { IDomainEvent } from '../../domain/events/IDomainEvent';
 import { DomainEventTypes } from '../../domain/events/DomainEventTypes';
 
-const { notifySlackChannel, someWork } = process.env;
+const { notifySlackChannel, someWork, createAccount } = process.env;
 const { UserCreatedEvent } = DomainEventTypes;
 
 const subscribers = {
-  [UserCreatedEvent]: [notifySlackChannel, someWork],
+  [UserCreatedEvent]: [notifySlackChannel, someWork, createAccount],
 };
 
 class DistributeDomainEvents {

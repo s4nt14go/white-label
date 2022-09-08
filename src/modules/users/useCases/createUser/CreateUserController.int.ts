@@ -11,7 +11,8 @@ import {
 import {
   CreatedUser,
   deleteUsers,
-  repo,
+  UserRepo,
+  AccountRepo,
 } from '../../../../shared/utils/repo';
 
 const lambdaClient = new Lambda({});
@@ -41,7 +42,7 @@ test('User creation', async () => {
   const parsed = parsePayload(result.Payload);
   expect(parsed.statusCode).toBe(201);
 
-  const user = await repo.findUserByUsername(newUser.username);
+  const user = await UserRepo.findUserByUsername(newUser.username);
   if (!user) throw new Error(`User not found`);
 
   expect(user.username.value).toEqual(newUser.username);
@@ -49,6 +50,7 @@ test('User creation', async () => {
   expect(user.alias.value).toEqual(newUser.alias);
   createdUsers.push({ id: user.id.toString() });
 
+  // Side effect in module notification
   await expect({
     region: AWS_REGION,
     function: notifySlackChannel,
@@ -58,14 +60,20 @@ test('User creation', async () => {
       `${newUser.username}` &&
       `${newUser.email}`
   );
-
+  // Side effect in service someWork
   await expect({
     region: AWS_REGION,
     function: someWork,
-    timeout: 10000,
+    timeout: 12000,
   }).toHaveLog(
     `ExternalService.sendToExternal finished without errors` &&
       `${newUser.username}` &&
       `${newUser.email}`
   );
+  // Side effect in module accounts
+  const accountCreated = await AccountRepo.getAccountByUserId(user.id.toString());
+  if (!accountCreated) throw Error('Account not created');
+  expect(accountCreated.balance.value).toBe(0);
+  expect(accountCreated.active).toBe(true);
+  expect(accountCreated.transactions).toHaveLength(1);
 });
