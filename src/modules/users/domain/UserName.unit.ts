@@ -8,7 +8,7 @@ test('Creation', () => {
 
   const result = UserName.create(validData);
   expect(result.isSuccess).toBe(true);
-  const username = result.value as UserName;
+  const username = result.value;
   expect(username.value).toBe('test_name');
 });
 

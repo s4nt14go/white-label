@@ -5,7 +5,7 @@ test('Creation', () => {
   const result = UserEmail.create('some@email.com');
 
   expect(result.isSuccess).toBe(true);
-  const userEmail = result.value as UserEmail;
+  const userEmail = result.value;
   expect(userEmail.value).toBe('some@email.com');
 });
 

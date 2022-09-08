@@ -8,14 +8,14 @@ test('Creation', () => {
 
   const result = Alias.create(validData);
   expect(result.isSuccess).toBe(true);
-  const alias = result.value as Alias;
+  const alias = result.value;
   expect(alias.value).toBe('test_alias');
 });
 
 test(`Creation is successful and gives null when it's not defined`, () => {
   const result = Alias.create({} as any); // eslint-disable-line @typescript-eslint/no-explicit-any
   expect(result.isSuccess).toBe(true);
-  const alias = result.value as Alias;
+  const alias = result.value;
   expect(alias.value).toBe(null);
 });
 
