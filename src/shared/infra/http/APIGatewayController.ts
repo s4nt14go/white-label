@@ -44,7 +44,7 @@ export abstract class APIGatewayController extends BaseController {
     };
   }
 
-  async ok<T>(result?: T) {
+  public async ok<T>(result?: T) {
     if (this.transaction) await this.transaction.commit();
     return APIGatewayController.jsonResponse(
       200,
@@ -52,12 +52,12 @@ export abstract class APIGatewayController extends BaseController {
     );
   }
 
-  async created() {
+  public async created() {
     if (this.transaction) await this.transaction.commit();
     return APIGatewayController.jsonResponse(201, JSON.stringify({ ...Envelope.ok() }));
   }
 
-  async conflict(error: BaseError) {
+  public async conflict(error: BaseError) {
     if (this.transaction) await this.transaction.rollback();
     return APIGatewayController.jsonResponse(
       409,
@@ -65,7 +65,7 @@ export abstract class APIGatewayController extends BaseController {
     );
   }
 
-  async fail(error: BaseError) {
+  public async fail(error: BaseError) {
     if (this.transaction) await this.transaction.rollback();
     return APIGatewayController.jsonResponse(
       400,
@@ -73,7 +73,7 @@ export abstract class APIGatewayController extends BaseController {
     );
   }
 
-  async serverError(context: Context) {
+  public async serverError(context: Context) {
     if (this.transaction) await this.transaction.rollback();
     return APIGatewayController.jsonResponse(
       500,

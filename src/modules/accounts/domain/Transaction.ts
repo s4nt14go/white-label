@@ -10,7 +10,7 @@ interface TransactionProps {
 }
 
 export class Transaction extends AggregateRoot<TransactionProps> {
-  static Initial(): Transaction {
+  public static Initial(): Transaction {
     return this.create({
       description: 'Initial',
       balance: Amount.create({value: 0}).value,
@@ -39,7 +39,7 @@ export class Transaction extends AggregateRoot<TransactionProps> {
     super(props, id);
   }
 
-  static create(props: TransactionProps, id?: UniqueEntityID): Transaction {
+  public static create(props: TransactionProps, id?: UniqueEntityID): Transaction {
     if (props.balance.value < 0) throw Error(`Balance can't be negative but this transaction has ${props.balance.value}`);
     return new Transaction(props, id);
   }

@@ -7,12 +7,12 @@ export class CreateAccount extends SubscriberController<UserCreatedEvent> {
   private readonly accountRepo: IAccountRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(accountRepo: IAccountRepo, getTransaction: any) {
+  public constructor(accountRepo: IAccountRepo, getTransaction: any) {
     super(getTransaction);
     this.accountRepo = accountRepo;
   }
 
-  async executeImpl(event: UserCreatedEvent): Promise<void> {
+  public async executeImpl(event: UserCreatedEvent): Promise<void> {
     this.accountRepo.setTransaction(this.transaction); // As this use case is a command, include all repos queries in a serializable transaction
 
     const { aggregateId } = event;

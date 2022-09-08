@@ -9,7 +9,7 @@ export abstract class Entity<T> {
   public readonly props: T;
   private __proto__: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  constructor(props: T, id?: UniqueEntityID) {
+  protected constructor(props: T, id?: UniqueEntityID) {
     this._id = id ? id : new UniqueEntityID();
     this.props = props;
   }

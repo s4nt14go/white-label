@@ -4,7 +4,7 @@ import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { CreateUserController } from './CreateUserController';
 import {
-  fakeTransaction,
+  fakeTransaction, getAPIGatewayEvent,
   getNewUser,
 } from '../../../../shared/utils/test';
 import {
@@ -15,6 +15,7 @@ import {
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
+import { Context } from 'aws-lambda';
 
 let createUserController: CreateUserController,
   dispatcherFake: IDispatcher,
@@ -37,12 +38,13 @@ afterAll(async () => {
   await deleteUsers(createdUsers);
 });
 
+const context = {} as unknown as Context;
 test('Domain event dispatcher calls distributeDomainEvents with user data for UserCreatedEvent', async () => {
   createUserController = new CreateUserController(UserRepo, dispatcherFake, fakeTransaction);
 
   const newUser = getNewUser();
 
-  const response = await createUserController.executeImpl(newUser);
+  const response = await createUserController.execute(getAPIGatewayEvent(newUser), context);
   expect(response.statusCode).toBe(201);
 
   const dispatcherIntake = expect.objectContaining({
@@ -75,7 +77,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails`, async () => 
   };
 
   try {
-    await createUserController.executeImpl(newUser);
+    await createUserController.execute(getAPIGatewayEvent(newUser), context);
     // eslint-disable-next-line no-empty
   } catch {}
 

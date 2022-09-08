@@ -1,10 +1,10 @@
 ﻿import { BaseError } from './AppError';
 
 export class Envelope<T> {
-  readonly result?: T;
-  readonly errorMessage?: string;
-  readonly errorType?: string;
-  readonly time: string;
+  public readonly result?: T;
+  public readonly errorMessage?: string;
+  public readonly errorType?: string;
+  public readonly time: string;
 
   public constructor(result?: T, error?: BaseError) {
     if (result !== undefined) this.result = result;

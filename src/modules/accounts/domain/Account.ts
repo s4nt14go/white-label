@@ -15,7 +15,7 @@ interface AccountInput {
 }
 
 export class Account extends AggregateRoot<AccountProps> {
-  static Initial(): Account {
+  public static Initial(): Account {
     const initialTransaction = Transaction.Initial();
     return Account.create({
       active: true,
@@ -39,7 +39,7 @@ export class Account extends AggregateRoot<AccountProps> {
     super(props, id);
   }
 
-  static create(props: AccountInput, id?: UniqueEntityID): Account {
+  public static create(props: AccountInput, id?: UniqueEntityID): Account {
     const transactionsLength = props.transactions.length;
     if ( transactionsLength < 1) throw Error(`Accounts should have at least one transaction but this has ${transactionsLength}`);
     return new Account({

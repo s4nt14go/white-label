@@ -10,7 +10,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
   private Transaction: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(models: any) {
+  public constructor(models: any) {
     super();
     // Put this.transaction in all repos queries: this.<Model>.<find/create/destroy/etc>({...}, { transaction: this.transaction })
     // If no getTransaction is passed to controller/use case, it's null and doesn't have effect (SQL transaction isn't' used)
@@ -18,7 +18,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     this.Transaction = models.Transaction;
   }
 
-  async getTransactions(
+  public async getTransactions(
     userId: string,
     transactionsLimit = 10
   ): Promise<Transaction[] | null> {
@@ -32,7 +32,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     return rawTransactions.map(TransactionMap.toDomain);
   }
 
-  async getAccountByUserId(
+  public async getAccountByUserId(
     userId: string,
     transactionsLimit = 10
   ): Promise<Account | null> {
@@ -49,7 +49,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     return AccountMap.toDomain(rawAccount, transactions);
   }
 
-  async create(userId: string, newAccount: Account): Promise<void> {
+  public async create(userId: string, newAccount: Account): Promise<void> {
     const rawAccount = AccountMap.toPersistence(newAccount);
     await this.Account.create(
       {

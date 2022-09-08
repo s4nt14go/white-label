@@ -5,12 +5,12 @@ import { IExternalService } from '../../services/some';
 export class SomeWork extends SubscriberController<UserCreatedEvent> {
   private externalService: IExternalService;
 
-  constructor(externalService: IExternalService) {
+  public constructor(externalService: IExternalService) {
     super();
     this.externalService = externalService;
   }
 
-  async executeImpl(event: UserCreatedEvent): Promise<void> {
+  protected async executeImpl(event: UserCreatedEvent): Promise<void> {
     const { user } = event;
 
     await this.externalService.sendToExternal(user);

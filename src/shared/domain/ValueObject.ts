@@ -13,7 +13,7 @@ export abstract class ValueObject<T extends ValueObjectProps> {
   public readonly props: T;
   private __proto__: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  constructor(props: T) {
+  protected constructor(props: T) {
     this.props = Object.freeze(props);
   }
 

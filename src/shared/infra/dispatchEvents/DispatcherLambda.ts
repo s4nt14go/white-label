@@ -7,7 +7,7 @@ import { TextEncoder } from 'util';
 export class DispatcherLambda implements IDispatcher {
   private lambdaClient = new Lambda({});
 
-  async dispatch(event: IDomainEvent, handler: string) {
+  public async dispatch(event: IDomainEvent, handler: string) {
     const req = {
       FunctionName: handler,
       InvocationType: 'Event',

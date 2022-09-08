@@ -8,14 +8,14 @@ export class UserRepo extends Repository<User> implements IUserRepo {
   private User: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(models: any) {
+  public constructor(models: any) {
     super();
     // Put this.transaction in all repos queries: this.<Model>.<find/create/destroy/etc>({...}, { transaction: this.transaction })
     // If no getTransaction is passed to controller/use case, it's null and doesn't have effect (SQL transaction isn't' used)
     this.User = models.User;
   }
 
-  async findUserByUsername(username: string): Promise<User | null> {
+  public async findUserByUsername(username: string): Promise<User | null> {
     const user = await this.User.findOne(
       {
         where: {
@@ -28,7 +28,7 @@ export class UserRepo extends Repository<User> implements IUserRepo {
     return null;
   }
 
-  async findUserByEmail(_email: UserEmail): Promise<User | null> {
+  public async findUserByEmail(_email: UserEmail): Promise<User | null> {
     const email = _email.value.toString();
     const user = await this.User.findOne(
       {
@@ -42,7 +42,7 @@ export class UserRepo extends Repository<User> implements IUserRepo {
     return null;
   }
 
-  async exists(_email: UserEmail): Promise<boolean> {
+  public async exists(_email: UserEmail): Promise<boolean> {
     const email = _email.value.toString();
     const user = await this.User.findOne(
       {
@@ -55,7 +55,7 @@ export class UserRepo extends Repository<User> implements IUserRepo {
     return !!user;
   }
 
-  async save(user: User): Promise<void> {
+  public async save(user: User): Promise<void> {
     const exists = await this.exists(user.email);
     const rawUser = await UserMap.toPersistence(user);
 
@@ -76,7 +76,7 @@ export class UserRepo extends Repository<User> implements IUserRepo {
     }
   }
 
-  async delete(id: string): Promise<void> {
+  public async delete(id: string): Promise<void> {
     return this.User.destroy(
       {
         where: {

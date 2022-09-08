@@ -20,7 +20,7 @@ export class Amount extends ValueObject<AmountProps> {
     super(props);
   }
 
-  static create(props: AmountInput): Result<Amount> {
+  public static create(props: AmountInput): Result<Amount> {
     const guardNull = Guard.againstNullOrUndefined(props.value, new AmountErrors.NotDefined());
     const guardType = Guard.isType(
       props.value,

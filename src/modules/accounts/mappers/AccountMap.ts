@@ -4,7 +4,7 @@ import { Account } from '../domain/Account';
 
 export class AccountMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static toPersistence(account: Account): any {
+  public static toPersistence(account: Account): any {
     const { balance, active } = account.props;
     return {
       balance: balance.value,
@@ -13,7 +13,7 @@ export class AccountMap {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static toDomain(raw: any, transactions: Transaction[]): Account {
+  public static toDomain(raw: any, transactions: Transaction[]): Account {
     return Account.create(
       {
         active: raw.active,

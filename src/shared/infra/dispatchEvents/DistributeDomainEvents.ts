@@ -14,11 +14,11 @@ const subscribers = {
 class DistributeDomainEvents {
   private dispatcher: IDispatcher;
 
-  constructor() {
+  public constructor() {
     this.dispatcher = new DispatcherLambda();
   }
 
-  async execute(event: IDomainEvent) {
+  public async execute(event: IDomainEvent) {
     console.log('event', event);
 
     await Promise.all(

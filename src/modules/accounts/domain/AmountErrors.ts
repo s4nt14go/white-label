@@ -5,13 +5,13 @@ import { BaseError } from '../../../shared/core/AppError';
 export namespace AmountErrors {
 
   export class NotDefined extends BaseError {
-    constructor() {
+    public constructor() {
       super(`Amount isn't defined`);
     }
   }
 
   export class NotNumber extends BaseError {
-    constructor() {
+    public constructor() {
       super(`Amount isn't a number`);
     }
   }

@@ -8,6 +8,7 @@ import { TextDecoder } from 'util';
 import Chance from 'chance';
 import { CreateUserDTO } from '../../modules/users/useCases/createUser/CreateUserDTO';
 import { Transaction } from 'sequelize';
+import { APIGatewayEvent } from 'aws-lambda';
 
 const chance = new Chance();
 
@@ -55,3 +56,8 @@ export const parsePayload = (payload?: Uint8Array) => {
 };
 
 export const fakeTransaction = null as unknown as Promise<Transaction>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getAPIGatewayEvent = (data: any) => {
+  return { body: JSON.stringify(data) } as unknown as APIGatewayEvent;
+}

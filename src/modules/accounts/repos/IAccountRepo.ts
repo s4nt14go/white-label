@@ -3,6 +3,6 @@ import { IRepo } from '../../../shared/core/IRepo';
 import { Transaction } from 'sequelize';
 
 export declare class IAccountRepo implements IRepo {
-  setTransaction(transaction?: Transaction): void;
-  create(userId: string, newAccount: Account): void;
+  public setTransaction(transaction?: Transaction): void;
+  public create(userId: string, newAccount: Account): void;
 }

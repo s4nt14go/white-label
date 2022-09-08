@@ -15,13 +15,13 @@ export class CreateUserController extends APIGatewayController {
   private readonly userRepo: IUserRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(userRepo: IUserRepo, dispatcher: IDispatcher, getTransaction: any) {
+  public constructor(userRepo: IUserRepo, dispatcher: IDispatcher, getTransaction: any) {
     super(getTransaction);
     this.userRepo = userRepo;
     CreateUserEvents.registration(dispatcher);
   }
 
-  async executeImpl(dto: CreateUserDTO) {
+  protected async executeImpl(dto: CreateUserDTO) {
     // As this use case is a command, include all repos queries in a serializable transaction
     this.userRepo.setTransaction(this.transaction);
 

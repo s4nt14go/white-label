@@ -9,7 +9,7 @@ export class UserCreatedEvent implements IDomainEvent {
   public type: DomainEventTypes;
   public version: number;
 
-  constructor(user: User) {
+  public constructor(user: User) {
     this.dateTimeOccurred = new Date();
     this.aggregateId = user.id.toString();
     this.user = {

@@ -5,7 +5,7 @@ interface SampleProps {
 }
 export class Sample extends ValueObject<SampleProps> {
   private readonly name: string;
-  constructor(props: SampleProps) {
+  public constructor(props: SampleProps) {
     super(props);
     this.name = props.name;
   }
@@ -15,7 +15,7 @@ export class Sample extends ValueObject<SampleProps> {
 }
 
 export class Sample2 extends Sample {
-  constructor(props: SampleProps) {
+  public constructor(props: SampleProps) {
     super(props);
   }
 }

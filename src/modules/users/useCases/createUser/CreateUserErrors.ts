@@ -4,13 +4,13 @@ import { patch } from '../../../../shared/core/utils';
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CreateUserErrors {
   export class EmailAlreadyTaken extends BaseError {
-    constructor(email: string) {
+    public constructor(email: string) {
       super(`The email ${email} is already taken`);
     }
   }
 
   export class UsernameAlreadyTaken extends BaseError {
-    constructor(username: string) {
+    public constructor(username: string) {
       super(`The username ${username} is already taken`);
     }
   }

@@ -4,19 +4,19 @@ import { BaseError } from '../../../shared/core/AppError';
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CreatePasswordErrors {
   export class PasswordNotDefined extends BaseError {
-    constructor() {
+    public constructor() {
       super(`Password isn't defined`);
     }
   }
 
   export class PasswordNotString extends BaseError {
-    constructor() {
+    public constructor() {
       super(`Password isn't a string`);
     }
   }
 
   export class TooShort extends BaseError {
-    constructor(minLength: number) {
+    public constructor(minLength: number) {
       super(`Password should have at least ${minLength}`);
     }
   }

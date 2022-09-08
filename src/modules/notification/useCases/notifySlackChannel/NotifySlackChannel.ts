@@ -12,7 +12,7 @@ export class NotifySlackChannel
 {
   private slackService: ISlackService;
 
-  constructor(slackService: ISlackService) {
+  public constructor(slackService: ISlackService) {
     super();
     this.slackService = slackService;
   }
@@ -22,7 +22,7 @@ export class NotifySlackChannel
       Need to reach 'em? Their email is ${user.email}.`;
   }
 
-  async executeImpl(event: UserCreatedEvent): Promise<void> {
+  protected async executeImpl(event: UserCreatedEvent): Promise<void> {
     const { user } = event;
 
     await this.slackService.sendMessage(

@@ -20,7 +20,7 @@ export class SlackService implements ISlackService {
     }
   }*/
 
-  sendMessage(text: string, channel: SlackChannel) {
+  public sendMessage(text: string, channel: SlackChannel) {
     // For now, skip sending slack message
     /*const url: string = this.getWebookUrl(channel);
     return axios.post(url, { text });*/

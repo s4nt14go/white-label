@@ -5,7 +5,7 @@ import { Transaction } from '../domain/Transaction';
 
 export class TransactionMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static toPersistence(transaction: Transaction): any {
+  public static toPersistence(transaction: Transaction): any {
     const { balance, delta, date, description } = transaction.props;
     return {
       balance: balance.value,
@@ -16,7 +16,7 @@ export class TransactionMap {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static toDomain(raw: any): Transaction {
+  public static toDomain(raw: any): Transaction {
     const balanceOrError = Amount.create({value: raw.balance });
     const deltaOrError = Amount.create({ value: raw.delta });
 

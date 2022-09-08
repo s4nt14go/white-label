@@ -6,7 +6,7 @@ interface SampleProps {
 }
 export class Sample extends Entity<SampleProps> {
   private readonly name: string;
-  constructor(props: SampleProps, id?: UniqueEntityID) {
+  public constructor(props: SampleProps, id?: UniqueEntityID) {
     super(props, id);
     this.name = props.name;
   }
@@ -16,7 +16,7 @@ export class Sample extends Entity<SampleProps> {
 }
 
 export class Sample2 extends Sample {
-  constructor(props: SampleProps, id?: UniqueEntityID) {
+  public constructor(props: SampleProps, id?: UniqueEntityID) {
     super(props, id);
   }
 }
