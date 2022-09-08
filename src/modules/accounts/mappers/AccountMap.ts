@@ -20,6 +20,6 @@ export class AccountMap {
         transactions,
       },
       new UniqueEntityID(raw.id)
-    );
+    ).value;
   }
 }

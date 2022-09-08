@@ -4,7 +4,6 @@ import { UserEmail } from '../domain/UserEmail';
 import { UserPassword } from '../domain/UserPassword';
 import { UserName } from '../domain/UserName';
 import { Alias } from '../domain/Alias';
-import { Result } from '../../../shared/core/Result';
 
 export class UserMap {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,45 +23,17 @@ export class UserMap {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static toDomain(raw: any): User {
-    const emailOrError = UserEmail.create(raw.email);
-    const passwordOrError = UserPassword.create({ value: raw.password });
-    const usernameOrError = UserName.create({ name: raw.username });
-    const aliasOrError = Alias.create({ value: raw.alias });
-
-    const dtoResult = Result.combine([
-      emailOrError,
-      passwordOrError,
-      usernameOrError,
-      aliasOrError,
-    ]);
-
-    if (dtoResult.isFailure) {
-      console.log('raw:', raw);
-      console.log('dtoResult:', dtoResult);
-      throw new Error(`User couldn't be reconstructed from DB`);
-    }
-    const email = emailOrError.value;
-    const password = passwordOrError.value;
-    const username = usernameOrError.value;
-    const alias = aliasOrError.value;
-
-    const {
-      is_email_verified: isEmailVerified,
-      is_admin_user: isAdminUser,
-      is_deleted: isDeleted,
-      id,
-    } = raw;
     return User.create(
       {
-        email,
-        username,
-        password,
-        alias,
-        isEmailVerified,
-        isAdminUser,
-        isDeleted,
+        email: UserEmail.create(raw.email).value,
+        username: UserName.create({ name: raw.username }).value,
+        password: UserPassword.create({ value: raw.password }).value,
+        alias: Alias.create({ value: raw.alias }).value,
+        isEmailVerified: raw.is_email_verified,
+        isAdminUser: raw.is_admin_user,
+        isDeleted: raw.is_deleted,
       },
-      new UniqueEntityID(id)
+      new UniqueEntityID(raw.id)
     );
   }
 }
