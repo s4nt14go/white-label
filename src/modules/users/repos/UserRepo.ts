@@ -3,6 +3,7 @@ import { UserMap } from '../mappers/UserMap';
 import { UserEmail } from '../domain/UserEmail';
 import { IUserRepo } from './IUserRepo';
 import { Repository } from '../../../shared/core/Repository';
+import { EntityID } from '../../../shared/domain/EntityID';
 
 export class UserRepo extends Repository<User> implements IUserRepo {
   private User: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -55,25 +56,10 @@ export class UserRepo extends Repository<User> implements IUserRepo {
     return !!user;
   }
 
-  public async save(user: User): Promise<void> {
-    const exists = await this.exists(user.email);
+  public async create(user: User): Promise<EntityID> {
     const rawUser = await UserMap.toPersistence(user);
-
-    if (!exists) {
-      // Create new
-      await this.User.create(rawUser, { transaction: this.transaction });
-    } else {
-      // Save old
-      const sequelizeUserInstance = await this.User.findOne(
-        {
-          where: {
-            email: user.email.value,
-          },
-        },
-        { transaction: this.transaction }
-      );
-      await sequelizeUserInstance.update(rawUser);
-    }
+    await this.User.create(rawUser, { transaction: this.transaction });
+    return user.id;
   }
 
   public async delete(id: string): Promise<void> {

@@ -67,7 +67,7 @@ export class CreateUserController extends APIGatewayController {
       alias,
     });
 
-    await this.userRepo.save(user);
+    await this.userRepo.create(user);
 
     return this.created();
   }

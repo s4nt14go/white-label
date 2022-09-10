@@ -5,13 +5,13 @@ import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/Dispatch
 import { CreateUserController } from './CreateUserController';
 import {
   fakeTransaction, getAPIGatewayEvent,
-  getNewUser,
+  getNewUserDto,
 } from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,
   UserRepo,
-} from '../../../../shared/utils/repo';
+} from '../../../../shared/utils/repos';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
@@ -42,7 +42,7 @@ const context = {} as unknown as Context;
 test('Domain event dispatcher calls distributeDomainEvents with user data for UserCreatedEvent', async () => {
   createUserController = new CreateUserController(UserRepo, dispatcherFake, fakeTransaction);
 
-  const newUser = getNewUser();
+  const newUser = getNewUserDto();
 
   const response = await createUserController.execute(getAPIGatewayEvent(newUser), context);
   expect(response.statusCode).toBe(201);
@@ -72,7 +72,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails`, async () => 
   );
 
   const newUser = {
-    ...getNewUser(),
+    ...getNewUserDto(),
     username: 'THROW_WHEN_SAVE',
   };
 

@@ -1,16 +1,16 @@
-import { UniqueEntityID } from './UniqueEntityID';
+import { EntityID } from './EntityID';
 
 const isEntity = (v: unknown): v is Entity<unknown> => {
   return v instanceof Entity;
 };
 
 export abstract class Entity<T> {
-  protected readonly _id: UniqueEntityID;
+  protected readonly _id: EntityID;
   public readonly props: T;
   private __proto__: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  protected constructor(props: T, id?: UniqueEntityID) {
-    this._id = id ? id : new UniqueEntityID();
+  protected constructor(props: T, id?: EntityID) {
+    this._id = id ? id : new EntityID();
     this.props = props;
   }
 

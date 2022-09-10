@@ -1,5 +1,5 @@
 import { Amount } from './Amount';
-import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
+import { EntityID } from '../../../shared/domain/EntityID';
 import { Description } from './Description';
 import { Entity } from '../../../shared/domain/Entity';
 import { Result } from '../../../shared/core/Result';
@@ -22,7 +22,7 @@ export class Transaction extends Entity<TransactionProps> {
     }).value;
 }
 
-  get id(): UniqueEntityID {
+  get id(): EntityID {
     return this._id;
   }
   get balance(): Amount {
@@ -38,11 +38,11 @@ export class Transaction extends Entity<TransactionProps> {
     return this.props.description;
   }
 
-  private constructor(props: TransactionProps, id?: UniqueEntityID) {
+  private constructor(props: TransactionProps, id?: EntityID) {
     super(props, id);
   }
 
-  public static create(props: TransactionProps, id?: UniqueEntityID): Result<Transaction> {
+  public static create(props: TransactionProps, id?: EntityID): Result<Transaction> {
     if (props.balance.value < 0)
       return Result.fail(new TransactionErrors.NegativeBalance(props.balance.value))
 

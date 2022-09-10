@@ -1,4 +1,4 @@
-import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
+import { EntityID } from '../../../shared/domain/EntityID';
 import { Amount } from '../domain/Amount';
 import { Transaction } from '../domain/Transaction';
 import { Description } from '../domain/Description';
@@ -24,7 +24,7 @@ export class TransactionMap {
         date: raw.date,
         description: Description.create({ value: raw.description }).value,
       },
-      new UniqueEntityID(raw.id)
+      new EntityID(raw.id)
     ).value;
   }
 }

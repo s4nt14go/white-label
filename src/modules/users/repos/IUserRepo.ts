@@ -8,5 +8,5 @@ export declare class IUserRepo implements IRepo {
   public setTransaction(transaction?: Transaction): void;
   public findUserByUsername(userName: UserName | string): Promise<User | null>;
   public exists(email: UserEmail): Promise<boolean>;
-  public save(user: User): void;
+  public create(user: User): void;
 }

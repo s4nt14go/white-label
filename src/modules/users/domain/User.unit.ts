@@ -1,4 +1,4 @@
-import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
+import { EntityID } from '../../../shared/domain/EntityID';
 import { createUser } from '../../../shared/utils/test';
 
 test('Create user with alias', () => {
@@ -29,7 +29,7 @@ test('Create user without alias', () => {
 });
 
 test('Create user with id', () => {
-  const id = new UniqueEntityID();
+  const id = new EntityID();
 
   const user = createUser({ id });
 

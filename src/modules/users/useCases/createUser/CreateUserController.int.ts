@@ -4,13 +4,13 @@ import 'aws-testing-library/lib/jest';
 import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
-import { getNewUser, parsePayload } from '../../../../shared/utils/test';
+import { getNewUserDto, parsePayload } from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,
   UserRepo,
   AccountRepo,
-} from '../../../../shared/utils/repo';
+} from '../../../../shared/utils/repos';
 
 const lambdaClient = new Lambda({});
 
@@ -27,8 +27,7 @@ afterAll(async () => {
 });
 
 test('User creation', async () => {
-  const { createUser, AWS_REGION } = process.env;
-  const newUser = getNewUser();
+  const newUser = getNewUserDto();
   const req = {
     FunctionName: createUser,
     Payload: new TextEncoder().encode(stringify(newUser)),
@@ -73,4 +72,5 @@ test('User creation', async () => {
   expect(accountCreated.balance.value).toBe(0);
   expect(accountCreated.active).toBe(true);
   expect(accountCreated.transactions).toHaveLength(1);
+  expect(accountCreated.transactions[0].balance.value).toBe(0);
 });

@@ -33,4 +33,16 @@ export class Amount extends ValueObject<AmountProps> {
 
     return Result.ok<Amount>(new Amount({ value: rounded }));
   }
+
+  public subtract(amount: Amount): Amount {
+    return Amount.create({ value: this.props.value - amount.value }).value;
+  }
+
+  public add(amount: Amount): Amount {
+    return Amount.create({ value: this.props.value + amount.value }).value;
+  }
+
+  public negate(): Amount {
+    return Amount.create({ value: -this.props.value }).value;
+  }
 }

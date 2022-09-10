@@ -24,7 +24,7 @@ export class UserRepoFake extends Repository<User> implements IUserRepo {
     });
   }
 
-  public async save(user: User) {
+  public async create(user: User) {
     if (user.username.value === 'THROW_WHEN_SAVE')
       throw Error('Faked failure when saving');
   }

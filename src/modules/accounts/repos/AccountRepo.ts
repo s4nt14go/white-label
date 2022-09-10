@@ -3,7 +3,7 @@ import { TransactionMap } from '../mappers/TransactionMap';
 import { Transaction } from '../domain/Transaction';
 import { AccountMap } from '../mappers/AccountMap';
 import { Repository } from '../../../shared/core/Repository';
-import { IAccountRepo } from './IAccountRepo';
+import { IAccountRepo, TransferProps } from './IAccountRepo';
 
 export class AccountRepo extends Repository<Account> implements IAccountRepo {
   private Account: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -49,7 +49,29 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     return AccountMap.toDomain(rawAccount, transactions);
   }
 
-  public async create(userId: string, newAccount: Account): Promise<void> {
+  public async createTransaction(transaction: Transaction, userId: string): Promise<void> {
+    const raw = TransactionMap.toPersistence(transaction);
+    await this.Transaction.create(
+      {
+        ...raw,
+        userId,
+      },
+      { transaction: this.transaction }
+    );
+  }
+
+  public async transfer(props: TransferProps) {
+    const {
+      from,
+      to,
+    } = props;
+
+    await this.createTransaction(from.transaction, from.userId);
+    await this.createTransaction(to.transaction, to.userId);
+  }
+
+  public async create(userId: string): Promise<Account> {
+    const newAccount = Account.Initial();
     const rawAccount = AccountMap.toPersistence(newAccount);
     await this.Account.create(
       {
@@ -67,6 +89,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
       },
       { transaction: this.transaction }
     );
+    return newAccount;
   }
 
   public async deleteByUserId(userId: string): Promise<void> {

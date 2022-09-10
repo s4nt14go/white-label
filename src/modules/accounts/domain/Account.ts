@@ -1,5 +1,5 @@
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
-import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
+import { EntityID } from '../../../shared/domain/EntityID';
 import { Amount } from './Amount';
 import { Transaction } from './Transaction';
 import { Result } from '../../../shared/core/Result';
@@ -24,7 +24,7 @@ export class Account extends AggregateRoot<AccountProps> {
       transactions: [initialTransaction],
     }).value;
   }
-  get id(): UniqueEntityID {
+  get id(): EntityID {
     return this._id;
   }
   get balance(): Amount {
@@ -37,18 +37,23 @@ export class Account extends AggregateRoot<AccountProps> {
     return this.props.transactions;
   }
 
-  private constructor(props: AccountProps, id?: UniqueEntityID) {
+  private constructor(props: AccountProps, id?: EntityID) {
     super(props, id);
   }
 
-  public static create(props: AccountInput, id?: UniqueEntityID): Result<Account> {
+  public static create(props: AccountInput, id?: EntityID): Result<Account> {
     const transactionsLength = props.transactions.length;
-    if ( transactionsLength < 1)
+    if (transactionsLength < 1)
       return Result.fail(new AccountErrors.NoTransactions());
 
-    return Result.ok(new Account({
-      ...props,
-      balance: props.transactions[0].balance,
-    }, id));
+    return Result.ok(
+      new Account(
+        {
+          ...props,
+          balance: props.transactions[0].balance,
+        },
+        id
+      )
+    );
   }
 }

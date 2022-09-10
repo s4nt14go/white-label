@@ -1,6 +1,6 @@
 import { IDomainEvent } from './IDomainEvent';
 import { AggregateRoot } from '../AggregateRoot';
-import { UniqueEntityID } from '../UniqueEntityID';
+import { EntityID } from '../EntityID';
 
 export interface IDispatcher {
   dispatch(event: IDomainEvent, handler: string): Promise<unknown>;
@@ -48,7 +48,7 @@ export class DomainEvents {
   }
 
   private static findMarkedAggregateByID(
-    id: UniqueEntityID
+    id: EntityID
   ): AggregateRoot<unknown> | null {
     let found: AggregateRoot<unknown> | null = null;
     for (const aggregate of this.markedAggregates) {
@@ -61,7 +61,7 @@ export class DomainEvents {
   }
 
   public static async dispatchEventsForAggregate(
-    id: UniqueEntityID
+    id: EntityID
   ): Promise<void> {
     const aggregate = this.findMarkedAggregateByID(id);
 

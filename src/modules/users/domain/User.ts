@@ -1,6 +1,5 @@
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
-import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
-import { UserId } from './UserId';
+import { EntityID } from '../../../shared/domain/EntityID';
 import { UserEmail } from './UserEmail';
 import { UserCreatedEvent } from './events/UserCreatedEvent';
 import { UserPassword } from './UserPassword';
@@ -18,12 +17,8 @@ interface UserProps {
 }
 
 export class User extends AggregateRoot<UserProps> {
-  get id(): UniqueEntityID {
+  get id(): EntityID {
     return this._id;
-  }
-
-  get userId(): UserId {
-    return UserId.caller(this.id);
   }
 
   get email(): UserEmail {
@@ -54,11 +49,11 @@ export class User extends AggregateRoot<UserProps> {
     return this.props.isAdminUser;
   }
 
-  private constructor(props: UserProps, id?: UniqueEntityID) {
+  private constructor(props: UserProps, id?: EntityID) {
     super(props, id);
   }
 
-  public static create(props: UserProps, id?: UniqueEntityID): User {
+  public static create(props: UserProps, id?: EntityID): User {
     const user = new User(
       {
         ...props,

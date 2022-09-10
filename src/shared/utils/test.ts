@@ -1,4 +1,4 @@
-import { UniqueEntityID } from '../domain/UniqueEntityID';
+import { EntityID } from '../domain/EntityID';
 import { User } from '../../modules/users/domain/User';
 import { UserName } from '../../modules/users/domain/UserName';
 import { UserPassword } from '../../modules/users/domain/UserPassword';
@@ -18,7 +18,7 @@ type CreateUserInput = {
   username?: string;
   alias?: string;
   isEmailVerified?: boolean;
-  id?: UniqueEntityID;
+  id?: EntityID;
 };
 
 export function createUser({
@@ -40,7 +40,7 @@ export function createUser({
   return User.create(props, id);
 }
 
-export const getNewUser = (): CreateUserDTO => ({
+export const getNewUserDto = (): CreateUserDTO => ({
   username: chance.first(),
   email: chance.email(),
   password: 'passwordd',

@@ -1,5 +1,5 @@
 import { User } from '../domain/User';
-import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
+import { EntityID } from '../../../shared/domain/EntityID';
 import { UserEmail } from '../domain/UserEmail';
 import { UserPassword } from '../domain/UserPassword';
 import { UserName } from '../domain/UserName';
@@ -33,7 +33,7 @@ export class UserMap {
         isAdminUser: raw.is_admin_user,
         isDeleted: raw.is_deleted,
       },
-      new UniqueEntityID(raw.id)
+      new EntityID(raw.id)
     );
   }
 }

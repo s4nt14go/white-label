@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import models from '../models';
-import { UniqueEntityID } from '../../../../domain/UniqueEntityID';
+import { EntityID } from '../../../../domain/EntityID';
 import { DomainEvents } from '../../../../domain/events/DomainEvents';
 
 const dispatchEventsCallback = async (
@@ -10,7 +10,7 @@ const dispatchEventsCallback = async (
   hook: string
 ) => {
   const id = model[primaryKeyField];
-  const aggregateId = new UniqueEntityID(id);
+  const aggregateId = new EntityID(id);
   console.log(`Hooking ${hook} for ${model.constructor.name} ${id}`);
   await DomainEvents.dispatchEventsForAggregate(aggregateId);
 };

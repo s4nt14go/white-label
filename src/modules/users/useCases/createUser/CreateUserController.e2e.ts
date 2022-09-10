@@ -1,8 +1,8 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import fetch from 'node-fetch';
-import { getNewUser } from '../../../../shared/utils/test';
-import { CreatedUser, deleteUsers, UserRepo } from '../../../../shared/utils/repo';
+import { getNewUserDto } from '../../../../shared/utils/test';
+import { CreatedUser, deleteUsers, UserRepo } from '../../../../shared/utils/repos';
 
 // Add all process.env used:
 const { apiUrl } = process.env;
@@ -17,7 +17,7 @@ afterAll(async () => {
 });
 
 test('User creation', async () => {
-  const newUser = getNewUser();
+  const newUser = getNewUserDto();
   const response = await fetch(process.env.apiUrl + '/createUser', {
     method: 'post',
     body: JSON.stringify(newUser),

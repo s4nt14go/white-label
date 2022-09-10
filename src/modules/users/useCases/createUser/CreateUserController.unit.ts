@@ -1,7 +1,7 @@
 import { CreateUserController } from './CreateUserController';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
-import { APIGatewayEvent, Context } from 'aws-lambda';
+import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
   getAPIGatewayEvent,
@@ -69,49 +69,41 @@ test.each([
     );
 
     expect(result.statusCode).toBe(400);
-    expect(result.body).toContain(errorType);
+    const parsed = JSON.parse(result.body)
+    expect(parsed.errorType).toBe(errorType);
   }
 );
 
 test('User creation fails for taken email', async () => {
-  const validData = {
+  const data = {
     username: 'test_username',
     email: 'already@taken.com',
     password: 'passwordd',
   };
 
   const result = await createUserController.execute(
-    getAPIGatewayEvent(validData),
+    getAPIGatewayEvent(data),
     context
   );
 
   expect(result.statusCode).toBe(409);
-  expect(result.body).toContain('CreateUserErrors.EmailAlreadyTaken');
+  const parsed = JSON.parse(result.body)
+  expect(parsed.errorType).toBe('CreateUserErrors.EmailAlreadyTaken');
 });
 
 test('User creation fails for taken username', async () => {
-  const validData = {
+  const data = {
     username: 'taken_username',
     email: 'test@email.com',
     password: 'passwordd',
   };
 
   const result = await createUserController.execute(
-    getAPIGatewayEvent(validData),
+    getAPIGatewayEvent(data),
     context
   );
 
   expect(result.statusCode).toBe(409);
-  expect(result.body).toContain('CreateUserErrors.UsernameAlreadyTaken');
-});
-
-test('User creation fails for non-parsable string', async () => {
-  const event = {
-    body: 'non-parsable',
-  } as unknown as APIGatewayEvent;
-
-  const result = await createUserController.execute(event, context);
-
-  expect(result.statusCode).toBe(400);
-  expect(result.body).toContain('MalformedRequest');
+  const parsed = JSON.parse(result.body)
+  expect(parsed.errorType).toBe('CreateUserErrors.UsernameAlreadyTaken');
 });

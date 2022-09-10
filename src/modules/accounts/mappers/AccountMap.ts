@@ -1,4 +1,4 @@
-import { UniqueEntityID } from '../../../shared/domain/UniqueEntityID';
+import { EntityID } from '../../../shared/domain/EntityID';
 import { Transaction } from '../domain/Transaction';
 import { Account } from '../domain/Account';
 
@@ -19,7 +19,7 @@ export class AccountMap {
         active: raw.active,
         transactions,
       },
-      new UniqueEntityID(raw.id)
+      new EntityID(raw.id)
     ).value;
   }
 }

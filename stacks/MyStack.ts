@@ -59,9 +59,20 @@ export async function MyStack({ stack, app }: StackContext) {
   });
   distributeDomainEvents.grantInvoke(createUser);
 
+  const createTransaction = new Function(stack, 'createTransaction', {
+    handler: 'modules/accounts/useCases/createTransaction/index.handler',
+    environment: dbCreds,
+  });
+  const transfer = new Function(stack, 'transfer', {
+    handler: 'modules/accounts/useCases/transfer/index.handler',
+    environment: dbCreds,
+  });
+
   const api = new Api(stack, 'api', {
     routes: {
       'POST /createUser': createUser,
+      'POST /createTransaction': createTransaction,
+      'POST /transfer': transfer,
     },
   });
 
