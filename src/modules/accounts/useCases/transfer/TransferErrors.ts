@@ -32,14 +32,9 @@ export namespace TransferErrors {
     }
   }
 
-  export class InvalidFromTransaction extends BaseError {
+  export class InvalidTransfer extends BaseError {
     public constructor(error: BaseError) {
-      super(`Source/from transaction is invalid: ${error.message} [${error.type}]`);
-    }
-  }
-  export class InvalidToTransaction extends BaseError {
-    public constructor(error: BaseError) {
-      super(`Destination/to transaction is invalid: ${error.message} [${error.type}]`);
+      super(`Invalid transfer: ${error.message} [${error.type}]`);
     }
   }
 }

@@ -5,7 +5,6 @@ import { TransferErrors } from './TransferErrors';
 import { Amount } from '../../domain/Amount';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
-import { Transaction } from '../../domain/Transaction';
 
 export class Transfer extends APIGatewayController {
   private readonly accountRepo: IAccountRepo;
@@ -56,34 +55,16 @@ export class Transfer extends APIGatewayController {
     if (!fromAccount)
       return this.fail(new TransferErrors.FromAccountNotFound(fromUserId));
 
-    const date = new Date();
-    const fromTransactionOrError = Transaction.create({
-      balance: fromAccount.balance.subtract(delta),
-      delta: delta.negate(),
-      description: fromDescription,
-      date,
-    });
-    if (fromTransactionOrError.isFailure)
-      return this.fail(
-        new TransferErrors.InvalidFromTransaction(deltaOrError.error as BaseError)
-      );
-    const fromTransaction = fromTransactionOrError.value;
-
     const toAccount = await this.accountRepo.getAccountByUserId(toUserId);
     if (!toAccount)
       return this.fail(new TransferErrors.ToAccountNotFound(toUserId));
 
-    const toTransactionOrError = Transaction.create({
-      balance: toAccount.balance.add(delta),
-      delta,
-      description: toDescription,
-      date,
-    });
-    if (toTransactionOrError.isFailure)
+    const transferOrError = fromAccount.transferTo(toAccount, delta, fromDescription, toDescription);
+    if (transferOrError.isFailure)
       return this.fail(
-        new TransferErrors.InvalidToTransaction(deltaOrError.error as BaseError)
+        new TransferErrors.InvalidTransfer(transferOrError.error as BaseError)
       );
-    const toTransaction = toTransactionOrError.value;
+    const { fromTransaction, toTransaction } = transferOrError.value;
 
     await this.accountRepo.transfer({
       from: {

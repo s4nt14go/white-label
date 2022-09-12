@@ -3,6 +3,10 @@ import { Amount } from './Amount';
 import { Description } from './Description';
 import { Account } from './Account';
 import { AccountErrors } from './AccountErrors';
+import Chance from 'chance';
+import { BaseError } from '../../../shared/core/AppError';
+
+const chance = new Chance();
 
 test('Create account', () => {
   const transaction = Transaction.create({
@@ -33,4 +37,162 @@ it(`fails if there aren't any transactions`, () => {
 
   expect(result.isFailure).toBe(true);
   expect(result.error).toBeInstanceOf(AccountErrors.NoTransactions);
+});
+
+describe('createTransaction', () => {
+  test('creation', () => {
+    // Create account
+    const seedTransaction = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const account = Account.create({
+      active: true,
+      transactions: [seedTransaction],
+    }).value;
+
+    const quantity = 30;
+    const delta = Amount.create({ value: quantity }).value;
+    const text = `Test: ${chance.sentence()}`;
+    const description = Description.create({ value: text }).value;
+    const transactionOrError = account.createTransaction(delta, description);
+    const transactionCreated = transactionOrError.value;
+
+    expect(transactionOrError.isSuccess).toBe(true);
+    expect(transactionCreated.balance.value).toBe(200 + quantity);
+    expect(transactionCreated.description.value).toBe(text);
+    expect(transactionCreated.delta.value).toBe(quantity);
+    expect(transactionCreated.date).toBeInstanceOf(Date);
+  });
+
+  it('fails for negative balance', () => {
+    // Create account
+    const seedTransaction = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const account = Account.create({
+      active: true,
+      transactions: [seedTransaction],
+    }).value;
+
+    const quantity = -201;
+    const delta = Amount.create({ value: quantity }).value;
+    const text = `Test: debit greater than balance`;
+    const description = Description.create({ value: text }).value;
+    const transactionOrError = account.createTransaction(delta, description);
+    const error = transactionOrError.error;
+
+    expect(transactionOrError.isFailure).toBe(true);
+    if (!(error instanceof BaseError))
+      throw Error(`Transaction didn't error when should`);
+    expect(error.type).toBe('AccountErrors.InvalidTransaction');
+  });
+});
+
+describe('transferTo', () => {
+  test('creation', () => {
+    // Create accounts
+    const seedFromAccount = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const fromAccount = Account.create({
+      active: true,
+      transactions: [seedFromAccount],
+    }).value;
+    const toAccount = Account.Initial();
+
+    const quantity = 30;
+    const delta = Amount.create({ value: quantity }).value;
+    const fromText = `Test: ${chance.sentence()}`;
+    const fromDescription = Description.create({ value: fromText }).value;
+    const toText = `Test: ${chance.sentence()}`;
+    const toDescription = Description.create({ value: toText }).value;
+    const txsOrError = fromAccount.transferTo(
+      toAccount,
+      delta,
+      fromDescription,
+      toDescription
+    );
+    const { fromTransaction, toTransaction } = txsOrError.value;
+
+    expect(txsOrError.isSuccess).toBe(true);
+    expect(fromTransaction.balance.value).toBe(200 - quantity);
+    expect(fromTransaction.description.value).toBe(fromText);
+    expect(fromTransaction.delta.value).toBe(-quantity);
+    expect(fromTransaction.date).toBeInstanceOf(Date);
+    expect(toTransaction.balance.value).toBe(quantity);
+    expect(toTransaction.description.value).toBe(toText);
+    expect(toTransaction.delta.value).toBe(quantity);
+    expect(toTransaction.date).toBeInstanceOf(Date);
+  });
+
+  it('fails for negative balance in source/from account', () => {
+    // Create accounts
+    const seedFromAccount = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const fromAccount = Account.create({
+      active: true,
+      transactions: [seedFromAccount],
+    }).value;
+    const toAccount = Account.Initial();
+
+    const quantity = 201;
+    const delta = Amount.create({ value: quantity }).value;
+    const fromDescription = Description.create({ value: 'Test' }).value;
+    const txsOrError = fromAccount.transferTo(
+      toAccount,
+      delta,
+      fromDescription,
+      fromDescription
+    );
+    const { error } = txsOrError;
+
+    expect(txsOrError.isFailure).toBe(true);
+    if (!(error instanceof BaseError))
+      throw Error(`Transaction didn't error when should`);
+    expect(error.type).toBe('AccountErrors.InvalidFromTransaction');
+  });
+
+  it('fails for negative balance in destination/to account', () => {
+    // Create accounts
+    const seedFromAccount = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const fromAccount = Account.create({
+      active: true,
+      transactions: [seedFromAccount],
+    }).value;
+    const toAccount = Account.Initial();
+
+    const quantity = -1;
+    const delta = Amount.create({ value: quantity }).value;
+    const fromDescription = Description.create({ value: 'Test' }).value;
+    const txsOrError = fromAccount.transferTo(
+      toAccount,
+      delta,
+      fromDescription,
+      fromDescription
+    );
+    const { error } = txsOrError;
+
+    expect(txsOrError.isFailure).toBe(true);
+    if (!(error instanceof BaseError))
+      throw Error(`Transaction didn't error when should`);
+    expect(error.type).toBe('AccountErrors.InvalidToTransaction');
+  });
 });

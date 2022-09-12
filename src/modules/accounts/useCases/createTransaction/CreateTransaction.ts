@@ -5,7 +5,6 @@ import { CreateTransactionErrors } from './CreateTransactionErrors';
 import { Amount } from '../../domain/Amount';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
-import { Transaction } from '../../domain/Transaction';
 
 export class CreateTransaction extends APIGatewayController {
   private readonly accountRepo: IAccountRepo;
@@ -42,17 +41,11 @@ export class CreateTransaction extends APIGatewayController {
     if (!account)
       return this.fail(new CreateTransactionErrors.AccountNotFound(userId));
 
-    const transactionOrError = Transaction.create({
-      balance: account.balance.add(delta),
-      delta,
-      description,
-      date: new Date(),
-    });
+    const transactionOrError = account.createTransaction(delta, description);
     if (transactionOrError.isFailure)
       return this.fail(new CreateTransactionErrors.InvalidTransaction(transactionOrError.error as BaseError));
-    const transaction = transactionOrError.value;
 
-    await this.accountRepo.createTransaction(transaction, userId);
+    await this.accountRepo.createTransaction(transactionOrError.value, userId);
 
     return this.created();
   }
