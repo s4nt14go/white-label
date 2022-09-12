@@ -92,6 +92,30 @@ describe('createTransaction', () => {
       throw Error(`Transaction didn't error when should`);
     expect(error.type).toBe('AccountErrors.InvalidTransaction');
   });
+
+  it('fails for inactive accounts', () => {
+    // Create account
+    const seedTransaction = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const account = Account.create({
+      active: false,
+      transactions: [seedTransaction],
+    }).value;
+
+    const delta = Amount.create({ value: 1 }).value;
+    const description = Description.create({ value: `Test: ${chance.sentence()}` }).value;
+    const transactionOrError = account.createTransaction(delta, description);
+    const error = transactionOrError.error;
+
+    expect(transactionOrError.isFailure).toBe(true);
+    if (!(error instanceof BaseError))
+      throw Error(`Transaction didn't error when should`);
+    expect(error.type).toBe('AccountErrors.NotActive');
+  });
 });
 
 describe('transferTo', () => {
@@ -194,5 +218,68 @@ describe('transferTo', () => {
     if (!(error instanceof BaseError))
       throw Error(`Transaction didn't error when should`);
     expect(error.type).toBe('AccountErrors.InvalidToTransaction');
+  });
+
+  it('fails for inactive source/from account', () => {
+    // Create accounts
+    const seedFromAccount = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const fromAccount = Account.create({
+      active: false,
+      transactions: [seedFromAccount],
+    }).value;
+    const toAccount = Account.Initial();
+
+    const delta = Amount.create({ value: 1 }).value;
+    const fromDescription = Description.create({ value: 'Test' }).value;
+    const txsOrError = fromAccount.transferTo(
+      toAccount,
+      delta,
+      fromDescription,
+      fromDescription
+    );
+    const { error } = txsOrError;
+
+    expect(txsOrError.isFailure).toBe(true);
+    if (!(error instanceof BaseError))
+      throw Error(`Transaction didn't error when should`);
+    expect(error.type).toBe('AccountErrors.NotActive');
+  });
+
+  it('fails for inactive destination/to account', () => {
+    // Create accounts
+    const seedFromAccount = Transaction.create({
+      balance: Amount.create({ value: 200 }).value,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const fromAccount = Account.create({
+      active: true,
+      transactions: [seedFromAccount],
+    }).value;
+    const toAccount = Account.create({
+      active: false,
+      transactions: [seedFromAccount],
+    }).value;
+
+    const delta = Amount.create({ value: 1 }).value;
+    const fromDescription = Description.create({ value: 'Test' }).value;
+    const txsOrError = fromAccount.transferTo(
+      toAccount,
+      delta,
+      fromDescription,
+      fromDescription
+    );
+    const { error } = txsOrError;
+
+    expect(txsOrError.isFailure).toBe(true);
+    if (!(error instanceof BaseError))
+      throw Error(`Transaction didn't error when should`);
+    expect(error.type).toBe('AccountErrors.ToAccountNotActive');
   });
 });

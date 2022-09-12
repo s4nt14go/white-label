@@ -63,6 +63,9 @@ export class Account extends AggregateRoot<AccountProps> {
     delta: Amount,
     description: Description
   ): Result<Transaction> {
+
+    if (!this.active) return Result.fail(new AccountErrors.NotActive());
+
     const transactionOrError = Transaction.create({
       balance: this.balance.add(delta),
       delta,
@@ -83,6 +86,10 @@ export class Account extends AggregateRoot<AccountProps> {
     fromDescription: Description,
     toDescription: Description
   ): Result<{ fromTransaction: Transaction; toTransaction: Transaction }> {
+
+    if (!this.active) return Result.fail(new AccountErrors.NotActive());
+    if (!toAccount.active) return Result.fail(new AccountErrors.ToAccountNotActive());
+
     const date = new Date();
     const fromTransactionOrError = Transaction.create({
       balance: this.balance.subtract(delta),

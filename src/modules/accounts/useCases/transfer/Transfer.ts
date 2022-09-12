@@ -59,7 +59,12 @@ export class Transfer extends APIGatewayController {
     if (!toAccount)
       return this.fail(new TransferErrors.ToAccountNotFound(toUserId));
 
-    const transferOrError = fromAccount.transferTo(toAccount, delta, fromDescription, toDescription);
+    const transferOrError = fromAccount.transferTo(
+      toAccount,
+      delta,
+      fromDescription,
+      toDescription
+    );
     if (transferOrError.isFailure)
       return this.fail(
         new TransferErrors.InvalidTransfer(transferOrError.error as BaseError)
