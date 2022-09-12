@@ -5,6 +5,7 @@ import { CreateTransactionErrors } from './CreateTransactionErrors';
 import { Amount } from '../../domain/Amount';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
+import { Guard } from '../../../../shared/core/Guard';
 
 export class CreateTransaction extends APIGatewayController {
   private readonly accountRepo: IAccountRepo;
@@ -20,6 +21,18 @@ export class CreateTransaction extends APIGatewayController {
     this.accountRepo.setTransaction(this.transaction);
 
     const { userId } = dto;
+
+    const guardNull = Guard.againstNullOrUndefined(
+      userId,
+      new CreateTransactionErrors.UserIdNotDefined(),
+    );
+    const guardType = Guard.isType(
+      userId,
+      'string',
+      new CreateTransactionErrors.UserIdNotString(typeof userId),
+    );
+    const combined = Guard.combine([guardNull, guardType]);
+    if (combined.isFailure) return this.fail(combined.error);
 
     const descriptionOrError = Description.create({ value: dto.description });
     if (descriptionOrError.isFailure)
@@ -43,7 +56,11 @@ export class CreateTransaction extends APIGatewayController {
 
     const transactionOrError = account.createTransaction(delta, description);
     if (transactionOrError.isFailure)
-      return this.fail(new CreateTransactionErrors.InvalidTransaction(transactionOrError.error as BaseError));
+      return this.fail(
+        new CreateTransactionErrors.InvalidTransaction(
+          transactionOrError.error as BaseError
+        )
+      );
 
     await this.accountRepo.createTransaction(transactionOrError.value, userId);
 

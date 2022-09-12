@@ -17,6 +17,13 @@ import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
 import { Context } from 'aws-lambda';
 
+// Add all process.env used:
+const { distributeDomainEvents } = process.env;
+if (!distributeDomainEvents) {
+  console.log('process.env', process.env);
+  throw new Error(`Undefined env var!`);
+}
+
 let createUserController: CreateUserController,
   dispatcherFake: IDispatcher,
   spyOnDispatch: jest.SpyInstance<
@@ -59,7 +66,7 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
   });
   expect(spyOnDispatch).toHaveBeenCalledWith(
     dispatcherIntake,
-    process.env.distributeDomainEvents
+    distributeDomainEvents
   );
   expect(spyOnDispatch).toBeCalledTimes(1);
 });

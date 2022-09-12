@@ -4,6 +4,27 @@ import { patch } from '../../../../shared/core/utils';
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace TransferErrors {
 
+  export class FromUserIdNotDefined extends BaseError {
+    public constructor() {
+      super(`Provide source/from account's userId`);
+    }
+  }
+  export class ToUserIdNotDefined extends BaseError {
+    public constructor() {
+      super(`Provide destination/to account's userId`);
+    }
+  }
+  export class FromUserIdNotString extends BaseError {
+    public constructor(type: string) {
+      super(`Source/from account's userId should be a string instead of ${type}`);
+    }
+  }
+  export class ToUserIdNotString extends BaseError {
+    public constructor(type: string) {
+      super(`Destination/to account's userId should be a string instead of ${type}`);
+    }
+  }
+
   export class FromAccountNotFound extends BaseError {
     public constructor(userId: string) {
       super(`Source account with userId ${userId} wasn't found`);

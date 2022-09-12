@@ -18,7 +18,7 @@ afterAll(async () => {
 
 test('User creation', async () => {
   const newUser = getNewUserDto();
-  const response = await fetch(process.env.apiUrl + '/createUser', {
+  const response = await fetch(apiUrl + '/createUser', {
     method: 'post',
     body: JSON.stringify(newUser),
     headers: { 'Content-Type': 'application/json' },

@@ -33,9 +33,9 @@ test('Create transaction', async () => {
   const dto: CreateTransactionDTO = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: Math.round(Math.random() * 100) / 100,
+    delta: chance.floating({ min: 0, fixed: 2 }),
   };
-  const response = await fetch(process.env.apiUrl + '/createTransaction', {
+  const response = await fetch(apiUrl + '/createTransaction', {
     method: 'post',
     body: JSON.stringify(dto),
     headers: { 'Content-Type': 'application/json' },

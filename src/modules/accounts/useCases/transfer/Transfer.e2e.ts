@@ -54,25 +54,11 @@ test('Transfer', async () => {
     toDescription: `Test: ${chance.sentence()}`,
     quantity: 50,
   };
-  const response = await fetch(process.env.apiUrl + '/transfer', {
+  const response = await fetch(apiUrl + '/transfer', {
     method: 'post',
     body: JSON.stringify(dto),
     headers: { 'Content-Type': 'application/json' },
   });
 
   expect(response.status).toBe(201);
-
-  const fromAccount = await AccountRepo.getAccountByUserId(fromSeed.userId);
-  if (!fromAccount) throw new Error(`Account not found for userId ${fromSeed.userId}`);
-  expect(fromAccount.transactions.length).toBe(3);  // Initial transaction when seeding with createUserAndAccount, funding and transfer
-  expect(fromAccount.transactions[0].balance.value).toBe(fromSeed.account.balance.value + fund - dto.quantity);
-  expect(fromAccount.transactions[0].delta.value).toBe(-dto.quantity);
-  expect(fromAccount.transactions[0].description.value).toBe(dto.fromDescription);
-
-  const toAccount = await AccountRepo.getAccountByUserId(toSeed.userId);
-  if (!toAccount) throw new Error(`Account not found for userId ${toSeed.userId}`);
-  expect(toAccount.transactions.length).toBe(2);  // Initial transaction when seeding with createUserAndAccount and transfer
-  expect(toAccount.transactions[0].balance.value).toBe(toSeed.account.balance.value + dto.quantity);
-  expect(toAccount.transactions[0].delta.value).toBe(dto.quantity);
-  expect(toAccount.transactions[0].description.value).toBe(dto.toDescription);
 });

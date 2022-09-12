@@ -12,6 +12,7 @@ interface TransactionProps {
   description: Description;
 }
 
+// Transaction is internal to Account, Account should be the only one importing it
 export class Transaction extends Entity<TransactionProps> {
   public static Initial(): Transaction {
     return this.create({

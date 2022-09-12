@@ -5,6 +5,7 @@ import { TransferErrors } from './TransferErrors';
 import { Amount } from '../../domain/Amount';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
+import { Guard } from '../../../../shared/core/Guard';
 
 export class Transfer extends APIGatewayController {
   private readonly accountRepo: IAccountRepo;
@@ -50,6 +51,32 @@ export class Transfer extends APIGatewayController {
     const delta = deltaOrError.value;
 
     const { fromUserId, toUserId } = dto;
+    {
+      const guardNull = Guard.againstNullOrUndefined(
+        fromUserId,
+        new TransferErrors.FromUserIdNotDefined()
+      );
+      const guardType = Guard.isType(
+        fromUserId,
+        'string',
+        new TransferErrors.FromUserIdNotString(typeof fromUserId)
+      );
+      const combined = Guard.combine([guardNull, guardType]);
+      if (combined.isFailure) return this.fail(combined.error);
+    }
+    {
+      const guardNull = Guard.againstNullOrUndefined(
+        toUserId,
+        new TransferErrors.ToUserIdNotDefined()
+      );
+      const guardType = Guard.isType(
+        toUserId,
+        'string',
+        new TransferErrors.ToUserIdNotString(typeof toUserId)
+      );
+      const combined = Guard.combine([guardNull, guardType]);
+      if (combined.isFailure) return this.fail(combined.error);
+    }
 
     const fromAccount = await this.accountRepo.getAccountByUserId(fromUserId);
     if (!fromAccount)

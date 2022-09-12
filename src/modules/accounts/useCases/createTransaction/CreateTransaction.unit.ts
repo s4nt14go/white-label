@@ -35,6 +35,7 @@ it('creates a transaction', async () => {
 });
 
 test.each([
+  ['userId', 'CreateTransactionErrors.UserIdNotDefined'],
   ['description', 'CreateTransactionErrors.InvalidDescription'],
   ['delta', 'CreateTransactionErrors.InvalidDelta'],
 ])(
@@ -57,6 +58,22 @@ test.each([
     expect(parsed.errorType).toBe(errorType);
   }
 );
+it(`fails when userId isn't a string`, async () => {
+  const badData = {
+    userId: 1,
+    description: `Test: ${chance.sentence()}`,
+    delta: 30,
+  };
+
+  const result = await createTransaction.execute(
+    getAPIGatewayEvent(badData),
+    context
+  );
+
+  expect(result.statusCode).toBe(400);
+  const parsed = JSON.parse(result.body)
+  expect(parsed.errorType).toBe('CreateTransactionErrors.UserIdNotString');
+});
 
 it('fails when delta subtracts more than balance', async () => {
   const data = {

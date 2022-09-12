@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import 'aws-testing-library/lib/jest';
 import { TextEncoder } from 'util';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
@@ -13,7 +12,6 @@ import {
 import { CreateTransactionDTO } from './CreateTransactionDTO';
 import Chance from 'chance';
 import { Account } from '../../domain/Account';
-import { Amount } from '../../domain/Amount';
 
 const chance = new Chance();
 
@@ -24,7 +22,7 @@ if (!createTransaction) {
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { userId: string; account: Account }, expected;
+let seed: { userId: string; account: Account };
 beforeAll(async () => {
   seed = await createUserAndAccount();
 });
@@ -39,7 +37,7 @@ test('Create transactions', async () => {
   const dto1: CreateTransactionDTO = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: Math.round(Math.random() * 100) / 100,
+    delta: chance.floating({ min: 0, fixed: 2 }),
   };
   let invoked = await invokeCreateTransaction(dto1);
 
@@ -49,7 +47,7 @@ test('Create transactions', async () => {
   const dto2: CreateTransactionDTO = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: Math.round(Math.random() * 100) / 100,
+    delta: chance.floating({ min: 0, fixed: 2 }),
   };
   invoked = await invokeCreateTransaction(dto2);
 
@@ -63,11 +61,9 @@ test('Create transactions', async () => {
   );
   expect(account.transactions[1].delta.value).toBe(dto1.delta);
   expect(account.transactions[1].description.value).toBe(dto1.description);
-
-  expected = seed.account.balance.value + dto1.delta + dto2.delta;
-  expected = Amount.create({ value: expected }).value.value; // round to correct decimals quantity
-  expect(account.transactions[0].balance.value).toBe(expected);
-
+  expect(account.transactions[0].balance.value).toBe(
+    seed.account.balance.value + dto1.delta + dto2.delta
+  );
   expect(account.transactions[0].delta.value).toBe(dto2.delta);
   expect(account.transactions[0].description.value).toBe(dto2.description);
   expect(account.balance.value).toBe(
