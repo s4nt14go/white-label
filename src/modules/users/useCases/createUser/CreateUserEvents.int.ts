@@ -69,6 +69,8 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
     distributeDomainEvents
   );
   expect(spyOnDispatch).toBeCalledTimes(1);
+  const id = JSON.parse(response.body).result.id;
+  createdUsers.push({ id })
 });
 
 test(`distributeDomainEvents isn't called when saving to DB fails`, async () => {

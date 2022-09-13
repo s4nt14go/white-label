@@ -52,9 +52,9 @@ export abstract class APIGatewayController extends BaseController {
     );
   }
 
-  public async created() {
+  public async created(result?: { id: string }) {
     if (this.transaction) await this.transaction.commit();
-    return APIGatewayController.jsonResponse(201, JSON.stringify({ ...Envelope.ok() }));
+    return APIGatewayController.jsonResponse(201, JSON.stringify({ ...Envelope.ok(result) }));
   }
 
   public async conflict(error: BaseError) {
