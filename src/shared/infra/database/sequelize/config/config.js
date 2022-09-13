@@ -44,9 +44,13 @@ const connection = new Sequelize(
     dialectModule: pg,
     port: databaseCredentials.port,
     dialectOptions: databaseCredentials.dialectOptions,
+    // According to https://sequelize.org/docs/v6/other-topics/aws-lambda
     pool: {
       max: 2,
+      min: 0,
+      idle: 0,
       acquire: 3000,
+      evict: 10000, // Default lambda timeout for Serverless Stack SST is 10s
     },
   }
 );
