@@ -11,7 +11,7 @@ import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/Alias';
 
-export class CreateUserController extends APIGatewayController {
+export class CreateUser extends APIGatewayController {
   private readonly userRepo: IUserRepo;
   public constructor(
     userRepo: IUserRepo,

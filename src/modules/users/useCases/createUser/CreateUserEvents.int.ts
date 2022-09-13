@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
-import { CreateUserController } from './CreateUserController';
+import { CreateUser } from './CreateUser';
 import {
   fakeTransaction, getAPIGatewayEvent,
   getNewUserDto,
@@ -24,7 +24,7 @@ if (!distributeDomainEvents) {
   throw new Error(`Undefined env var!`);
 }
 
-let createUserController: CreateUserController,
+let createUser: CreateUser,
   dispatcherFake: IDispatcher,
   spyOnDispatch: jest.SpyInstance<
     Promise<unknown>,
@@ -47,11 +47,11 @@ afterAll(async () => {
 
 const context = {} as unknown as Context;
 test('Domain event dispatcher calls distributeDomainEvents with user data for UserCreatedEvent', async () => {
-  createUserController = new CreateUserController(UserRepo, dispatcherFake, fakeTransaction);
+  createUser = new CreateUser(UserRepo, dispatcherFake, fakeTransaction);
 
   const newUser = getNewUserDto();
 
-  const response = await createUserController.execute(getAPIGatewayEvent(newUser), context);
+  const response = await createUser.execute(getAPIGatewayEvent(newUser), context);
   expect(response.statusCode).toBe(201);
 
   const dispatcherIntake = expect.objectContaining({
@@ -74,7 +74,7 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
 });
 
 test(`distributeDomainEvents isn't called when saving to DB fails`, async () => {
-  createUserController = new CreateUserController(
+  createUser = new CreateUser(
     new UserRepoFake(),
     dispatcherFake,
     fakeTransaction,
@@ -86,7 +86,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails`, async () => 
   };
 
   try {
-    await createUserController.execute(getAPIGatewayEvent(newUser), context);
+    await createUser.execute(getAPIGatewayEvent(newUser), context);
     // eslint-disable-next-line no-empty
   } catch {}
 

@@ -1,4 +1,4 @@
-import { CreateUserController } from './CreateUserController';
+import { CreateUser } from './CreateUser';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { Context } from 'aws-lambda';
@@ -7,10 +7,10 @@ import {
   getAPIGatewayEvent,
 } from '../../../../shared/utils/test';
 
-let userRepo, createUserController: CreateUserController;
+let userRepo, createUser: CreateUser;
 beforeAll(() => {
   userRepo = new UserRepoFake();
-  createUserController = new CreateUserController(
+  createUser = new CreateUser(
     userRepo,
     new DispatcherFake(),
     fakeTransaction
@@ -26,7 +26,7 @@ test('User creation with alias', async () => {
     alias: 'test_alias',
   };
 
-  const result = await createUserController.execute(
+  const result = await createUser.execute(
     getAPIGatewayEvent(validData),
     context
   );
@@ -41,7 +41,7 @@ test('User creation without alias', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUserController.execute(
+  const result = await createUser.execute(
     getAPIGatewayEvent(validData),
     context
   );
@@ -63,7 +63,7 @@ test.each([
     };
     delete badData[field as 'username' | 'email' | 'password'];
 
-    const result = await createUserController.execute(
+    const result = await createUser.execute(
       getAPIGatewayEvent(badData),
       context
     );
@@ -81,7 +81,7 @@ test('User creation fails for taken email', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUserController.execute(
+  const result = await createUser.execute(
     getAPIGatewayEvent(data),
     context
   );
@@ -98,7 +98,7 @@ test('User creation fails for taken username', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUserController.execute(
+  const result = await createUser.execute(
     getAPIGatewayEvent(data),
     context
   );

@@ -9,8 +9,8 @@ Domain events (e.g. [UserCreatedEvent](src/modules/users/domain/events/UserCreat
 Communication in the same module is given as an example but using domain events for intra-module/app communication inside a same domain model may involve adding an indirection that doesn't add value and a direct/explicit flow is more convenient.
 
 The lambda entry point for `CreateUser` use case is [src/modules/users/useCases/createUser/index.ts](src/modules/users/useCases/createUser/index.ts), there we:
-* Create [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.ts)
-* In `CreateUserController.constructor` we register `UserCreatedEvent` to an intermediate lambda [DistributeDomainEvents](src/shared/infra/dispatchEvents/DistributeDomainEvents.ts) that will invoke all its subscribers (`NotifySlackChannel` and `SomeWork` lambdas).
+* Create [CreateUser](src/modules/users/useCases/createUser/CreateUser.ts)
+* In `CreateUser.constructor` we register `UserCreatedEvent` to an intermediate lambda [DistributeDomainEvents](src/shared/infra/dispatchEvents/DistributeDomainEvents.ts) that will invoke all its subscribers (`CreateAccount`, `NotifySlackChannel` and `SomeWork` lambdas).
 
 This is the transaction tracing from [Lumigo](https://lumigo.io):
 
@@ -44,16 +44,16 @@ Unit tests added:
 
 - Value Objects: [UserName](src/modules/users/domain/UserEmail.unit.ts), [UserEmail](src/modules/users/domain/UserEmail.unit.ts), [UserPassword](src/modules/users/domain/UserPassword.unit.ts), [Alias](src/modules/users/domain/Alias.unit.ts)
 - Aggregate [User](src/modules/users/domain/User.unit.ts)
-- Use cases/controllers: [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.unit.ts) (with faked repo), [NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.unit.ts), [SomeWork](src/modules/users/useCases/someWork/SomeWork.unit.ts)
+- Use cases/controllers: [CreateUser](src/modules/users/useCases/createUser/CreateUser.unit.ts) (with faked repo), [NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.unit.ts), [SomeWork](src/modules/users/useCases/someWork/SomeWork.unit.ts)
 
 Integration tests:
 
 - Domain event registration and dispatching [CreateUserEvents](src/modules/users/useCases/createUser/CreateUserEvents.int.ts)
-- [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.int.ts) (with real repo)
+- [CreateUser](src/modules/users/useCases/createUser/CreateUser.int.ts) (with real repo)
 
 E2E test:
 
-- [CreateUserController](src/modules/users/useCases/createUser/CreateUserController.e2e.ts)
+- [CreateUser](src/modules/users/useCases/createUser/CreateUser.e2e.ts)
 
 ## Stack
 
