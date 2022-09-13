@@ -29,7 +29,6 @@ export abstract class APIGatewayController extends BaseController {
       console.log(`An unexpected error occurred`, err);
       console.log(`Context`, _context);
       console.log(`Event`, event);
-      if (this.transaction) await this.transaction.rollback();
       return this.serverError(_context);
     }
   }
