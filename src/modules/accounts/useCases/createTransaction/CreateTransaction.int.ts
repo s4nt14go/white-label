@@ -1,15 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { TextEncoder } from 'util';
-import { Lambda } from '@aws-sdk/client-lambda';
-import stringify from 'json-stringify-safe';
-import { parsePayload } from '../../../../shared/utils/test';
+import { invokeLambda } from '../../../../shared/utils/test';
 import {
   deleteUsers,
   AccountRepo,
   createUserAndAccount,
 } from '../../../../shared/utils/repos';
-import { CreateTransactionDTO } from './CreateTransactionDTO';
+import { Request } from './CreateTransactionDTO';
 import Chance from 'chance';
 import { Account } from '../../domain/Account';
 
@@ -34,22 +31,22 @@ afterAll(async () => {
 
 test('Create transactions', async () => {
   // Create first transaction
-  const dto1: CreateTransactionDTO = {
+  const dto1: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
     delta: chance.floating({ min: 0, fixed: 2 }),
   };
-  let invoked = await invokeCreateTransaction(dto1);
+  let invoked = await invokeLambda(dto1, createTransaction);
 
   expect(invoked.statusCode).toBe(201);
 
   // Create second transaction
-  const dto2: CreateTransactionDTO = {
+  const dto2: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
     delta: chance.floating({ min: 0, fixed: 2 }),
   };
-  invoked = await invokeCreateTransaction(dto2);
+  invoked = await invokeLambda(dto2, createTransaction);
 
   expect(invoked.statusCode).toBe(201);
 
@@ -61,6 +58,16 @@ test('Create transactions', async () => {
   );
   expect(account.transactions[1].delta.value).toBe(dto1.delta);
   expect(account.transactions[1].description.value).toBe(dto1.description);
+  if (account.transactions[0].balance.value !== seed.account.balance.value + dto1.delta + dto2.delta) {
+    console.log(account.transactions[0].balance.value);
+    console.log(seed.account.balance.value);
+    console.log(dto1.delta);
+    console.log(dto2.delta);
+    console.log('account', account);
+    console.log('seed', seed);
+    console.log('dto1', dto1);
+    console.log('dto2', dto2);
+  }
   expect(account.transactions[0].balance.value).toBe(
     seed.account.balance.value + dto1.delta + dto2.delta
   );
@@ -70,15 +77,3 @@ test('Create transactions', async () => {
     seed.account.balance.value + dto1.delta + dto2.delta
   );
 });
-
-const lambdaClient = new Lambda({});
-const invokeCreateTransaction = async (dto: CreateTransactionDTO) => {
-  const req = {
-    FunctionName: createTransaction,
-    Payload: new TextEncoder().encode(stringify(dto)),
-  };
-
-  const result = await lambdaClient.invoke(req);
-
-  return parsePayload(result.Payload);
-};

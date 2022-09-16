@@ -3,7 +3,7 @@ import { BaseError } from './AppError';
 export class Result<T> {
   public isSuccess: boolean;
   public isFailure: boolean;
-  public error?: T | null | BaseError;
+  public error?: null | BaseError;
   private readonly _value?: T;
 
   public constructor(isSuccess: boolean, error?: null | BaseError, value?: T) {

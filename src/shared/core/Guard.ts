@@ -65,4 +65,16 @@ export class Guard {
       return Result.fail(error);
     }
   }
+
+  public static isUuid(
+    value: string,
+    error: BaseError
+  ): Result<unknown> {
+    const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+    if (regexExp.test(value)) {
+      return Result.ok();
+    } else {
+      return Result.fail(error);
+    }
+  }
 }

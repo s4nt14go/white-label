@@ -1,13 +1,16 @@
-import { APIGatewayController } from '../../../../shared/infra/http/APIGatewayController';
-import { CreateTransactionDTO } from './CreateTransactionDTO';
+import { APIGatewayPOST } from '../../../../shared/infra/http/APIGatewayPOST';
+import { Request, Response } from './CreateTransactionDTO';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { CreateTransactionErrors } from './CreateTransactionErrors';
 import { Amount } from '../../domain/Amount';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
 import { Guard } from '../../../../shared/core/Guard';
+import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { Status } from '../../../../shared/core/Status';
+const { BAD_REQUEST, CREATED } = Status;
 
-export class CreateTransaction extends APIGatewayController {
+export class CreateTransaction extends APIGatewayPOST<Response> {
   private readonly accountRepo: IAccountRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,7 +19,7 @@ export class CreateTransaction extends APIGatewayController {
     this.accountRepo = accountRepo;
   }
 
-  protected async executeImpl(dto: CreateTransactionDTO) {
+  protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
     // As this use case is a command, include all repos queries in a serializable transaction
     this.accountRepo.setTransaction(this.transaction);
 
@@ -24,46 +27,64 @@ export class CreateTransaction extends APIGatewayController {
 
     const guardNull = Guard.againstNullOrUndefined(
       userId,
-      new CreateTransactionErrors.UserIdNotDefined(),
+      new CreateTransactionErrors.UserIdNotDefined()
     );
     const guardType = Guard.isType(
       userId,
       'string',
-      new CreateTransactionErrors.UserIdNotString(typeof userId),
+      new CreateTransactionErrors.UserIdNotString(typeof userId)
     );
-    const combined = Guard.combine([guardNull, guardType]);
-    if (combined.isFailure) return this.fail(combined.error);
+    const guardUuid = Guard.isUuid(
+      userId,
+      new CreateTransactionErrors.UserIdNotUuid(userId)
+    );
+    const combined = Guard.combine([guardNull, guardType, guardUuid]);
+    if (combined.isFailure)
+      return {
+        status: BAD_REQUEST,
+        result: combined.error as BaseError,
+      };
 
     const descriptionOrError = Description.create({ value: dto.description });
     if (descriptionOrError.isFailure)
-      return this.fail(
-        new CreateTransactionErrors.InvalidDescription(
+      return {
+        status: BAD_REQUEST,
+        result: new CreateTransactionErrors.InvalidDescription(
           descriptionOrError.error as BaseError
-        )
-      );
+        ),
+      };
     const description = descriptionOrError.value;
 
     const deltaOrError = Amount.create({ value: dto.delta });
     if (deltaOrError.isFailure)
-      return this.fail(
-        new CreateTransactionErrors.InvalidDelta(deltaOrError.error as BaseError)
-      );
+      return {
+        status: BAD_REQUEST,
+        result: new CreateTransactionErrors.InvalidDelta(
+          deltaOrError.error as BaseError
+        ),
+      };
     const delta = deltaOrError.value;
 
     const account = await this.accountRepo.getAccountByUserId(userId);
     if (!account)
-      return this.fail(new CreateTransactionErrors.AccountNotFound(userId));
+      return {
+        status: BAD_REQUEST,
+        result: new CreateTransactionErrors.AccountNotFound(userId),
+      };
 
     const transactionOrError = account.createTransaction(delta, description);
     if (transactionOrError.isFailure)
-      return this.fail(
-        new CreateTransactionErrors.InvalidTransaction(
+      return {
+        status: BAD_REQUEST,
+        result: new CreateTransactionErrors.InvalidTransaction(
           transactionOrError.error as BaseError
-        )
-      );
+        ),
+      };
 
     await this.accountRepo.createTransaction(transactionOrError.value, userId);
 
-    return this.created();
+    return {
+      status: CREATED,
+    };
   }
 }

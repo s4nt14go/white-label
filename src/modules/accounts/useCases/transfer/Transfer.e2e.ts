@@ -7,7 +7,7 @@ import {
   deleteUsers,
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
-import { TransferDTO } from './TransferDTO';
+import { Request } from './TransferDTO';
 import Chance from 'chance';
 import { Transaction } from '../../domain/Transaction';
 import { Amount } from '../../domain/Amount';
@@ -47,7 +47,7 @@ afterAll(async () => {
 });
 
 test('Transfer', async () => {
-  const dto: TransferDTO = {
+  const dto: Request = {
     fromUserId: fromSeed.userId,
     fromDescription: `Test: ${chance.sentence()}`,
     toUserId: toSeed.userId,

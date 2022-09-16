@@ -3,7 +3,7 @@ import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAPIGatewayEvent,
+  getAPIGatewayPOSTevent as getEvent,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 
@@ -25,7 +25,7 @@ test('Transfer', async () => {
   };
 
   const result = await transfer.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 
@@ -50,7 +50,7 @@ test.each([
       field as 'fromUserId' | 'toUserId' | 'quantity' | 'fromDescription'
     ];
 
-    const result = await transfer.execute(getAPIGatewayEvent(badData), context);
+    const result = await transfer.execute(getEvent(badData), context);
 
     expect(result.statusCode).toBe(400);
     const parsed = JSON.parse(result.body);
@@ -71,7 +71,7 @@ test.each([
     };
     badData[field as 'fromUserId' | 'toUserId'] = 1 as unknown as string;
 
-    const result = await transfer.execute(getAPIGatewayEvent(badData), context);
+    const result = await transfer.execute(getEvent(badData), context);
 
     expect(result.statusCode).toBe(400);
     const parsed = JSON.parse(result.body);
@@ -93,7 +93,7 @@ test.each([
     };
     badData[field as 'fromUserId' | 'toUserId'] = UserId.NO_TRANSACTIONS;
 
-    const result = await transfer.execute(getAPIGatewayEvent(badData), context);
+    const result = await transfer.execute(getEvent(badData), context);
 
     expect(result.statusCode).toBe(400);
     const parsed = JSON.parse(result.body);
@@ -110,7 +110,7 @@ it('fails when quantity is greater than source/from balance', async () => {
   };
 
   const result = await transfer.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 
@@ -127,7 +127,7 @@ it('fails when quantity is greater than destination/to balance', async () => {
   };
 
   const result = await transfer.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 

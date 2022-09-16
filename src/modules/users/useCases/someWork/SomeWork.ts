@@ -1,8 +1,8 @@
-import { SubscriberController } from '../../../../shared/core/SubscriberController';
+import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
 import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
 import { IExternalService } from '../../services/some';
 
-export class SomeWork extends SubscriberController<UserCreatedEvent> {
+export class SomeWork extends BaseSubscriber<UserCreatedEvent> {
   private externalService: IExternalService;
 
   public constructor(externalService: IExternalService) {

@@ -1,5 +1,5 @@
-import { APIGatewayController } from '../../../../shared/infra/http/APIGatewayController';
-import { CreateUserDTO } from './CreateUserDTO';
+import { APIGatewayPOST } from '../../../../shared/infra/http/APIGatewayPOST';
+import { Request, Response } from './CreateUserDTO';
 import { CreateUserErrors } from './CreateUserErrors';
 import { UserEmail } from '../../domain/UserEmail';
 import { UserPassword } from '../../domain/UserPassword';
@@ -10,8 +10,12 @@ import { IUserRepo } from '../../repos/IUserRepo';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/Alias';
+import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { Status } from '../../../../shared/core/Status';
+import { BaseError } from '../../../../shared/core/AppError';
+const { BAD_REQUEST, CREATED, CONFLICT } = Status;
 
-export class CreateUser extends APIGatewayController {
+export class CreateUser extends APIGatewayPOST<Response> {
   private readonly userRepo: IUserRepo;
   public constructor(
     userRepo: IUserRepo,
@@ -24,7 +28,7 @@ export class CreateUser extends APIGatewayController {
     CreateUserEvents.registration(dispatcher);
   }
 
-  protected async executeImpl(dto: CreateUserDTO) {
+  protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
     // As this use case is a command, include all repos queries in a serializable transaction
     this.userRepo.setTransaction(this.transaction);
 
@@ -40,9 +44,8 @@ export class CreateUser extends APIGatewayController {
       aliasOrError,
     ]);
 
-    if (dtoResult.isFailure) {
-      return this.fail(dtoResult.error);
-    }
+    if (dtoResult.isFailure)
+      return { status: BAD_REQUEST, result: dtoResult.error as BaseError };
     const email = emailOrError.value;
     const password = passwordOrError.value;
     const username = usernameOrError.value;
@@ -50,15 +53,19 @@ export class CreateUser extends APIGatewayController {
 
     const emailAlreadyTaken = await this.userRepo.exists(email);
     if (emailAlreadyTaken)
-      return this.conflict(new CreateUserErrors.EmailAlreadyTaken(email.value));
+      return {
+        status: CONFLICT,
+        result: new CreateUserErrors.EmailAlreadyTaken(email.value),
+      };
 
     const usernameAlreadyTaken = await this.userRepo.findUserByUsername(
       username.value
     );
     if (usernameAlreadyTaken)
-      return this.conflict(
-        new CreateUserErrors.UsernameAlreadyTaken(username.value)
-      );
+      return {
+        status: CONFLICT,
+        result: new CreateUserErrors.UsernameAlreadyTaken(username.value),
+      };
 
     const user = User.create({
       email,
@@ -69,6 +76,6 @@ export class CreateUser extends APIGatewayController {
 
     await this.userRepo.create(user);
 
-    return this.created({ id: user.id.toString() });
+    return { status: CREATED, result: { id: user.id.toString() } };
   }
 }

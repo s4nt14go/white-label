@@ -4,7 +4,7 @@ import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/Dispatch
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAPIGatewayEvent,
+  getAPIGatewayPOSTevent as getEvent,
 } from '../../../../shared/utils/test';
 
 let userRepo, createUser: CreateUser;
@@ -27,7 +27,7 @@ test('User creation with alias', async () => {
   };
 
   const result = await createUser.execute(
-    getAPIGatewayEvent(validData),
+    getEvent(validData),
     context
   );
 
@@ -42,7 +42,7 @@ test('User creation without alias', async () => {
   };
 
   const result = await createUser.execute(
-    getAPIGatewayEvent(validData),
+    getEvent(validData),
     context
   );
 
@@ -64,7 +64,7 @@ test.each([
     delete badData[field as 'username' | 'email' | 'password'];
 
     const result = await createUser.execute(
-      getAPIGatewayEvent(badData),
+      getEvent(badData),
       context
     );
 
@@ -82,7 +82,7 @@ test('User creation fails for taken email', async () => {
   };
 
   const result = await createUser.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 
@@ -99,7 +99,7 @@ test('User creation fails for taken username', async () => {
   };
 
   const result = await createUser.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 

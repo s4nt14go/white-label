@@ -1,9 +1,9 @@
-import { BaseController } from './BaseController';
+import { BaseTransaction } from './BaseTransaction';
 
-export abstract class SubscriberController<IRequest> extends BaseController {
-  protected abstract executeImpl(request?: IRequest): void;
+export abstract class BaseSubscriber<T> extends BaseTransaction {
+  protected abstract executeImpl(dto: T): void;
 
-  public async execute(dto: IRequest): Promise<void> {
+  public async execute(dto: T): Promise<void> {
     if (this.getTransaction) this.transaction = await this.getTransaction();
     try {
       await this.executeImpl(dto);

@@ -24,6 +24,11 @@ export namespace TransferErrors {
       super(`Destination/to account's userId should be a string instead of ${type}`);
     }
   }
+  export class UserIdNotUuid extends BaseError {
+    public constructor(userId: string) {
+      super(`User id ${userId} isn't a valid UUID`);
+    }
+  }
 
   export class FromAccountNotFound extends BaseError {
     public constructor(userId: string) {

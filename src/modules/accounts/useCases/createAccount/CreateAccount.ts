@@ -1,8 +1,8 @@
-import { SubscriberController } from '../../../../shared/core/SubscriberController';
+import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
 import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 
-export class CreateAccount extends SubscriberController<UserCreatedEvent> {
+export class CreateAccount extends BaseSubscriber<UserCreatedEvent> {
   private readonly accountRepo: IAccountRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

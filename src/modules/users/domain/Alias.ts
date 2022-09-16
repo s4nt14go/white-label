@@ -52,7 +52,7 @@ export class Alias extends ValueObject<AliasProps> {
       .onBoth((result) =>
         result.isSuccess
           ? Result.ok<Alias>(new Alias({ value: result.value }))
-          : Result.fail(result.error)
+          : Result.fail(result.error as BaseError)
       );
   }
 }

@@ -3,7 +3,7 @@ import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAPIGatewayEvent,
+  getAPIGatewayPOSTevent as getEvent,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 
@@ -27,7 +27,7 @@ it('creates a transaction', async () => {
   };
 
   const result = await createTransaction.execute(
-    getAPIGatewayEvent(validData),
+    getEvent(validData),
     context
   );
 
@@ -49,7 +49,7 @@ test.each([
     delete badData[field as 'description' | 'delta'];
 
     const result = await createTransaction.execute(
-      getAPIGatewayEvent(badData),
+      getEvent(badData),
       context
     );
 
@@ -66,13 +66,29 @@ it(`fails when userId isn't a string`, async () => {
   };
 
   const result = await createTransaction.execute(
-    getAPIGatewayEvent(badData),
+    getEvent(badData),
     context
   );
 
   expect(result.statusCode).toBe(400);
   const parsed = JSON.parse(result.body)
   expect(parsed.errorType).toBe('CreateTransactionErrors.UserIdNotString');
+});
+it(`fails when userId isn't an uuid`, async () => {
+  const badData = {
+    userId: 'not an uuid',
+    description: `Test: ${chance.sentence()}`,
+    delta: 30,
+  };
+
+  const result = await createTransaction.execute(
+    getEvent(badData),
+    context
+  );
+
+  expect(result.statusCode).toBe(400);
+  const parsed = JSON.parse(result.body)
+  expect(parsed.errorType).toBe('CreateTransactionErrors.UserIdNotUuid');
 });
 
 it('fails when delta subtracts more than balance', async () => {
@@ -83,7 +99,7 @@ it('fails when delta subtracts more than balance', async () => {
   };
 
   const result = await createTransaction.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 
@@ -100,7 +116,7 @@ it('fails when no transactions are found for the user', async () => {
   };
 
   const result = await createTransaction.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 
@@ -117,7 +133,7 @@ test('Internal server error when no transactions are found for the user', async 
   };
 
   const result = await createTransaction.execute(
-    getAPIGatewayEvent(data),
+    getEvent(data),
     context
   );
 

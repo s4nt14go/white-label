@@ -2,6 +2,7 @@ import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
 import { CreateEmailErrors } from './UserEmailErrors';
+import { BaseError } from '../../../shared/core/AppError';
 
 interface UserEmailProps {
   value: string;
@@ -27,7 +28,7 @@ export class UserEmail extends ValueObject<UserEmailProps> {
       new CreateEmailErrors.EmailNotString()
     );
     const combined = Guard.combine([guardNulls, guardType]);
-    if (combined.isFailure) return Result.fail(combined.error);
+    if (combined.isFailure) return Result.fail(combined.error as BaseError);
 
     const trimmed = email.trim();
     const validEmail = /^\w+([.-\\+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(

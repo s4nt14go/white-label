@@ -7,7 +7,7 @@ import {
   deleteUsers,
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
-import { CreateTransactionDTO } from './CreateTransactionDTO';
+import { Request } from './CreateTransactionDTO';
 import Chance from 'chance';
 
 const chance = new Chance();
@@ -30,7 +30,7 @@ afterAll(async () => {
 });
 
 test('Create transaction', async () => {
-  const dto: CreateTransactionDTO = {
+  const dto: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
     delta: chance.floating({ min: 0, fixed: 2 }),

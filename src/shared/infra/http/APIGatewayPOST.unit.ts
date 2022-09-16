@@ -1,12 +1,14 @@
-import { APIGatewayController } from './APIGatewayController';
-import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { APIGatewayPOST } from './APIGatewayPOST';
+import { APIGatewayEvent, Context } from 'aws-lambda';
+import { ControllerResultAsync } from '../../core/BaseController';
+import { Status } from '../../core/Status';
 
-class Sample extends APIGatewayController {
+class Sample extends APIGatewayPOST<void> {
   protected executeImpl(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     dto: unknown | APIGatewayEvent
-  ): Promise<APIGatewayProxyResult> {
-    return Promise.resolve(null as unknown as APIGatewayProxyResult);
+  ): ControllerResultAsync<void> {
+    return Promise.resolve({ status: Status.OK });
   }
   public constructor() {
     super();

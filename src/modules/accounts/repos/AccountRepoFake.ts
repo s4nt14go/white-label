@@ -7,9 +7,9 @@ import { TransactionMap } from '../mappers/TransactionMap';
 import { TransferProps } from './IAccountRepo';
 
 export enum UserId {
-  GOOD = 'GOOD',
-  NO_TRANSACTIONS = 'NO_TRANSACTIONS',
-  TRANSACTIONS_WITHOUT_ACCOUNT = 'TRANSACTIONS_WITHOUT_ACCOUNT',
+  GOOD = '12345678-1234-1234-1234-123456789012',
+  NO_TRANSACTIONS = '00000000-1234-1234-1234-123456789012',
+  TRANSACTIONS_WITHOUT_ACCOUNT = '00000000-0000-0000-0000-123456789012',
 }
 
 export class AccountRepoFake extends Repository<Account> implements IAccountRepo {
@@ -26,7 +26,7 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
     switch (userId) {
       case UserId.GOOD: {
         const rawAccount = {
-          user_id: 'good_userId',
+          user_id: UserId.GOOD,
           id: 'faked',
           active: true,
         };

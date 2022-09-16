@@ -1,18 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import 'aws-testing-library/lib/jest';
-import { TextEncoder } from 'util';
-import { Lambda } from '@aws-sdk/client-lambda';
-import stringify from 'json-stringify-safe';
-import { getNewUserDto, parsePayload } from '../../../../shared/utils/test';
+import { getNewUserDto, invokeLambda } from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,
   UserRepo,
   AccountRepo,
 } from '../../../../shared/utils/repos';
-
-const lambdaClient = new Lambda({});
 
 // Add all process.env used:
 const { createUser, AWS_REGION, notifySlackChannel, someWork } = process.env;
@@ -28,15 +23,9 @@ afterAll(async () => {
 
 test('User creation', async () => {
   const newUser = getNewUserDto();
-  const req = {
-    FunctionName: createUser,
-    Payload: new TextEncoder().encode(stringify(newUser)),
-  };
+  const invoked = await invokeLambda(newUser, createUser);
 
-  const result = await lambdaClient.invoke(req);
-
-  const parsed = parsePayload(result.Payload);
-  expect(parsed.statusCode).toBe(201);
+  expect(invoked.statusCode).toBe(201);
 
   const user = await UserRepo.findUserByUsername(newUser.username);
   if (!user) throw new Error(`User not found`);

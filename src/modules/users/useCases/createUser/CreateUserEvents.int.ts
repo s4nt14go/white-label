@@ -4,7 +4,7 @@ import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { CreateUser } from './CreateUser';
 import {
-  fakeTransaction, getAPIGatewayEvent,
+  fakeTransaction, getAPIGatewayPOSTevent as getEvent,
   getNewUserDto,
 } from '../../../../shared/utils/test';
 import {
@@ -51,7 +51,7 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
 
   const newUser = getNewUserDto();
 
-  const response = await createUser.execute(getAPIGatewayEvent(newUser), context);
+  const response = await createUser.execute(getEvent(newUser), context);
   expect(response.statusCode).toBe(201);
 
   const dispatcherIntake = expect.objectContaining({
@@ -86,7 +86,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails`, async () => 
   };
 
   try {
-    await createUser.execute(getAPIGatewayEvent(newUser), context);
+    await createUser.execute(getEvent(newUser), context);
     // eslint-disable-next-line no-empty
   } catch {}
 

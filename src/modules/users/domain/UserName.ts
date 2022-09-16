@@ -2,6 +2,7 @@ import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
 import { CreateNameErrors } from './UserNameErrors';
+import { BaseError } from '../../../shared/core/AppError';
 
 interface UserNameProps {
   name: string;
@@ -30,7 +31,7 @@ export class UserName extends ValueObject<UserNameProps> {
       new CreateNameErrors.NameNotString()
     );
     const combined = Guard.combine([guardNulls, guardType]);
-    if (combined.isFailure) return Result.fail(combined.error);
+    if (combined.isFailure) return Result.fail(combined.error as BaseError);
 
     const trimmed = props.name.trim();
     const invalidChars = trimmed.match(/[^a-z0-9.\-_+]/gi);
@@ -46,7 +47,7 @@ export class UserName extends ValueObject<UserNameProps> {
       .onBoth((result) =>
         result.isSuccess
           ? Result.ok<UserName>(new UserName({ name: result.value }))
-          : Result.fail(result.error)
+          : Result.fail(result.error as BaseError)
       );
   }
 }

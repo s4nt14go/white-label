@@ -2,6 +2,7 @@ import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
 import { AmountErrors } from './AmountErrors';
+import { BaseError } from '../../../shared/core/AppError';
 
 interface AmountProps {
   value: number;
@@ -27,7 +28,7 @@ export class Amount extends ValueObject<AmountProps> {
       new AmountErrors.NotNumber()
     );
     const combined = Guard.combine([guardNull, guardType]);
-    if (combined.isFailure) return Result.fail(combined.error);
+    if (combined.isFailure) return Result.fail(combined.error as BaseError);
 
     const rounded = Math.round((props.value + Number.EPSILON) * 100) / 100;
 

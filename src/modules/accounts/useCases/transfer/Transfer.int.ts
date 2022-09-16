@@ -1,15 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { TextEncoder } from 'util';
-import { Lambda } from '@aws-sdk/client-lambda';
-import stringify from 'json-stringify-safe';
-import { parsePayload } from '../../../../shared/utils/test';
+import { invokeLambda } from '../../../../shared/utils/test';
 import {
   deleteUsers,
   AccountRepo,
   createUserAndAccount,
 } from '../../../../shared/utils/repos';
-import { TransferDTO } from './TransferDTO';
+import { Request } from './TransferDTO';
 import Chance from 'chance';
 import { Account } from '../../domain/Account';
 import { Transaction } from '../../domain/Transaction';
@@ -51,14 +48,14 @@ afterAll(async () => {
 
 test('transfer', async () => {
   // Create first transaction
-  const dto: TransferDTO = {
+  const dto: Request = {
     fromUserId: fromSeed.userId,
     toUserId: toSeed.userId,
     quantity: 30,
     fromDescription: `Test: ${chance.sentence()}`,
     toDescription: `Test: ${chance.sentence()}`,
   };
-  const invoked = await invokeTransfer(dto);
+  const invoked = await invokeLambda(dto, transfer);
 
   expect(invoked.statusCode).toBe(201);
 
@@ -88,15 +85,3 @@ test('transfer', async () => {
     toSeed.account.balance.value + dto.quantity
   );
 });
-
-const lambdaClient = new Lambda({});
-const invokeTransfer = async (dto: TransferDTO) => {
-  const req = {
-    FunctionName: transfer,
-    Payload: new TextEncoder().encode(stringify(dto)),
-  };
-
-  const result = await lambdaClient.invoke(req);
-
-  return parsePayload(result.Payload);
-};

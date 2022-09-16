@@ -1,4 +1,4 @@
-import { SubscriberController } from '../../../../shared/core/SubscriberController';
+import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
 import { ISlackService } from '../../services/slack';
 import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
 
@@ -8,7 +8,7 @@ type UserCreatedDTO = {
 };
 
 export class NotifySlackChannel
-  extends SubscriberController<UserCreatedEvent>
+  extends BaseSubscriber<UserCreatedEvent>
 {
   private slackService: ISlackService;
 

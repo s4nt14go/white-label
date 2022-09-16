@@ -3,6 +3,7 @@ import { Result } from '../../../shared/core/Result';
 import { Guard } from '../../../shared/core/Guard';
 import * as bcrypt from 'bcryptjs';
 import { CreatePasswordErrors } from './UserPasswordErrors';
+import { BaseError } from '../../../shared/core/AppError';
 
 interface UserPasswordProps {
   value: string;
@@ -77,7 +78,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
       new CreatePasswordErrors.PasswordNotString()
     );
     const combined = Guard.combine([guardNulls, guardType]);
-    if (combined.isFailure) return Result.fail(combined.error);
+    if (combined.isFailure) return Result.fail(combined.error as BaseError);
 
     if (!props.hashed) {
       const trimmed = props.value.trim();
@@ -86,7 +87,7 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
         trimmed,
         new CreatePasswordErrors.TooShort(this.minLength)
       );
-      if (minLengthResult.isFailure) return Result.fail(minLengthResult.error);
+      if (minLengthResult.isFailure) return Result.fail(minLengthResult.error as BaseError);
     }
 
     return Result.ok<UserPassword>(

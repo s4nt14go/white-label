@@ -4,11 +4,13 @@ import { UserName } from '../../modules/users/domain/UserName';
 import { UserPassword } from '../../modules/users/domain/UserPassword';
 import { UserEmail } from '../../modules/users/domain/UserEmail';
 import { Alias } from '../../modules/users/domain/Alias';
-import { TextDecoder } from 'util';
+import { TextDecoder, TextEncoder } from 'util';
 import Chance from 'chance';
-import { CreateUserDTO } from '../../modules/users/useCases/createUser/CreateUserDTO';
+import { Request } from '../../modules/users/useCases/createUser/CreateUserDTO';
 import { Transaction } from 'sequelize';
 import { APIGatewayEvent } from 'aws-lambda';
+import { Lambda } from '@aws-sdk/client-lambda';
+import stringify from 'json-stringify-safe';
 
 const chance = new Chance();
 
@@ -40,14 +42,14 @@ export function createUser({
   return User.create(props, id);
 }
 
-export const getNewUserDto = (): CreateUserDTO => ({
+export const getNewUserDto = (): Request => ({
   username: chance.first(),
   email: chance.email(),
   password: 'passwordd',
   alias: 'test_alias',
 });
 
-export const parsePayload = (payload?: Uint8Array) => {
+const parsePayload = (payload?: Uint8Array) => {
   const decoded = new TextDecoder().decode(payload);
   console.log('decoded', decoded);
   const parsed = JSON.parse(decoded);
@@ -58,6 +60,24 @@ export const parsePayload = (payload?: Uint8Array) => {
 export const fakeTransaction = null as unknown as Promise<Transaction>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getAPIGatewayEvent = (data: any) => {
+export const getAPIGatewayPOSTevent = (data: any) => {
   return { body: JSON.stringify(data) } as unknown as APIGatewayEvent;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getAPIGatewayGETevent = (data: any) => {
+  return { queryStringParameters: data } as unknown as APIGatewayEvent;
+}
+
+const lambdaClient = new Lambda({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const invokeLambda = async (dto: any, FunctionName: string) => {
+  const req = {
+    FunctionName,
+    Payload: new TextEncoder().encode(stringify(dto)),
+  };
+
+  const result = await lambdaClient.invoke(req);
+
+  return parsePayload(result.Payload);
+};

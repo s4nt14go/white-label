@@ -1,10 +1,14 @@
 import { EntityID } from '../../../shared/domain/EntityID';
 import { Transaction } from '../domain/Transaction';
 import { Account } from '../domain/Account';
+import { TransactionMap } from './TransactionMap';
+import { Response } from '../useCases/getAccountByUserId/GetAccountByUserIdDTO';
 
 export class AccountMap {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public static toPersistence(account: Account): any {
+  public static toPersistence(account: Account): {
+    balance: number;
+    active: boolean;
+  } {
     const { balance, active } = account.props;
     return {
       balance: balance.value,
@@ -21,5 +25,13 @@ export class AccountMap {
       },
       new EntityID(raw.id)
     ).value;
+  }
+
+  public static toClient(account: Account): Response {
+    const { transactions } = account.props;
+    return {
+      ...AccountMap.toPersistence(account),
+      transactions: transactions.map(TransactionMap.toPersistence),
+    };
   }
 }

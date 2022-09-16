@@ -67,12 +67,17 @@ export async function MyStack({ stack, app }: StackContext) {
     handler: 'modules/accounts/useCases/transfer/index.handler',
     environment: dbCreds,
   });
+  const getAccountByUserId = new Function(stack, 'getAccountByUserId', {
+    handler: 'modules/accounts/useCases/getAccountByUserId/index.handler',
+    environment: dbCreds,
+  });
 
   const api = new Api(stack, 'api', {
     routes: {
       'POST /createUser': createUser,
       'POST /createTransaction': createTransaction,
       'POST /transfer': transfer,
+      'GET /getAccountByUserId': getAccountByUserId,
     },
   });
 
