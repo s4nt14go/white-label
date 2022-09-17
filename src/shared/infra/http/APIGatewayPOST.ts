@@ -4,16 +4,17 @@ import { APIGatewayBase } from './APIGatewayBase';
 
 export abstract class APIGatewayPOST<T> extends APIGatewayBase<T> {
   protected event!: APIGatewayEvent;
-  protected _context!: Context;
+  protected context!: Context;
 
   public async execute(
     event: APIGatewayEvent,
-    _context: Context
+    context: Context
   ): Promise<APIGatewayProxyResult> {
     this.event = event;
-    this._context = _context;
-    if (this.getTransaction) this.transaction = await this.getTransaction();
+    this.context = context;
+
     try {
+      if (this.getTransaction) this.transaction = await this.getTransaction();
       let implResult;
       if (typeof event.body === 'string') {
         let parsed;

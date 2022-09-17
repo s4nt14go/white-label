@@ -3,17 +3,18 @@ import { APIGatewayBase } from './APIGatewayBase';
 
 export abstract class APIGatewayGET<T> extends APIGatewayBase<T> {
   protected event!: APIGatewayEvent;
-  protected _context!: Context;
+  protected context!: Context;
 
   public async execute(
     event: APIGatewayEvent,
-    _context: Context
+    context: Context
   ): Promise<APIGatewayProxyResult> {
+    this.event = event;
+    this.context = context;
+
     try {
-      console.log('event', event);
-      console.log('_context', _context);
       const { queryStringParameters } = event;
-      const implResult = queryStringParameters? await this.executeImpl(queryStringParameters) : await this.executeImpl(event);
+      const implResult = await this.executeImpl(queryStringParameters)
       return this.handleImplResult(implResult);
     } catch (err) {
       return this.handleUnexpectedError(err);

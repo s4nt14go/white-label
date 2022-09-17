@@ -18,29 +18,32 @@ export class GetAccountByUserId extends APIGatewayGET<Response> {
   }
 
   protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
-
     const { userId } = dto;
 
     const guardNull = Guard.againstNullOrUndefined(
       userId,
-      new GetAccountByUserIdErrors.UserIdNotDefined(),
+      new GetAccountByUserIdErrors.UserIdNotDefined()
     );
     const guardType = Guard.isType(
       userId,
       'string',
-      new GetAccountByUserIdErrors.UserIdNotString(typeof userId),
+      new GetAccountByUserIdErrors.UserIdNotString(typeof userId)
     );
     const guardUuid = Guard.isUuid(
       userId,
-      new GetAccountByUserIdErrors.UserIdNotUuid(userId),
+      new GetAccountByUserIdErrors.UserIdNotUuid(userId)
     );
     const combined = Guard.combine([guardNull, guardType, guardUuid]);
-    if (combined.isFailure) return { status: BAD_REQUEST, result: combined.error as BaseError};
+    if (combined.isFailure)
+      return { status: BAD_REQUEST, result: combined.error as BaseError };
 
     const account = await this.accountRepo.getAccountByUserId(userId);
     if (!account)
-      return { status: BAD_REQUEST, result: new GetAccountByUserIdErrors.AccountNotFound(userId)};
+      return {
+        status: BAD_REQUEST,
+        result: new GetAccountByUserIdErrors.AccountNotFound(userId),
+      };
 
-    return { status: OK, result: AccountMap.toClient(account)};
+    return { status: OK, result: AccountMap.toClient(account) };
   }
 }

@@ -14,11 +14,11 @@ export abstract class APIGatewayBase<T> extends BaseController<
 > {
   public abstract execute(
     event: APIGatewayEvent,
-    _context: Context
+    context: Context
   ): Promise<APIGatewayProxyResult>;
 
   protected abstract event: APIGatewayEvent;
-  protected abstract _context: Context;
+  protected abstract context: Context;
 
   public static jsonResponse(code: number, result: unknown) {
     return {
@@ -46,15 +46,6 @@ export abstract class APIGatewayBase<T> extends BaseController<
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected handleUnexpectedError(err: any) {
-    this.dbRetries = 0;
-    console.log(`An unexpected error occurred`, err);
-    console.log(`Context`, this._context);
-    console.log(`Event`, this.event);
-    return this.serverError(this._context);
-  }
-
   public async ok<T>(result?: T) {
     if (this.transaction) return await this.handleCommit(result, OK);
     return APIGatewayBase.jsonResponse(OK, Envelope.ok(result));
@@ -72,7 +63,7 @@ export abstract class APIGatewayBase<T> extends BaseController<
       case SUCCESS:
         return APIGatewayBase.jsonResponse(status, Envelope.ok(result));
       case RETRY:
-        return await this.execute(this.event, this._context);
+        return await this.execute(this.event, this.context);
       case ERROR:
       case EXHAUSTED:
       default:
@@ -90,7 +81,7 @@ export abstract class APIGatewayBase<T> extends BaseController<
     return APIGatewayBase.jsonResponse(BAD_REQUEST, Envelope.error(error));
   }
 
-  private async serverError(context: Context) {
+  protected async serverError(context: Context) {
     if (this.transaction)
       try {
         // guard against the error being because of the rollback itself

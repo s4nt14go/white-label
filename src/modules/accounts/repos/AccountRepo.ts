@@ -28,7 +28,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
       limit: transactionsLimit,
       transaction: this.transaction,
     });
-    if (!rawTransactions) return null;
+    if (!rawTransactions.length) return null;
     return rawTransactions.map(TransactionMap.toDomain);
   }
 
@@ -36,6 +36,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     userId: string,
     transactionsLimit = 10
   ): Promise<Account | null> {
+    transactionsLimit = transactionsLimit < 1? 1 : transactionsLimit;
     const transactions = await this.getTransactions(userId, transactionsLimit);
     if (!transactions) return null;
     const rawAccount = await this.Account.findOne(

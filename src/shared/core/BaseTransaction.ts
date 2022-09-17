@@ -33,9 +33,13 @@ export abstract class BaseTransaction {
       if (!e.parent || e.parent.code !== '40001') return ERROR;
 
       console.log(
-        `DB error 40001, will rollback and retry (if retries aren't exhausted)`
+        `DB error 40001, will try to rollback and return RETRY or EXHAUSTED`
       );
-      await this.transaction.rollback();
+      try {
+        await this.transaction.rollback();
+      } catch (e) {
+        console.log('Error when rolling back', e);
+      }
 
       if (this.dbRetries < BaseTransaction.maxDbRetries) {
         this.dbRetries++;
