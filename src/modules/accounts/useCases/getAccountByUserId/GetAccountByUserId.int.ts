@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { invokeLambda } from '../../../../shared/utils/test';
+import { getAppSyncEvent as getEvent, invokeLambda } from '../../../../shared/utils/test';
 import {
   deleteUsers,
   AccountRepo,
@@ -30,9 +30,9 @@ it('gets an account', async () => {
   const dto: Request = {
     userId: seed.userId,
   };
-  const invoked = await invokeLambda(dto, getAccountByUserId);
+  const invoked = await invokeLambda(getEvent(dto), getAccountByUserId);
 
-  expect(invoked.statusCode).toBe(200);
+  expect(invoked.result.balance).toBe(0);
 
   const account = await AccountRepo.getAccountByUserId(seed.userId);
   if (!account) throw new Error(`Account not found for userId ${seed.userId}`);

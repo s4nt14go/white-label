@@ -1,0 +1,25 @@
+schema {
+    query: Query
+}
+
+type Transaction {
+    balance: Float!
+    delta: Float!
+    date: String!
+    description: String!
+}
+
+type Account {
+    balance: Float!
+    active: Boolean!
+    transactions: [Transaction]!
+}
+
+type getAccountByUserIdResponse {
+    result: Account,
+    time: String,
+}
+
+type Query {
+    getAccountByUserId(userId: String!): getAccountByUserIdResponse
+}

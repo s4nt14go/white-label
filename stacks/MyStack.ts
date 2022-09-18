@@ -1,4 +1,9 @@
-import { StackContext, Api, Function } from '@serverless-stack/resources';
+import {
+  StackContext,
+  Api,
+  Function,
+  AppSyncApi,
+} from '@serverless-stack/resources';
 import { SSM } from 'aws-sdk';
 
 export async function MyStack({ stack, app }: StackContext) {
@@ -77,11 +82,26 @@ export async function MyStack({ stack, app }: StackContext) {
       'POST /createUser': createUser,
       'POST /createTransaction': createTransaction,
       'POST /transfer': transfer,
-      'GET /getAccountByUserId': getAccountByUserId,
+    },
+  });
+  const appsync = new AppSyncApi(stack, 'AppSyncApi', {
+    schema: 'src/shared/infra/appsync/schema.graphql',
+    dataSources: {
+      getAccountByUserId,
+    },
+    resolvers: {
+      'Query getAccountByUserId': {
+        dataSource: 'getAccountByUserId',
+        responseMapping: { file: 'src/shared/infra/appsync/response.vtl' },
+      },
     },
   });
 
   stack.addOutputs({
     ApiEndpoint: api.url,
+    appsyncId: appsync.apiId,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    appsyncKey: appsync.cdk.graphqlApi.apiKey!,
+    appsyncUrl: appsync.url,
   });
 }

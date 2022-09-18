@@ -8,9 +8,10 @@ import { TextDecoder, TextEncoder } from 'util';
 import Chance from 'chance';
 import { Request } from '../../modules/users/useCases/createUser/CreateUserDTO';
 import { Transaction } from 'sequelize';
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayEvent, AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
+import fetch from 'node-fetch';
 
 const chance = new Chance();
 
@@ -53,7 +54,8 @@ const parsePayload = (payload?: Uint8Array) => {
   const decoded = new TextDecoder().decode(payload);
   console.log('decoded', decoded);
   const parsed = JSON.parse(decoded);
-  parsed.body = JSON.parse(parsed.body);
+  // For API Gateway response we have to parse the body, while AppSync don't have a body property and the result is already parsed
+  if (parsed.body) parsed.body = JSON.parse(parsed.body);
   return parsed;
 };
 
@@ -62,12 +64,17 @@ export const fakeTransaction = null as unknown as Promise<Transaction>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getAPIGatewayPOSTevent = (data: any) => {
   return { body: JSON.stringify(data) } as unknown as APIGatewayEvent;
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getAPIGatewayGETevent = (data: any) => {
   return { queryStringParameters: data } as unknown as APIGatewayEvent;
-}
+};
+
+export const getAppSyncEvent = (data: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return { arguments: data } as AppSyncResolverEvent<any>;
+};
 
 const lambdaClient = new Lambda({});
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,3 +88,27 @@ export const invokeLambda = async (dto: any, FunctionName: string) => {
 
   return parsePayload(result.Payload);
 };
+
+export class AppSync {
+  private readonly url: string;
+  private readonly key: string;
+
+  public constructor(url: string, key: string) {
+    this.url = url;
+    this.key = key;
+  }
+
+  public query({ query, variables }: { query: string; variables: unknown }) {
+    return fetch(this.url, {
+      method: 'post',
+      headers: {
+        'x-api-key': this.key,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
+  }
+}

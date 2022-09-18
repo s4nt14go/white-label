@@ -29,13 +29,24 @@ localLambdas.map(async l => {
 
 await $`aws apigatewayv2 get-apis > apis.json`
 
+$.verbose = false // Don't log sensitive data
+
 let apis = require('./apis.json').Items;
 await $`rm apis.json`
 apis = apis.filter(api => !api.Name.includes('debug'));
 const apiUrls = apis.map(api => api.ApiEndpoint);
 await $`echo apiUrl=${apiUrls[0]} >> ${envFile}`
 
-$.verbose = false // Don't log sensitive database data
+await $`aws appsync list-graphql-apis > appsync.json`
+let appsyncId = require('./appsync.json').graphqlApis[0].apiId;
+let appsyncUrl = require('./appsync.json').graphqlApis[0].uris.GRAPHQL;
+await $`rm appsync.json`
+await $`echo appsyncUrl=${appsyncUrl} >> ${envFile}`
+await $`aws appsync list-api-keys --api-id ${appsyncId} > appsyncKeys.json`
+let appsyncKey = require('./appsyncKeys.json').apiKeys[0].id;
+await $`rm appsyncKeys.json`
+await $`echo appsyncKey=${appsyncKey} >> ${envFile}`
+
 await $`aws ssm get-parameter --name /${project}/${stage}/cockroach > cockroach.json`
 let cockroach = require('./cockroach.json').Parameter.Value;
 await $`rm cockroach.json`
