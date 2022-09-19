@@ -1,5 +1,6 @@
 schema {
     query: Query
+    mutation: Mutation
 }
 
 type Transaction {
@@ -15,11 +16,19 @@ type Account {
     transactions: [Transaction]!
 }
 
-type getAccountByUserIdResponse {
-    result: Account,
-    time: String,
+type accountEnvelop {
+    result: Account!,
+    time: String!,
 }
 
 type Query {
-    getAccountByUserId(userId: String!): getAccountByUserIdResponse
+    getAccountByUserId(userId: String!): accountEnvelop
+}
+
+type voidEnvelop {
+    time: String!,
+}
+
+type Mutation {
+    createTransaction(userId: String!, description: String!, delta: Float!): voidEnvelop
 }

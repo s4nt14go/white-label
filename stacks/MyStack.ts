@@ -80,19 +80,24 @@ export async function MyStack({ stack, app }: StackContext) {
   const api = new Api(stack, 'api', {
     routes: {
       'POST /createUser': createUser,
-      'POST /createTransaction': createTransaction,
       'POST /transfer': transfer,
     },
   });
+  const responseMapping = { file: 'src/shared/infra/appsync/response.vtl' };
   const appsync = new AppSyncApi(stack, 'AppSyncApi', {
     schema: 'src/shared/infra/appsync/schema.graphql',
     dataSources: {
       getAccountByUserId,
+      createTransaction,
     },
     resolvers: {
       'Query getAccountByUserId': {
         dataSource: 'getAccountByUserId',
-        responseMapping: { file: 'src/shared/infra/appsync/response.vtl' },
+        responseMapping,
+      },
+      'Mutation createTransaction': {
+        dataSource: 'createTransaction',
+        responseMapping,
       },
     },
   });

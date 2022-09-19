@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { invokeLambda } from '../../../../shared/utils/test';
+import { getAppSyncEvent as getEvent, invokeLambda } from '../../../../shared/utils/test';
 import {
   deleteUsers,
   AccountRepo,
@@ -36,9 +36,12 @@ test('Create transactions', async () => {
     description: `Test: ${chance.sentence()}`,
     delta: chance.floating({ min: 0, fixed: 2 }),
   };
-  let invoked = await invokeLambda(dto1, createTransaction);
+  let invoked = await invokeLambda(getEvent(dto1), createTransaction);
 
-  expect(invoked.statusCode).toBe(201);
+  expect(invoked.result.status).toBe(201);
+  expect(invoked).not.toMatchObject({
+    error: expect.anything(),
+  });
 
   // Create second transaction
   const dto2: Request = {
@@ -46,9 +49,12 @@ test('Create transactions', async () => {
     description: `Test: ${chance.sentence()}`,
     delta: chance.floating({ min: 0, fixed: 2 }),
   };
-  invoked = await invokeLambda(dto2, createTransaction);
+  invoked = await invokeLambda(getEvent(dto2), createTransaction);
 
-  expect(invoked.statusCode).toBe(201);
+  expect(invoked.result.status).toBe(201);
+  expect(invoked).not.toMatchObject({
+    error: expect.anything(),
+  });
 
   const account = await AccountRepo.getAccountByUserId(seed.userId);
   if (!account) throw new Error(`Account not found for userId ${seed.userId}`);
@@ -58,7 +64,7 @@ test('Create transactions', async () => {
   );
   expect(account.transactions[1].delta.value).toBe(dto1.delta);
   expect(account.transactions[1].description.value).toBe(dto1.description);
-  if (account.transactions[0].balance.value !== seed.account.balance.value + dto1.delta + dto2.delta) {
+  if (account.transactions[0].balance.value !== (seed.account.balance.value*100 + dto1.delta*100 + dto2.delta*100) / 100) {
     console.log(account.transactions[0].balance.value);
     console.log(seed.account.balance.value);
     console.log(dto1.delta);

@@ -8,27 +8,29 @@ import { BaseController } from '../../core/BaseController';
 import { Created } from '../../core/Created';
 import { CommitResult } from '../../core/BaseTransaction';
 
-type EnvelopUnexpectedT = Envelope<BaseError> | {
+export type EnvelopUnexpectedT = Envelope<BaseError> | {
   logGroup: string;
   logStream: string;
   awsRequest: string;
 }
 
+type ExeResponse = Promise<
+  // | Envelope<ResponseT | Created>
+  | Envelope<unknown | Created>
+  | { error: Envelope<BaseError> }
+  | { error: EnvelopUnexpectedT }
+  >
 export abstract class AppSyncController<
   ResponseT,
   RequestT
-> extends BaseController<ResponseT, AppSyncResolverEvent<RequestT>> {
+> extends BaseController<ResponseT, AppSyncResolverEvent<RequestT>, ExeResponse> {
   protected event!: AppSyncResolverEvent<RequestT>;
   protected context!: Context;
   
   public async execute(
     event: AppSyncResolverEvent<RequestT>,
     context: Context
-  ): Promise<
-    | Envelope<ResponseT | Created>
-    | { error: Envelope<BaseError> }
-    | { error: EnvelopUnexpectedT }
-  > {
+  ): ExeResponse {
     this.event = event;
     this.context = context;
 
@@ -36,7 +38,7 @@ export abstract class AppSyncController<
       if (this.getTransaction) this.transaction = await this.getTransaction();
       const implResult = await this.executeImpl(event.arguments);
       if (implResult.status === 200 || implResult.status === 201) {
-        if (this.transaction) return await this.handleCommit(implResult);
+        if (this.transaction) return this.handleCommit(implResult);
         return Envelope.ok(implResult.result as ResponseT | Created);
       } else {
         return {
@@ -55,11 +57,11 @@ export abstract class AppSyncController<
       case SUCCESS:
         return Envelope.ok(result as ResponseT | Created);
       case RETRY:
-        return await this.execute(this.event, this.context);
+        return this.execute(this.event, this.context);
       case ERROR:
       case EXHAUSTED:
       default:
-        return await this.handleUnexpectedError(`Error when committing: ${r}`);
+        return this.handleUnexpectedError(`Error when committing: ${r}`);
     }
   }
 

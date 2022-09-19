@@ -11,19 +11,19 @@ export abstract class BaseTransaction {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected getTransaction?: any;
   protected transaction!: Transaction;
-  protected dbRetries: number;
+  protected commitRetries: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected constructor(getTransaction?: any) {
     this.getTransaction = getTransaction;
-    this.dbRetries = 0;
+    this.commitRetries = 0;
   }
 
-  private static maxDbRetries = 3;
+  private static maxCommitRetries = 3;
   protected async commitWithRetry(): Promise<CommitResult> {
     const { SUCCESS, RETRY, ERROR, EXHAUSTED } = CommitResult;
     try {
       await this.transaction.commit();
-      this.dbRetries = 0;
+      this.commitRetries = 0;
       return SUCCESS;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
@@ -41,16 +41,16 @@ export abstract class BaseTransaction {
         console.log('Error when rolling back', e);
       }
 
-      if (this.dbRetries < BaseTransaction.maxDbRetries) {
-        this.dbRetries++;
-        console.log(`Retry #${this.dbRetries}...`);
+      if (this.commitRetries < BaseTransaction.maxCommitRetries) {
+        this.commitRetries++;
+        console.log(`Retry commit #${this.commitRetries}...`);
         await new Promise((r) =>  // wait some before retrying
-          setTimeout(r, (this.dbRetries + Math.random()) * 100)
+          setTimeout(r, (this.commitRetries + Math.random()) * 100)
         );
         return RETRY;
       }
 
-      console.log(`Max retries ${BaseTransaction.maxDbRetries} exhausted`);
+      console.log(`Max retries ${BaseTransaction.maxCommitRetries} exhausted`);
       return EXHAUSTED;
     }
   }

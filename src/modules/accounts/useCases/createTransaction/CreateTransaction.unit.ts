@@ -3,7 +3,7 @@ import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAPIGatewayPOSTevent as getEvent,
+  getAppSyncEvent as getEvent,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 
@@ -12,10 +12,7 @@ const chance = new Chance();
 let accountRepo, createTransaction: CreateTransaction;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  createTransaction = new CreateTransaction(
-    accountRepo,
-    fakeTransaction
-  );
+  createTransaction = new CreateTransaction(accountRepo, fakeTransaction);
 });
 
 const context = {} as unknown as Context;
@@ -31,7 +28,12 @@ it('creates a transaction', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(201);
+  expect(result).toMatchObject({
+    time: expect.any(String),
+  });
+  expect(result).not.toMatchObject({
+    error: expect.anything(),
+  });
 });
 
 test.each([
@@ -48,14 +50,13 @@ test.each([
     };
     delete badData[field as 'description' | 'delta'];
 
-    const result = await createTransaction.execute(
-      getEvent(badData),
-      context
-    );
+    const result = await createTransaction.execute(getEvent(badData), context);
 
-    expect(result.statusCode).toBe(400);
-    const parsed = JSON.parse(result.body)
-    expect(parsed.errorType).toBe(errorType);
+    expect(result).toMatchObject({
+      error: {
+        errorType,
+      },
+    });
   }
 );
 it(`fails when userId isn't a string`, async () => {
@@ -70,9 +71,11 @@ it(`fails when userId isn't a string`, async () => {
     context
   );
 
-  expect(result.statusCode).toBe(400);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('CreateTransactionErrors.UserIdNotString');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'CreateTransactionErrors.UserIdNotString',
+    },
+  });
 });
 it(`fails when userId isn't an uuid`, async () => {
   const badData = {
@@ -86,9 +89,11 @@ it(`fails when userId isn't an uuid`, async () => {
     context
   );
 
-  expect(result.statusCode).toBe(400);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('CreateTransactionErrors.UserIdNotUuid');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'CreateTransactionErrors.UserIdNotUuid',
+    },
+  });
 });
 
 it('fails when delta subtracts more than balance', async () => {
@@ -103,9 +108,11 @@ it('fails when delta subtracts more than balance', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(400);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('CreateTransactionErrors.InvalidTransaction');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'CreateTransactionErrors.InvalidTransaction',
+    },
+  });
 });
 
 it('fails when no transactions are found for the user', async () => {
@@ -120,9 +127,11 @@ it('fails when no transactions are found for the user', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(400);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('CreateTransactionErrors.AccountNotFound');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'CreateTransactionErrors.AccountNotFound',
+    },
+  });
 });
 
 test('Internal server error when no transactions are found for the user', async () => {
@@ -137,7 +146,9 @@ test('Internal server error when no transactions are found for the user', async 
     context
   );
 
-  expect(result.statusCode).toBe(500);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('UnexpectedError');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'UnexpectedError',
+    },
+  });
 });

@@ -8,14 +8,17 @@ import { CommitResult } from '../../core/BaseTransaction';
 
 const { OK, CONFLICT, BAD_REQUEST, INTERNAL_ERROR, CREATED } = Status;
 
+type ExeResponse = Promise<APIGatewayProxyResult>
+
 export abstract class APIGatewayBase<T> extends BaseController<
   T,
-  APIGatewayEvent
+  APIGatewayEvent,
+  ExeResponse
 > {
   public abstract execute(
     event: APIGatewayEvent,
     context: Context
-  ): Promise<APIGatewayProxyResult>;
+  ): ExeResponse;
 
   protected abstract event: APIGatewayEvent;
   protected abstract context: Context;
@@ -47,12 +50,12 @@ export abstract class APIGatewayBase<T> extends BaseController<
   }
 
   public async ok<T>(result?: T) {
-    if (this.transaction) return await this.handleCommit(result, OK);
+    if (this.transaction) return this.handleCommit(result, OK);
     return APIGatewayBase.jsonResponse(OK, Envelope.ok(result));
   }
 
   public async created(result?: Created) {
-    if (this.transaction) return await this.handleCommit(result, CREATED);
+    if (this.transaction) return this.handleCommit(result, CREATED);
     return APIGatewayBase.jsonResponse(CREATED, Envelope.ok(result));
   }
 
@@ -63,11 +66,11 @@ export abstract class APIGatewayBase<T> extends BaseController<
       case SUCCESS:
         return APIGatewayBase.jsonResponse(status, Envelope.ok(result));
       case RETRY:
-        return await this.execute(this.event, this.context);
+        return this.execute(this.event, this.context);
       case ERROR:
       case EXHAUSTED:
       default:
-        return await this.handleUnexpectedError(`Error when committing: ${r}`);
+        return this.handleUnexpectedError(`Error when committing: ${r}`);
     }
   }
 

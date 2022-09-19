@@ -1,4 +1,4 @@
-import { APIGatewayPOST } from '../../../../shared/infra/http/APIGatewayPOST';
+import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncController';
 import { Request, Response } from './CreateTransactionDTO';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { CreateTransactionErrors } from './CreateTransactionErrors';
@@ -10,7 +10,7 @@ import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
 const { BAD_REQUEST, CREATED } = Status;
 
-export class CreateTransaction extends APIGatewayPOST<Response> {
+export class CreateTransaction extends AppSyncController<Response, Request> {
   private readonly accountRepo: IAccountRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
