@@ -1,4 +1,4 @@
-import { APIGatewayPOST } from '../../../../shared/infra/http/APIGatewayPOST';
+import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncController';
 import { Request, Response } from './TransferDTO';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { TransferErrors } from './TransferErrors';
@@ -11,7 +11,7 @@ import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
 const { CREATED, BAD_REQUEST } = Status;
 
-export class Transfer extends APIGatewayPOST<Response> {
+export class Transfer extends AppSyncController<Response, Request> {
   private readonly accountRepo: IAccountRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,0 +1,106 @@
+# aws/types.graphql taken from https://github.com/awslabs/graphql-schema-utilities/issues/15#issuecomment-653691538
+# https://docs.aws.amazon.com/appsync/latest/devguide/scalars.html#appsync-defined-scalars
+
+"""
+The AWSDate scalar type represents a valid extended ISO 8601 Date string. In other words, this scalar type accepts date strings of the form YYYY-MM-DD. This scalar type can also accept time zone offsets. For example, 1970-01-01Z, 1970-01-01-07:00 and 1970-01-01+05:30 are all valid dates. The time zone offset must either be Z (representing the UTC time zone) or be in the format ±hh:mm:ss. The seconds field in the timezone offset will be considered valid even though it is not part of the ISO 8601 standard.
+"""
+scalar AWSDate
+
+"""
+The AWSTime scalar type represents a valid extended ISO 8601 Time string. In other words, this scalar type accepts time strings of the form hh:mm:ss.sss. The field after the seconds field is a nanoseconds field. It can accept between 1 and 9 digits. The seconds and nanoseconds fields are optional (the seconds field must be specified if the nanoseconds field is to be used). This scalar type can also accept time zone offsets.
+
+For example, 12:30Z, 12:30:24-07:00 and 12:30:24.500+05:30 are all valid time strings.
+
+The time zone offset must either be Z (representing the UTC time zone) or be in the format hh:mm:ss. The seconds field in the timezone offset will be considered valid even though it is not part of the ISO 8601 standard.
+"""
+scalar AWSTime
+
+"""
+The AWSDateTime scalar type represents a valid extended ISO 8601 DateTime string. In other words, this scalar type accepts datetime strings of the form YYYY-MM-DDThh:mm:ss.sssZ. The field after the seconds field is a nanoseconds field. It can accept between 1 and 9 digits. The seconds and nanoseconds fields are optional (the seconds field must be specified if the nanoseconds field is to be used). The time zone offset is compulsory for this scalar. The time zone offset must either be Z (representing the UTC time zone) or be in the format ±hh:mm:ss. The seconds field in the timezone offset will be considered valid even though it is not part of the ISO 8601 standard.
+"""
+scalar AWSDateTime
+
+"""
+The AWSTimestamp scalar type represents the number of seconds that have elapsed since 1970-01-01T00:00Z. Timestamps are serialized and deserialized as numbers. Negative values are also accepted and these represent the number of seconds till 1970-01-01T00:00Z.
+"""
+scalar AWSTimestamp
+
+"""
+The AWSEmail scalar type represents an Email address string that complies with RFC 822. For example, username@example.com is a valid Email address.
+"""
+scalar AWSEmail
+
+"""
+The AWSJSON scalar type represents a JSON string that complies with RFC 8259.
+
+Maps like {\"upvotes\": 10}, lists like [1,2,3], and scalar values like \"AWSJSON example string\", 1, and true are accepted as valid JSON. They will automatically be parsed and loaded in the resolver mapping templates as Maps, Lists, or Scalar values rather than as the literal input strings. Invalid JSON strings like {a: 1}, {'a': 1} and Unquoted string will throw GraphQL validation errors.
+"""
+scalar AWSJSON
+
+"""
+The AWSURL scalar type represents a valid URL string. The URL may use any scheme and may also be a local URL (Ex: <http://localhost/>). URLs without schemes are considered invalid. URLs which contain double slashes are also considered invalid.
+"""
+scalar AWSURL
+
+"""
+The AWSPhone scalar type represents a valid Phone Number. Phone numbers are serialized and deserialized as Strings. Phone numbers provided may be whitespace delimited or hyphenated. The number can specify a country code at the beginning but this is not required.
+"""
+scalar AWSPhone
+
+"""
+The AWSIPAddress scalar type represents a valid IPv4 or IPv6 address string.
+"""
+scalar AWSIPAddress
+
+# Directives taken from https://github.com/awslabs/aws-mobile-appsync-sdk-js/issues/547#issuecomment-610671519
+
+"""This directive allows results to be deferred during execution"""
+directive @defer on FIELD
+
+"""
+Tells the service this field/object has access authorized by an OIDC token.
+"""
+directive @aws_oidc on OBJECT | FIELD_DEFINITION
+
+"""Directs the schema to enforce authorization on a field"""
+directive @aws_auth(
+    """List of cognito user pool groups which have access on this field"""
+    cognito_groups: [String]
+) on FIELD_DEFINITION
+
+"""
+Tells the service which subscriptions will be published to when this mutation is
+called. This directive is deprecated use @aws_susbscribe directive instead.
+"""
+directive @aws_publish(
+    """
+    List of subscriptions which will be published to when this mutation is called.
+    """
+    subscriptions: [String]
+) on FIELD_DEFINITION
+
+"""
+Tells the service this field/object has access authorized by a Cognito User Pools token.
+"""
+directive @aws_cognito_user_pools(
+    """List of cognito user pool groups which have access on this field"""
+    cognito_groups: [String]
+) on OBJECT | FIELD_DEFINITION | UNION | INTERFACE
+
+"""Tells the service which mutation triggers this subscription."""
+directive @aws_subscribe(
+    """
+    List of mutations which will trigger this subscription when they are called.
+    """
+    mutations: [String]
+) on FIELD_DEFINITION
+
+"""
+Tells the service this field/object has access authorized by sigv4 signing.
+"""
+directive @aws_iam on OBJECT | FIELD_DEFINITION | UNION | INTERFACE
+
+"""
+Tells the service this field/object has access authorized by an API key.
+"""
+directive @aws_api_key on OBJECT | FIELD_DEFINITION

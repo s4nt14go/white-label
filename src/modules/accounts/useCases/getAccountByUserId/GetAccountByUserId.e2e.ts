@@ -29,7 +29,7 @@ afterAll(async () => {
 
 it('gets an account', async () => {
   const response = await appsync.query({
-    query: `query ($userId: String!) { 
+    query: `query ($userId: ID!) { 
         getAccountByUserId(userId: $userId) { 
           result { 
             balance 

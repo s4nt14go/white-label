@@ -3,7 +3,7 @@ import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAPIGatewayPOSTevent as getEvent,
+  getAppSyncEvent as getEvent,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 
@@ -29,7 +29,12 @@ test('Transfer', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(201);
+  expect(result).toMatchObject({
+    time: expect.any(String),
+  });
+  expect(result).not.toMatchObject({
+    error: expect.anything(),
+  });
 });
 
 test.each([
@@ -52,9 +57,11 @@ test.each([
 
     const result = await transfer.execute(getEvent(badData), context);
 
-    expect(result.statusCode).toBe(400);
-    const parsed = JSON.parse(result.body);
-    expect(parsed.errorType).toBe(errorType);
+    expect(result).toMatchObject({
+      error: {
+        errorType,
+      },
+    });
   }
 );
 test.each([
@@ -73,9 +80,11 @@ test.each([
 
     const result = await transfer.execute(getEvent(badData), context);
 
-    expect(result.statusCode).toBe(400);
-    const parsed = JSON.parse(result.body);
-    expect(parsed.errorType).toBe(errorType);
+    expect(result).toMatchObject({
+      error: {
+        errorType,
+      },
+    });
   }
 );
 
@@ -95,9 +104,11 @@ test.each([
 
     const result = await transfer.execute(getEvent(badData), context);
 
-    expect(result.statusCode).toBe(400);
-    const parsed = JSON.parse(result.body);
-    expect(parsed.errorType).toBe(errorType);
+    expect(result).toMatchObject({
+      error: {
+        errorType,
+      },
+    });
   }
 );
 
@@ -114,9 +125,11 @@ it('fails when quantity is greater than source/from balance', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(400);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('TransferErrors.InvalidTransfer');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'TransferErrors.InvalidTransfer',
+    },
+  });
 });
 it('fails when quantity is greater than destination/to balance', async () => {
   const data = {
@@ -131,7 +144,9 @@ it('fails when quantity is greater than destination/to balance', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(400);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('TransferErrors.InvalidTransfer');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'TransferErrors.InvalidTransfer',
+    },
+  });
 });

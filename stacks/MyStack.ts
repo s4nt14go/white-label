@@ -80,7 +80,6 @@ export async function MyStack({ stack, app }: StackContext) {
   const api = new Api(stack, 'api', {
     routes: {
       'POST /createUser': createUser,
-      'POST /transfer': transfer,
     },
   });
   const responseMapping = { file: 'src/shared/infra/appsync/response.vtl' };
@@ -89,6 +88,7 @@ export async function MyStack({ stack, app }: StackContext) {
     dataSources: {
       getAccountByUserId,
       createTransaction,
+      transfer,
     },
     resolvers: {
       'Query getAccountByUserId': {
@@ -97,6 +97,10 @@ export async function MyStack({ stack, app }: StackContext) {
       },
       'Mutation createTransaction': {
         dataSource: 'createTransaction',
+        responseMapping,
+      },
+      'Mutation transfer': {
+        dataSource: 'transfer',
         responseMapping,
       },
     },

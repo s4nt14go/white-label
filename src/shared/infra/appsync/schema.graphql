@@ -1,34 +1,45 @@
 schema {
-    query: Query
-    mutation: Mutation
+  query: Query
+  mutation: Mutation
 }
 
 type Transaction {
-    balance: Float!
-    delta: Float!
-    date: String!
-    description: String!
+  balance: Float!
+  delta: Float!
+  date: AWSDateTime!
+  description: String!
 }
 
 type Account {
-    balance: Float!
-    active: Boolean!
-    transactions: [Transaction]!
+  balance: Float!
+  active: Boolean!
+  transactions: [Transaction!]!
 }
 
 type accountEnvelop {
-    result: Account!,
-    time: String!,
+  result: Account!
+  time: AWSDateTime!
 }
 
 type Query {
-    getAccountByUserId(userId: String!): accountEnvelop
+  getAccountByUserId(userId: ID!): accountEnvelop
 }
 
 type voidEnvelop {
-    time: String!,
+  time: String!
 }
 
 type Mutation {
-    createTransaction(userId: String!, description: String!, delta: Float!): voidEnvelop
+  createTransaction(
+    userId: ID!
+    description: String!
+    delta: Float!
+  ): voidEnvelop
+  transfer(
+    fromUserId: ID!
+    toUserId: ID!
+    quantity: Float!
+    fromDescription: String!
+    toDescription: String
+  ): voidEnvelop
 }

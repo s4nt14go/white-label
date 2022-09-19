@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { invokeLambda } from '../../../../shared/utils/test';
+import { getAppSyncEvent as getEvent, invokeLambda } from '../../../../shared/utils/test';
 import {
   deleteUsers,
   AccountRepo,
@@ -55,9 +55,12 @@ test('transfer', async () => {
     fromDescription: `Test: ${chance.sentence()}`,
     toDescription: `Test: ${chance.sentence()}`,
   };
-  const invoked = await invokeLambda(dto, transfer);
+  const invoked = await invokeLambda(getEvent(dto), transfer);
 
-  expect(invoked.statusCode).toBe(201);
+  expect(invoked.result.status).toBe(201);
+  expect(invoked).not.toMatchObject({
+    error: expect.anything(),
+  });
 
   const fromAccount = await AccountRepo.getAccountByUserId(fromSeed.userId);
   if (!fromAccount)

@@ -38,7 +38,7 @@ test('Create transaction', async () => {
     delta: chance.floating({ min: 0, fixed: 2 }),
   };
   const response = await appsync.query({
-    query: `mutation ($userId: String!, $description: String!, $delta: Float!) {
+    query: `mutation ($userId: ID!, $description: String!, $delta: Float!) {
       createTransaction(userId: $userId, description: $description, delta: $delta) {
         time
       }
