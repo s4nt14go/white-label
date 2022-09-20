@@ -1,20 +1,28 @@
 import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
-import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
+import { Request, Response } from './CreateAccountDTO';
 import { IAccountRepo } from '../../repos/IAccountRepo';
+import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 
-export class CreateAccount extends BaseSubscriber<UserCreatedEvent> {
+export class CreateAccount extends BaseSubscriber<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public constructor(accountRepo: IAccountRepo, getTransaction: any) {
-    super(getTransaction);
+  public constructor(
+    accountRepo: IAccountRepo,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    renewConn: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getTransaction: any,
+  ) {
+    super(renewConn, getTransaction);
     this.accountRepo = accountRepo;
   }
 
-  public async executeImpl(event: UserCreatedEvent): Promise<void> {
+  public async executeImpl(event: Request): ControllerResultAsync<Response> {
     this.accountRepo.setTransaction(this.transaction); // As this use case is a command, include all repos queries in a serializable transaction
 
     const { aggregateId } = event;
     await this.accountRepo.create(aggregateId);
+
+    return { status: 200 };
   }
 }

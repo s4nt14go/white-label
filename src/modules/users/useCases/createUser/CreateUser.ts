@@ -1,4 +1,4 @@
-import { APIGatewayPOST } from '../../../../shared/infra/http/APIGatewayPOST';
+import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncController';
 import { Request, Response } from './CreateUserDTO';
 import { CreateUserErrors } from './CreateUserErrors';
 import { UserEmail } from '../../domain/UserEmail';
@@ -15,15 +15,17 @@ import { Status } from '../../../../shared/core/Status';
 import { BaseError } from '../../../../shared/core/AppError';
 const { BAD_REQUEST, CREATED, CONFLICT } = Status;
 
-export class CreateUser extends APIGatewayPOST<Response> {
+export class CreateUser extends AppSyncController<Response, Request> {
   private readonly userRepo: IUserRepo;
   public constructor(
     userRepo: IUserRepo,
     dispatcher: IDispatcher,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getTransaction: any
+    renewConn: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getTransaction: any,
   ) {
-    super(getTransaction);
+    super(renewConn, getTransaction);
     this.userRepo = userRepo;
     CreateUserEvents.registration(dispatcher);
   }

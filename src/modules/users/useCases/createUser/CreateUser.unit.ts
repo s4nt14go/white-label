@@ -4,7 +4,7 @@ import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/Dispatch
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAPIGatewayPOSTevent as getEvent,
+  getAppSyncEvent as getEvent,
 } from '../../../../shared/utils/test';
 
 let userRepo, createUser: CreateUser;
@@ -13,7 +13,8 @@ beforeAll(() => {
   createUser = new CreateUser(
     userRepo,
     new DispatcherFake(),
-    fakeTransaction
+    {},
+    fakeTransaction,
   );
 });
 
@@ -31,7 +32,12 @@ test('User creation with alias', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(201);
+  expect(result).toMatchObject({
+    time: expect.any(String),
+  });
+  expect(result).not.toMatchObject({
+    error: expect.anything(),
+  });
 });
 
 test('User creation without alias', async () => {
@@ -46,7 +52,12 @@ test('User creation without alias', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(201);
+  expect(result).toMatchObject({
+    time: expect.any(String),
+  });
+  expect(result).not.toMatchObject({
+    error: expect.anything(),
+  });
 });
 
 test.each([
@@ -68,9 +79,11 @@ test.each([
       context
     );
 
-    expect(result.statusCode).toBe(400);
-    const parsed = JSON.parse(result.body)
-    expect(parsed.errorType).toBe(errorType);
+    expect(result).toMatchObject({
+      error: {
+        errorType,
+      },
+    });
   }
 );
 
@@ -86,9 +99,11 @@ test('User creation fails for taken email', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(409);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('CreateUserErrors.EmailAlreadyTaken');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'CreateUserErrors.EmailAlreadyTaken',
+    },
+  });
 });
 
 test('User creation fails for taken username', async () => {
@@ -103,7 +118,9 @@ test('User creation fails for taken username', async () => {
     context
   );
 
-  expect(result.statusCode).toBe(409);
-  const parsed = JSON.parse(result.body)
-  expect(parsed.errorType).toBe('CreateUserErrors.UsernameAlreadyTaken');
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'CreateUserErrors.UsernameAlreadyTaken',
+    },
+  });
 });

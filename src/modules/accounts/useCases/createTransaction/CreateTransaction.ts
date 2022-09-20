@@ -13,9 +13,14 @@ const { BAD_REQUEST, CREATED } = Status;
 export class CreateTransaction extends AppSyncController<Response, Request> {
   private readonly accountRepo: IAccountRepo;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public constructor(accountRepo: IAccountRepo, getTransaction: any) {
-    super(getTransaction);
+  public constructor(
+    accountRepo: IAccountRepo,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    renewConn: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getTransaction: any,
+  ) {
+    super(renewConn, getTransaction);
     this.accountRepo = accountRepo;
   }
 

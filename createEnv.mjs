@@ -27,15 +27,7 @@ localLambdas.map(async l => {
     await $`echo ${l}=${deployed.PhysicalResourceId} >> ${envFile}`
 });
 
-await $`aws apigatewayv2 get-apis > apis.json`
-
 $.verbose = false // Don't log sensitive data
-
-let apis = require('./apis.json').Items;
-await $`rm apis.json`
-apis = apis.filter(api => !api.Name.includes('debug'));
-const apiUrls = apis.map(api => api.ApiEndpoint);
-await $`echo apiUrl=${apiUrls[0]} >> ${envFile}`
 
 await $`aws appsync list-graphql-apis > appsync.json`
 let appsyncId = require('./appsync.json').graphqlApis[0].apiId;

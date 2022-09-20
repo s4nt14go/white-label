@@ -8,6 +8,7 @@ import { TransferProps } from './IAccountRepo';
 
 export enum UserId {
   GOOD = '12345678-1234-1234-1234-123456789012',
+  GOOD2 = '12345678-1234-1234-1234-123456789013',
   NO_TRANSACTIONS = '00000000-1234-1234-1234-123456789012',
   TRANSACTIONS_WITHOUT_ACCOUNT = '00000000-0000-0000-0000-123456789012',
 }
@@ -24,14 +25,16 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
     transactionsLimit = 10
   ): Promise<Account | null> {
     switch (userId) {
-      case UserId.GOOD: {
+      case UserId.GOOD:
+      case UserId.GOOD2:
+      {
         const rawAccount = {
-          user_id: UserId.GOOD,
+          user_id: userId,
           id: 'faked',
           active: true,
         };
         const transaction = {
-          user_id: 'good_userId',
+          user_id: userId,
           id: 'faked',
           balance: 100,
           delta: 100,

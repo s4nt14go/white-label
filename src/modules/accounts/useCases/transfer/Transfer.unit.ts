@@ -3,7 +3,7 @@ import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAppSyncEvent as getEvent,
+  getAppSyncEvent as getEvent, getQty,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 
@@ -12,15 +12,15 @@ const chance = new Chance();
 let accountRepo, transfer: Transfer;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  transfer = new Transfer(accountRepo, fakeTransaction);
+  transfer = new Transfer(accountRepo, {}, fakeTransaction);
 });
 
 const context = {} as unknown as Context;
 test('Transfer', async () => {
   const data = {
     fromUserId: UserId.GOOD,
-    toUserId: UserId.GOOD,
-    quantity: 100,  // Faked balance is 100
+    toUserId: UserId.GOOD2,
+    quantity: 100,  // Faked balance is 100 so we can't transfer more than that
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
@@ -48,7 +48,7 @@ test.each([
     const badData = {
       fromUserId: chance.guid(),
       toUserId: chance.guid(),
-      quantity: chance.floating({ fixed: 2 }),
+      quantity: getQty({}),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     delete badData[
@@ -73,7 +73,7 @@ test.each([
     const badData = {
       fromUserId: chance.guid(),
       toUserId: chance.guid(),
-      quantity: chance.floating({ fixed: 2 }),
+      quantity: getQty({}),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     badData[field as 'fromUserId' | 'toUserId'] = 1 as unknown as string;
@@ -96,8 +96,8 @@ test.each([
   async (field: string, errorType: string) => {
     const badData = {
       fromUserId: UserId.GOOD,
-      toUserId: UserId.GOOD,
-      quantity: chance.floating({ fixed: 2 }),
+      toUserId: UserId.GOOD2,
+      quantity: getQty({}),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     badData[field as 'fromUserId' | 'toUserId'] = UserId.NO_TRANSACTIONS;
@@ -115,7 +115,7 @@ test.each([
 it('fails when quantity is greater than source/from balance', async () => {
   const data = {
     fromUserId: UserId.GOOD,
-    toUserId: UserId.GOOD,
+    toUserId: UserId.GOOD2,
     quantity: 101,  // Faked balance is 100
     fromDescription: `Test: ${chance.sentence()}`,
   };
@@ -134,7 +134,7 @@ it('fails when quantity is greater than source/from balance', async () => {
 it('fails when quantity is greater than destination/to balance', async () => {
   const data = {
     fromUserId: UserId.GOOD,
-    toUserId: UserId.GOOD,
+    toUserId: UserId.GOOD2,
     quantity: -101,  // Faked balance is 100, this implies a transfer from toAccount to fromAccount
     fromDescription: `Test: ${chance.sentence()}`,
   };
@@ -147,6 +147,25 @@ it('fails when quantity is greater than destination/to balance', async () => {
   expect(result).toMatchObject({
     error: {
       errorType: 'TransferErrors.InvalidTransfer',
+    },
+  });
+});
+it('fails when source/from and destination/to accounts are the same', async () => {
+  const data = {
+    fromUserId: UserId.GOOD,
+    toUserId: UserId.GOOD,
+    quantity: 100,  // Faked balance is 100
+    fromDescription: `Test: ${chance.sentence()}`,
+  };
+
+  const result = await transfer.execute(
+    getEvent(data),
+    context
+  );
+
+  expect(result).toMatchObject({
+    error: {
+      errorType: 'TransferErrors.SameFromAndTo',
     },
   });
 });

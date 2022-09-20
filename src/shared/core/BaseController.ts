@@ -21,14 +21,22 @@ export abstract class BaseController<
   protected abstract context: Context;
   private dbConnTimeoutErrors = 0;
   private maxDbConnTimeoutErrors = 3;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly renewConn?: any;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected abstract serverError(context: Context): any;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected constructor(renewConn: any, getTransaction?: any) {
+    super(getTransaction);
+    this.renewConn = renewConn;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async handleUnexpectedError(err: any) {
     this.commitRetries = 0;
-    console.log(`An unexpected error occurred`, err);
+    console.log(`An unexpected error occurred: ${typeof err}`, err);
     console.log(`Context`, this.context);
     console.log(`Event`, this.event);
     if (err instanceof ConnectionAcquireTimeoutError) {
@@ -42,6 +50,7 @@ export abstract class BaseController<
       if (this.dbConnTimeoutErrors < this.maxDbConnTimeoutErrors) {
         this.dbConnTimeoutErrors++;
         console.log(`Retry connection #${this.dbConnTimeoutErrors}...`);
+        await this.renewConn();
         await new Promise(
           (
             r // wait some before retrying

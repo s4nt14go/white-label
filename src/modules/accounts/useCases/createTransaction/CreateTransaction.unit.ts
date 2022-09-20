@@ -12,7 +12,7 @@ const chance = new Chance();
 let accountRepo, createTransaction: CreateTransaction;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  createTransaction = new CreateTransaction(accountRepo, fakeTransaction);
+  createTransaction = new CreateTransaction(accountRepo, {}, fakeTransaction);
 });
 
 const context = {} as unknown as Context;

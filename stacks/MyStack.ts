@@ -1,9 +1,6 @@
-import {
-  StackContext,
-  Api,
-  Function,
-  AppSyncApi,
-} from '@serverless-stack/resources';
+import { StackContext, Function, AppSyncApi } from '@serverless-stack/resources';
+import * as cdk from "aws-cdk-lib";
+import * as appsync from "@aws-cdk/aws-appsync-alpha";
 import { SSM } from 'aws-sdk';
 
 export async function MyStack({ stack, app }: StackContext) {
@@ -77,18 +74,26 @@ export async function MyStack({ stack, app }: StackContext) {
     environment: dbCreds,
   });
 
-  const api = new Api(stack, 'api', {
-    routes: {
-      'POST /createUser': createUser,
-    },
-  });
   const responseMapping = { file: 'src/shared/infra/appsync/response.vtl' };
-  const appsync = new AppSyncApi(stack, 'AppSyncApi', {
+  const api = new AppSyncApi(stack, 'AppSyncApi', {
     schema: 'src/shared/infra/appsync/schema.graphql',
+    cdk: {
+      graphqlApi: {
+        authorizationConfig: {
+          defaultAuthorization: {
+            authorizationType: appsync.AuthorizationType.API_KEY,
+            apiKeyConfig: {
+              expires: cdk.Expiration.after(cdk.Duration.days(365)),
+            },
+          },
+        },
+      },
+    },
     dataSources: {
       getAccountByUserId,
       createTransaction,
       transfer,
+      createUser,
     },
     resolvers: {
       'Query getAccountByUserId': {
@@ -103,14 +108,17 @@ export async function MyStack({ stack, app }: StackContext) {
         dataSource: 'transfer',
         responseMapping,
       },
+      'Mutation createUser': {
+        dataSource: 'createUser',
+        responseMapping,
+      },
     },
   });
 
   stack.addOutputs({
-    ApiEndpoint: api.url,
-    appsyncId: appsync.apiId,
+    appsyncId: api.apiId,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    appsyncKey: appsync.cdk.graphqlApi.apiKey!,
-    appsyncUrl: appsync.url,
+    appsyncKey: api.cdk.graphqlApi.apiKey!,
+    appsyncUrl: api.url,
   });
 }

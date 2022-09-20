@@ -15,6 +15,12 @@ export namespace AmountErrors {
       super(`Amount isn't a number`);
     }
   }
+
+  export class MaxBreached extends BaseError {
+    public constructor(value: number) {
+      super(`Number ${value} is too big to be handled with 2 decimal precision`);
+    }
+  }
 }
 
 patch({ AmountErrors });

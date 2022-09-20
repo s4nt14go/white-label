@@ -25,4 +25,5 @@ export default {
   sequelize,
   Sequelize,
   getTransaction,
+  renewConn: config.renewConn,
 };

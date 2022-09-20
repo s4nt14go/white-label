@@ -1,18 +1,19 @@
 import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
 import { ISlackService } from '../../services/slack';
-import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
+import { Request, Response } from './NotifySlackChannelDTO';
+import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 
 type UserCreatedDTO = {
   email: string;
   username: string;
 };
 
-export class NotifySlackChannel
-  extends BaseSubscriber<UserCreatedEvent>
-{
+export class NotifySlackChannel extends BaseSubscriber<Request, Response> {
   private slackService: ISlackService;
 
-  public constructor(slackService: ISlackService) {
+  public constructor(
+    slackService: ISlackService,
+  ) {
     super();
     this.slackService = slackService;
   }
@@ -22,12 +23,14 @@ export class NotifySlackChannel
       Need to reach 'em? Their email is ${user.email}.`;
   }
 
-  protected async executeImpl(event: UserCreatedEvent): Promise<void> {
+  protected async executeImpl(event: Request): ControllerResultAsync<Response> {
     const { user } = event;
 
     await this.slackService.sendMessage(
       NotifySlackChannel.craftSlackMessage(user),
       'growth'
     );
+
+    return { status: 200 };
   }
 }

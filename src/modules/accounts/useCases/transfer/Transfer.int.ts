@@ -57,7 +57,9 @@ test('transfer', async () => {
   };
   const invoked = await invokeLambda(getEvent(dto), transfer);
 
-  expect(invoked.result.status).toBe(201);
+  expect(invoked).toMatchObject({
+    time: expect.any(String),
+  });
   expect(invoked).not.toMatchObject({
     error: expect.anything(),
   });

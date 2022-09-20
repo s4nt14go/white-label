@@ -7,7 +7,7 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
 import { Request } from './CreateTransactionDTO';
-import { AppSync } from '../../../../shared/utils/test';
+import { AppSync, getQty } from '../../../../shared/utils/test';
 import Chance from 'chance';
 
 const chance = new Chance();
@@ -35,7 +35,7 @@ test('Create transaction', async () => {
   const dto: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: chance.floating({ min: 0, fixed: 2 }),
+    delta: getQty({min: 0}),
   };
   const response = await appsync.query({
     query: `mutation ($userId: ID!, $description: String!, $delta: Float!) {

@@ -29,12 +29,17 @@ type voidEnvelop {
   time: String!
 }
 
+type Id {
+  id: ID!
+}
+
+type idEnvelop {
+  result: Id!
+  time: String!
+}
+
 type Mutation {
-  createTransaction(
-    userId: ID!
-    description: String!
-    delta: Float!
-  ): voidEnvelop
+  createTransaction(userId: ID!, description: String!, delta: Float!): voidEnvelop
   transfer(
     fromUserId: ID!
     toUserId: ID!
@@ -42,4 +47,10 @@ type Mutation {
     fromDescription: String!
     toDescription: String
   ): voidEnvelop
+  createUser(
+    email: AWSEmail!
+    password: String!
+    username: String!
+    alias: String
+  ): idEnvelop
 }

@@ -9,7 +9,7 @@ import { BaseError } from '../../../../shared/core/AppError';
 let accountRepo, getAccountByUserId: GetAccountByUserId;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  getAccountByUserId = new GetAccountByUserId(accountRepo);
+  getAccountByUserId = new GetAccountByUserId(accountRepo, {});
 });
 
 const context = {} as unknown as Context;

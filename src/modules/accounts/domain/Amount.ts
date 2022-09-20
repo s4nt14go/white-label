@@ -30,17 +30,28 @@ export class Amount extends ValueObject<AmountProps> {
     const combined = Guard.combine([guardNull, guardType]);
     if (combined.isFailure) return Result.fail(combined.error as BaseError);
 
-    const rounded = Math.round((props.value + Number.EPSILON) * 100) / 100;
+    const integer100 = Math.round((props.value + Number.EPSILON) * 100);
 
-    return Result.ok<Amount>(new Amount({ value: rounded }));
+    if (Math.abs(integer100) > Number.MAX_SAFE_INTEGER)
+      return Result.fail(new AmountErrors.MaxBreached(props.value));
+
+    return Result.ok<Amount>(new Amount({ value: integer100 / 100 }));
   }
 
   public subtract(amount: Amount): Amount {
-    return Amount.create({ value: this.props.value - amount.value }).value;
+    console.log('subtracting this.props.value', this.props.value);
+    console.log('amount.value', amount.value);
+    const r = Amount.create({ value: this.props.value - amount.value }).value;
+    console.log('r.value', r.value);
+    return r;
   }
 
   public add(amount: Amount): Amount {
-    return Amount.create({ value: this.props.value + amount.value }).value;
+    console.log('adding this.props.value', this.props.value);
+    console.log('amount.value', amount.value);
+    const r = Amount.create({ value: this.props.value + amount.value }).value;
+    console.log('r.value', r.value);
+    return r;
   }
 
   public negate(): Amount {

@@ -45,3 +45,24 @@ test('round up', () => {
   const amount = result.value;
   expect(amount.value).toBe(0.02);
 });
+
+test('Creation fails with a value greater than max', () => {
+  const data = {
+    value: Number.MAX_SAFE_INTEGER / 100 + 1,
+  };
+
+  const result = Amount.create(data);
+
+  expect(result.isFailure).toBe(true);
+  expect(result.error).toBeInstanceOf(AmountErrors.MaxBreached);
+});
+test('Creation fails with a value less than min', () => {
+  const data = {
+    value: -Number.MAX_SAFE_INTEGER / 100 - 1,
+  };
+
+  const result = Amount.create(data);
+
+  expect(result.isFailure).toBe(true);
+  expect(result.error).toBeInstanceOf(AmountErrors.MaxBreached);
+});

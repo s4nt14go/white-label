@@ -58,6 +58,12 @@ export namespace TransferErrors {
     }
   }
 
+  export class SameFromAndTo extends BaseError {
+    public constructor(userId: string) {
+      super(`Source/from and destination/to accounts can't be the same: ${userId}`);
+    }
+  }
+
   export class InvalidTransfer extends BaseError {
     public constructor(error: BaseError) {
       super(`Invalid transfer: ${error.message} [${error.type}]`);

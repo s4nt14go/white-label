@@ -4,7 +4,7 @@ import {
 } from 'aws-lambda';
 import { Envelope } from '../../core/Envelope';
 import { BaseError, UnexpectedError } from '../../core/AppError';
-import { BaseController } from '../../core/BaseController';
+import { BaseController, ControllerResult } from '../../core/BaseController';
 import { Created } from '../../core/Created';
 import { CommitResult } from '../../core/BaseTransaction';
 
@@ -39,7 +39,7 @@ export abstract class AppSyncController<
       const implResult = await this.executeImpl(event.arguments);
       if (implResult.status === 200 || implResult.status === 201) {
         if (this.transaction) return this.handleCommit(implResult);
-        return Envelope.ok(implResult.result as ResponseT | Created);
+        return Envelope.ok(implResult.result);
       } else {
         return {
           error: Envelope.error(implResult.result as BaseError),
@@ -50,12 +50,12 @@ export abstract class AppSyncController<
     }
   }
 
-  private async handleCommit(result: unknown) {
+  private async handleCommit(implResult: ControllerResult<ResponseT>) {
     const r = await this.commitWithRetry();
     const { SUCCESS, RETRY, ERROR, EXHAUSTED } = CommitResult;
     switch (r) {
       case SUCCESS:
-        return Envelope.ok(result as ResponseT | Created);
+        return Envelope.ok(implResult.result);
       case RETRY:
         return this.execute(this.event, this.context);
       case ERROR:

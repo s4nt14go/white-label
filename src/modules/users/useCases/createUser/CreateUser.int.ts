@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import 'aws-testing-library/lib/jest';
-import { getNewUserDto, invokeLambda } from '../../../../shared/utils/test';
+import { getAppSyncEvent as getEvent, getNewUserDto, invokeLambda } from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,
@@ -23,9 +23,15 @@ afterAll(async () => {
 
 test('User creation', async () => {
   const newUser = getNewUserDto();
-  const invoked = await invokeLambda(newUser, createUser);
+  const invoked = await invokeLambda(getEvent(newUser), createUser);
 
-  expect(invoked.statusCode).toBe(201);
+  console.log('invoked', invoked);
+  expect(invoked).not.toMatchObject({
+    error: expect.anything(),
+  });
+  expect(invoked.result).toMatchObject({
+    id: expect.any(String),
+  });
 
   const user = await UserRepo.findUserByUsername(newUser.username);
   if (!user) throw new Error(`User not found`);

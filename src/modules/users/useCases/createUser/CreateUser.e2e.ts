@@ -1,15 +1,20 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import fetch from 'node-fetch';
-import { getNewUserDto } from '../../../../shared/utils/test';
-import { CreatedUser, deleteUsers, UserRepo } from '../../../../shared/utils/repos';
+import { AppSync, getNewUserDto } from '../../../../shared/utils/test';
+import {
+  CreatedUser,
+  deleteUsers,
+  UserRepo,
+} from '../../../../shared/utils/repos';
 
 // Add all process.env used:
-const { apiUrl } = process.env;
-if (!apiUrl) {
+const { appsyncUrl, appsyncKey } = process.env;
+if (!appsyncUrl || !appsyncKey) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
+
+const appsync = new AppSync(appsyncUrl, appsyncKey);
 
 const createdUsers: CreatedUser[] = [];
 afterAll(async () => {
@@ -18,13 +23,19 @@ afterAll(async () => {
 
 test('User creation', async () => {
   const newUser = getNewUserDto();
-  const response = await fetch(apiUrl + '/createUser', {
-    method: 'post',
-    body: JSON.stringify(newUser),
-    headers: { 'Content-Type': 'application/json' },
+  const response = await appsync.query({
+    query: `mutation MyMutation($email: AWSEmail!, $password: String!, $username: String!, $alias: String) {
+      createUser(email: $email, password: $password, username: $username, alias: $alias) {
+        result {
+          id
+        }
+        time
+      }
+    }`,
+    variables: newUser,
   });
 
-  expect(response.status).toBe(201);
+  expect(response.status).toBe(200);
 
   const user = await UserRepo.findUserByUsername(newUser.username);
   if (!user) throw new Error(`User not found`);

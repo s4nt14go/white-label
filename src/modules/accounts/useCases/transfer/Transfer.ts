@@ -15,8 +15,14 @@ export class Transfer extends AppSyncController<Response, Request> {
   private readonly accountRepo: IAccountRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public constructor(accountRepo: IAccountRepo, getTransaction: any) {
-    super(getTransaction);
+  public constructor(
+    accountRepo: IAccountRepo,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    renewConn: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getTransaction: any
+  ) {
+    super(renewConn, getTransaction);
     this.accountRepo = accountRepo;
   }
 
@@ -24,7 +30,7 @@ export class Transfer extends AppSyncController<Response, Request> {
     // As this use case is a command, include all repos queries in a serializable transaction
     this.accountRepo.setTransaction(this.transaction);
 
-    const descriptionOrError = Description.create({value: dto.fromDescription});
+    const descriptionOrError = Description.create({ value: dto.fromDescription });
     if (descriptionOrError.isFailure)
       return {
         status: BAD_REQUEST,
@@ -38,7 +44,7 @@ export class Transfer extends AppSyncController<Response, Request> {
     if (dto.toDescription === undefined) {
       toDescription = fromDescription;
     } else {
-      const descriptionOrError = Description.create({value: dto.toDescription});
+      const descriptionOrError = Description.create({ value: dto.toDescription });
       if (descriptionOrError.isFailure)
         return {
           status: BAD_REQUEST,
@@ -49,7 +55,7 @@ export class Transfer extends AppSyncController<Response, Request> {
       toDescription = descriptionOrError.value;
     }
 
-    const deltaOrError = Amount.create({value: dto.quantity});
+    const deltaOrError = Amount.create({ value: dto.quantity });
     if (deltaOrError.isFailure)
       return {
         status: BAD_REQUEST,
@@ -59,7 +65,14 @@ export class Transfer extends AppSyncController<Response, Request> {
       };
     const delta = deltaOrError.value;
 
-    const {fromUserId, toUserId} = dto;
+    const { fromUserId, toUserId } = dto;
+
+    if (fromUserId === toUserId)
+      return {
+        status: BAD_REQUEST,
+        result: new TransferErrors.SameFromAndTo(fromUserId),
+      };
+
     {
       const guardNull = Guard.againstNullOrUndefined(
         fromUserId,
@@ -107,15 +120,15 @@ export class Transfer extends AppSyncController<Response, Request> {
     if (!fromAccount)
       return {
         status: BAD_REQUEST,
-        result: new TransferErrors.FromAccountNotFound(fromUserId)
-      }
+        result: new TransferErrors.FromAccountNotFound(fromUserId),
+      };
 
     const toAccount = await this.accountRepo.getAccountByUserId(toUserId);
     if (!toAccount)
       return {
         status: BAD_REQUEST,
-        result: new TransferErrors.ToAccountNotFound(toUserId)
-      }
+        result: new TransferErrors.ToAccountNotFound(toUserId),
+      };
 
     const transferOrError = fromAccount.transferTo(
       toAccount,
@@ -126,9 +139,11 @@ export class Transfer extends AppSyncController<Response, Request> {
     if (transferOrError.isFailure)
       return {
         status: BAD_REQUEST,
-        result: new TransferErrors.InvalidTransfer(transferOrError.error as BaseError)
-      }
-    const {fromTransaction, toTransaction} = transferOrError.value;
+        result: new TransferErrors.InvalidTransfer(
+          transferOrError.error as BaseError
+        ),
+      };
+    const { fromTransaction, toTransaction } = transferOrError.value;
 
     await this.accountRepo.transfer({
       from: {
@@ -143,6 +158,6 @@ export class Transfer extends AppSyncController<Response, Request> {
 
     return {
       status: CREATED,
-    }
+    };
   }
 }

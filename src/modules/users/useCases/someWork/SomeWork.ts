@@ -1,8 +1,9 @@
 import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
-import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
 import { IExternalService } from '../../services/some';
+import { Request, Response } from './SomeWorkDTO';
+import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 
-export class SomeWork extends BaseSubscriber<UserCreatedEvent> {
+export class SomeWork extends BaseSubscriber<Request, Response> {
   private externalService: IExternalService;
 
   public constructor(externalService: IExternalService) {
@@ -10,9 +11,11 @@ export class SomeWork extends BaseSubscriber<UserCreatedEvent> {
     this.externalService = externalService;
   }
 
-  protected async executeImpl(event: UserCreatedEvent): Promise<void> {
+  protected async executeImpl(event: Request): ControllerResultAsync<Response> {
     const { user } = event;
 
     await this.externalService.sendToExternal(user);
+
+    return { status: 200 };
   }
 }

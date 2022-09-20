@@ -11,7 +11,7 @@ class Sample extends APIGatewayPOST<void> {
     return Promise.resolve({ status: Status.OK });
   }
   public constructor() {
-    super();
+    super({});
   }
 }
 
