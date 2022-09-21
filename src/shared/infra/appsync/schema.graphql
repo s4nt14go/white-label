@@ -10,47 +10,39 @@ type Transaction {
   description: String!
 }
 
-type Account {
+type AccountResponse {
   balance: Float!
   active: Boolean!
   transactions: [Transaction!]!
-}
-
-type accountEnvelop {
-  result: Account!
-  time: AWSDateTime!
+  response_time: AWSDateTime!
 }
 
 type Query {
-  getAccountByUserId(userId: ID!): accountEnvelop
+  getAccountByUserId(userId: ID!): AccountResponse
 }
 
-type voidEnvelop {
-  time: String!
+type VoidResponse {
+  response_time: AWSDateTime!
 }
 
-type Id {
+type IdResponse {
   id: ID!
-}
-
-type idEnvelop {
-  result: Id!
-  time: String!
+  response_time: AWSDateTime!
 }
 
 type Mutation {
-  createTransaction(userId: ID!, description: String!, delta: Float!): voidEnvelop
+  createTransaction(userId: ID!, description: String!, delta: Float!): VoidResponse
   transfer(
     fromUserId: ID!
     toUserId: ID!
     quantity: Float!
     fromDescription: String!
     toDescription: String
-  ): voidEnvelop
+  ): VoidResponse
   createUser(
     email: AWSEmail!
     password: String!
     username: String!
     alias: String
-  ): idEnvelop
+  ): IdResponse
 }

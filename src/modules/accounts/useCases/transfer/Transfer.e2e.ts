@@ -59,7 +59,7 @@ test('Transfer', async () => {
   const response = await appsync.query({
     query: `mutation MyMutation($fromDescription: String!, $fromUserId: ID!, $quantity: Float!, $toUserId: ID!, $toDescription: String) {
       transfer(fromDescription: $fromDescription, fromUserId: $fromUserId, quantity: $quantity, toUserId: $toUserId, toDescription: $toDescription) {
-        time
+        response_time
       }
     }`,
     variables: dto,
@@ -68,7 +68,7 @@ test('Transfer', async () => {
   expect(response.status).toBe(200);
   const json = await response.json();
   expect(json.data.transfer).toMatchObject({
-    time: expect.any(String),
+    response_time: expect.any(String),
   });
   expect(json).not.toMatchObject({
     errors: expect.anything(),

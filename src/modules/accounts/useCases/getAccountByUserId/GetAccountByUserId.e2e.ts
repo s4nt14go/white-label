@@ -31,16 +31,14 @@ it('gets an account', async () => {
   const response = await appsync.query({
     query: `query ($userId: ID!) { 
         getAccountByUserId(userId: $userId) { 
-          result { 
+          balance 
+          active 
+          transactions { 
             balance 
-            active 
-            transactions { 
-              balance 
-              delta 
-              date 
-            } 
+            delta 
+            date 
           } 
-          time 
+          response_time 
         } 
       }`,
     variables: { userId: seed.userId },
@@ -48,7 +46,7 @@ it('gets an account', async () => {
 
   expect(response.status).toBe(200);
   const json = await response.json();
-  expect(json.data.getAccountByUserId.result.balance).toBe(0);
+  expect(json.data.getAccountByUserId.balance).toBe(0);
 
   const account = await AccountRepo.getAccountByUserId(seed.userId);
   if (!account) throw new Error(`Account not found for userId ${seed.userId}`);

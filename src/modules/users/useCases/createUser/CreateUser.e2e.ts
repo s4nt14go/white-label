@@ -26,10 +26,8 @@ test('User creation', async () => {
   const response = await appsync.query({
     query: `mutation MyMutation($email: AWSEmail!, $password: String!, $username: String!, $alias: String) {
       createUser(email: $email, password: $password, username: $username, alias: $alias) {
-        result {
-          id
-        }
-        time
+        id
+        response_time
       }
     }`,
     variables: newUser,

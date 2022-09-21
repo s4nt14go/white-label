@@ -40,7 +40,7 @@ test('Create transaction', async () => {
   const response = await appsync.query({
     query: `mutation ($userId: ID!, $description: String!, $delta: Float!) {
       createTransaction(userId: $userId, description: $description, delta: $delta) {
-        time
+        response_time
       }
     }`,
     variables: dto,
@@ -49,7 +49,7 @@ test('Create transaction', async () => {
   expect(response.status).toBe(200);
   const json = await response.json();
   expect(json.data.createTransaction).toMatchObject({
-    time: expect.any(String),
+    response_time: expect.any(String),
   });
   expect(json).not.toMatchObject({
     errors: expect.anything(),
