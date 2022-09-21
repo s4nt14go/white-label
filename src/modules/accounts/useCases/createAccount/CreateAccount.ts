@@ -1,9 +1,9 @@
-import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
+import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { Request, Response } from './CreateAccountDTO';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 
-export class CreateAccount extends BaseSubscriber<Request, Response> {
+export class CreateAccount extends SubscriberController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
   public constructor(

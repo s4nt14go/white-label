@@ -1,4 +1,4 @@
-import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
+import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { ISlackService } from '../../services/slack';
 import { Request, Response } from './NotifySlackChannelDTO';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
@@ -8,7 +8,7 @@ type UserCreatedDTO = {
   username: string;
 };
 
-export class NotifySlackChannel extends BaseSubscriber<Request, Response> {
+export class NotifySlackChannel extends SubscriberController<Request, Response> {
   private slackService: ISlackService;
 
   public constructor(

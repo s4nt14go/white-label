@@ -1,9 +1,9 @@
-import { BaseSubscriber } from '../../../../shared/core/BaseSubscriber';
+import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { IExternalService } from '../../services/some';
 import { Request, Response } from './SomeWorkDTO';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 
-export class SomeWork extends BaseSubscriber<Request, Response> {
+export class SomeWork extends SubscriberController<Request, Response> {
   private externalService: IExternalService;
 
   public constructor(externalService: IExternalService) {
