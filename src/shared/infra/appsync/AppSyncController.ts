@@ -16,9 +16,9 @@ type ExeResponse = Promise<
   | { error: EnvelopUnexpectedT }
   >
 export abstract class AppSyncController<
+  Request,
   Response,
-  Request
-> extends BaseController<Response, AppSyncResolverEvent<Request>, ExeResponse> {
+> extends BaseController<AppSyncResolverEvent<Request>, Response, ExeResponse> {
   protected event!: AppSyncResolverEvent<Request>;
   protected context!: Context;
 

@@ -20,13 +20,13 @@ export type ControllerResult<T> = {
 export type ControllerResultAsync<T> = Promise<ControllerResult<T>>;
 
 export abstract class BaseController<
-  T,
-  EventT,
+  Request,
+  Response,
   ExeResponse
 > extends BaseTransaction {
-  protected abstract executeImpl(dto: unknown | EventT): ControllerResultAsync<T>;
-  protected abstract execute(event: EventT, context: Context): ExeResponse;
-  protected abstract event: EventT;
+  protected abstract executeImpl(dto: unknown | Request): ControllerResultAsync<Response>;
+  protected abstract execute(event: Request, context: Context): ExeResponse;
+  protected abstract event: Request;
   protected abstract context: Context;
   private dbConnTimeoutErrors = 0;
   private maxDbConnTimeoutErrors = 3;

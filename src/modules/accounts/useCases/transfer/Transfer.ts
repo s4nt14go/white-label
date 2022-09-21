@@ -11,7 +11,7 @@ import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
 const { CREATED, BAD_REQUEST } = Status;
 
-export class Transfer extends AppSyncController<Response, Request> {
+export class Transfer extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

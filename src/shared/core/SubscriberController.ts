@@ -11,7 +11,7 @@ type ExeResponse = Promise<
   | { error: Envelope<BaseError> }
   | { error: EnvelopUnexpectedT }
   >
-export abstract class SubscriberController<Request, Response> extends BaseController<Response, Request, ExeResponse> {
+export abstract class SubscriberController<Request, Response> extends BaseController<Request, Response, ExeResponse> {
   protected event!: Request;
   protected context = {} as Context;
 

@@ -10,7 +10,7 @@ import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
 const { BAD_REQUEST, CREATED } = Status;
 
-export class CreateTransaction extends AppSyncController<Response, Request> {
+export class CreateTransaction extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
   public constructor(

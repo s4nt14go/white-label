@@ -15,7 +15,7 @@ import { Status } from '../../../../shared/core/Status';
 import { BaseError } from '../../../../shared/core/AppError';
 const { BAD_REQUEST, CREATED, CONFLICT } = Status;
 
-export class CreateUser extends AppSyncController<Response, Request> {
+export class CreateUser extends AppSyncController<Request, Response> {
   private readonly userRepo: IUserRepo;
   public constructor(
     userRepo: IUserRepo,

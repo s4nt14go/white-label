@@ -10,7 +10,7 @@ import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncContr
 
 const { OK, BAD_REQUEST } = Status;
 
-export class GetAccountByUserId extends AppSyncController<Response, Request> {
+export class GetAccountByUserId extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
   public constructor(
