@@ -86,7 +86,7 @@ I've used **SST Serverless Stack** as it allows debugging lambda code locally wh
 
 I started this project using Khalil Stemmler's [white-label](https://github.com/stemmlerjs/white-label) `users` module and applied some concepts based on [Vladimir Khorikov](https://enterprisecraftsmanship.com) courses where he tackles DDD in a great way.
 
-I also added `accounts` module, refactored from REST to GraphQL API, turned it into serverless and wrote a bunch of tests.
+I also added `accounts` module, transactions support, refactored from REST to GraphQL API, turned it into serverless and wrote a bunch of tests.
 
 ## Instructions
 
