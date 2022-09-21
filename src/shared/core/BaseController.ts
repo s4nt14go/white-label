@@ -1,8 +1,17 @@
-import { BaseError } from './AppError';
+import { BaseError, UnexpectedError } from './AppError';
 import { Created } from './Created';
-import { BaseTransaction } from './BaseTransaction';
+import { BaseTransaction, CommitResult } from './BaseTransaction';
 import { Context } from 'aws-lambda';
 import { ConnectionAcquireTimeoutError } from 'sequelize';
+import { Envelope } from './Envelope';
+
+export type EnvelopUnexpectedT =
+  | Envelope<BaseError>
+  | {
+      logGroup: string;
+      logStream: string;
+      awsRequest: string;
+    };
 
 export type ControllerResult<T> = {
   status: number;
@@ -13,10 +22,10 @@ export type ControllerResultAsync<T> = Promise<ControllerResult<T>>;
 export abstract class BaseController<
   T,
   EventT,
-  ResponseT
+  ExeResponse
 > extends BaseTransaction {
   protected abstract executeImpl(dto: unknown | EventT): ControllerResultAsync<T>;
-  protected abstract execute(event: EventT, context: Context): ResponseT;
+  protected abstract execute(event: EventT, context: Context): ExeResponse;
   protected abstract event: EventT;
   protected abstract context: Context;
   private dbConnTimeoutErrors = 0;
@@ -24,13 +33,45 @@ export abstract class BaseController<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly renewConn?: any;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected abstract serverError(context: Context): any;
+  protected async serverError(
+    context: Context
+  ): Promise<{ error: EnvelopUnexpectedT }> {
+    if (this.transaction)
+      try {
+        // guard against the error being because of the rollback itself
+        await this.transaction.rollback();
+      } catch (e) {
+        console.log('Error when rolling back inside serverError', e);
+      }
+    return {
+      error: {
+        ...Envelope.error(new UnexpectedError()),
+        logGroup: context.logGroupName,
+        logStream: context.logStreamName,
+        awsRequest: context.awsRequestId,
+      },
+    };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected constructor(renewConn: any, getTransaction?: any) {
+  protected constructor(renewConn?: any, getTransaction?: any) {
     super(getTransaction);
     this.renewConn = renewConn;
+  }
+
+  protected async handleCommit() {
+    const r = await this.commitWithRetry();
+    const { SUCCESS, RETRY, ERROR, EXHAUSTED } = CommitResult;
+    switch (r) {
+      case SUCCESS:
+        return;
+      case RETRY:
+        return this.execute(this.event, this.context);
+      case ERROR:
+      case EXHAUSTED:
+      default:
+        return this.handleUnexpectedError(`Error when committing: ${r}`);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
