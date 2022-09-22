@@ -32,7 +32,7 @@ export abstract class AppSyncController<
     try {
       if (this.getTransaction) this.transaction = await this.getTransaction();
       const implResult = await this.executeImpl(event.arguments);
-      if (implResult.status === 200 || implResult.status === 201) {
+      if ([200, 201].includes(implResult.status)) {
         if (this.transaction) await this.handleCommit();
         return Envelope.ok(implResult.result);
       } else {

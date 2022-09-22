@@ -18,18 +18,18 @@ export abstract class SubscriberController<Request, Response> extends BaseContro
   public async execute(event: Request): ExeResponse {
     this.event = event;
 
+    let implResult;
     try {
       if (this.getTransaction) this.transaction = await this.getTransaction();
-      const implResult = await this.executeImpl(event);
-      if (implResult.status === 200 || implResult.status === 201) {
+      implResult = await this.executeImpl(event);
+      if ([200, 201].includes(implResult.status)) {
         if (this.transaction) await this.handleCommit();
         return;
-      } else {
-        console.log('implResult', implResult);
-        throw Error('No success??');
       }
     } catch (err) {
       await this.handleUnexpectedError(err);
     }
+    console.log('implResult', implResult);
+    throw Error('No success??');
   }
 }

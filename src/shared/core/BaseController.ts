@@ -1,6 +1,6 @@
 import { BaseError, UnexpectedError } from './AppError';
 import { Created } from './Created';
-import { BaseTransaction, CommitResult } from './BaseTransaction';
+import { BaseTransaction } from './BaseTransaction';
 import { Context } from 'aws-lambda';
 import { ConnectionAcquireTimeoutError } from 'sequelize';
 import { Envelope } from './Envelope';
@@ -23,7 +23,7 @@ export abstract class BaseController<
   Request,
   Response,
   ExeResponse
-> extends BaseTransaction {
+> extends BaseTransaction<Request, ExeResponse> {
   protected abstract executeImpl(dto: unknown | Request): ControllerResultAsync<Response>;
   protected abstract execute(event: Request, context: Context): ExeResponse;
   protected abstract event: Request;
@@ -33,45 +33,10 @@ export abstract class BaseController<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly renewConn?: any;
 
-  protected async serverError(
-    context: Context
-  ): Promise<{ error: EnvelopUnexpectedT }> {
-    if (this.transaction)
-      try {
-        // guard against the error being because of the rollback itself
-        await this.transaction.rollback();
-      } catch (e) {
-        console.log('Error when rolling back inside serverError', e);
-      }
-    return {
-      error: {
-        ...Envelope.error(new UnexpectedError()),
-        logGroup: context.logGroupName,
-        logStream: context.logStreamName,
-        awsRequest: context.awsRequestId,
-      },
-    };
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected constructor(renewConn?: any, getTransaction?: any) {
     super(getTransaction);
     this.renewConn = renewConn;
-  }
-
-  protected async handleCommit() {
-    const r = await this.commitWithRetry();
-    const { SUCCESS, RETRY, ERROR, EXHAUSTED } = CommitResult;
-    switch (r) {
-      case SUCCESS:
-        return;
-      case RETRY:
-        return this.execute(this.event, this.context);
-      case ERROR:
-      case EXHAUSTED:
-      default:
-        return this.handleUnexpectedError(`Error when committing: ${r}`);
-    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,5 +72,25 @@ export abstract class BaseController<
       this.dbConnTimeoutErrors = 0;
     }
     return this.serverError(this.context);
+  }
+
+  protected async serverError(
+    context: Context
+  ): Promise<{ error: EnvelopUnexpectedT }> {
+    if (this.transaction)
+      try {
+        // guard against the error being because of the rollback itself
+        await this.transaction.rollback();
+      } catch (e) {
+        console.log('Error when rolling back inside serverError', e);
+      }
+    return {
+      error: {
+        ...Envelope.error(new UnexpectedError()),
+        logGroup: context.logGroupName,
+        logStream: context.logStreamName,
+        awsRequest: context.awsRequestId,
+      },
+    };
   }
 }
