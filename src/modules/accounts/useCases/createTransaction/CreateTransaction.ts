@@ -8,6 +8,8 @@ import { Description } from '../../domain/Description';
 import { Guard } from '../../../../shared/core/Guard';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
+import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
+import { CreateTransactionEvents } from './CreateTransactionEvents';
 const { BAD_REQUEST, CREATED } = Status;
 
 export class CreateTransaction extends AppSyncController<Request, Response> {
@@ -15,6 +17,7 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
 
   public constructor(
     accountRepo: IAccountRepo,
+    dispatcher: IDispatcher,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     renewConn: any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,6 +25,7 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
   ) {
     super(renewConn, getTransaction);
     this.accountRepo = accountRepo;
+    CreateTransactionEvents.registration(dispatcher);
   }
 
   protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
@@ -86,7 +90,7 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
         ),
       };
 
-    await this.accountRepo.createTransaction(transactionOrError.value, userId);
+    await this.accountRepo.createTransaction(transactionOrError.value, account.id.toString());
 
     return {
       status: CREATED,

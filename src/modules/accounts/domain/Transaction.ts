@@ -5,7 +5,7 @@ import { Entity } from '../../../shared/domain/Entity';
 import { Result } from '../../../shared/core/Result';
 import { TransactionErrors } from './TransactionErrors';
 
-interface TransactionProps {
+export interface TransactionProps {
   balance: Amount;
   delta: Amount;
   date: Date;

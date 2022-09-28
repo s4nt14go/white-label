@@ -1,20 +1,14 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { AppSync, getNewUserDto } from '../../../../shared/utils/test';
+import { getNewUserDto } from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,
   UserRepo,
 } from '../../../../shared/utils/repos';
+import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 
-// Add all process.env used:
-const { appsyncUrl, appsyncKey } = process.env;
-if (!appsyncUrl || !appsyncKey) {
-  console.log('process.env', process.env);
-  throw new Error(`Undefined env var!`);
-}
-
-const appsync = new AppSync(appsyncUrl, appsyncKey);
+const appsync = new AppSyncClient();
 
 const createdUsers: CreatedUser[] = [];
 afterAll(async () => {
@@ -23,7 +17,7 @@ afterAll(async () => {
 
 test('User creation', async () => {
   const newUser = getNewUserDto();
-  const response = await appsync.query({
+  const response = await appsync.send({
     query: `mutation MyMutation($email: AWSEmail!, $password: String!, $username: String!, $alias: String) {
       createUser(email: $email, password: $password, username: $username, alias: $alias) {
         id

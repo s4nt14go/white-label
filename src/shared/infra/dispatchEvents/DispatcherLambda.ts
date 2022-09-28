@@ -1,5 +1,5 @@
 import { IDispatcher } from '../../domain/events/DomainEvents';
-import { IDomainEvent } from '../../domain/events/IDomainEvent';
+import { DomainEventBase } from '../../domain/events/DomainEventBase';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
 import { TextEncoder } from 'util';
@@ -7,7 +7,7 @@ import { TextEncoder } from 'util';
 export class DispatcherLambda implements IDispatcher {
   private lambdaClient = new Lambda({});
 
-  public async dispatch(event: IDomainEvent, handler: string) {
+  public async dispatch(event: DomainEventBase, handler: string) {
     const req = {
       FunctionName: handler,
       InvocationType: 'Event',

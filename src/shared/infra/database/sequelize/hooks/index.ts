@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import models from '../models';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const models = require('../models/index.ts');
 import { EntityID } from '../../../../domain/EntityID';
 import { DomainEvents } from '../../../../domain/events/DomainEvents';
 
@@ -9,14 +10,17 @@ const dispatchEventsCallback = async (
   primaryKeyField: string,
   hook: string
 ) => {
-  const id = model[primaryKeyField];
-  const aggregateId = new EntityID(id);
+  let id = model[primaryKeyField];
   console.log(`Hooking ${hook} for ${model.constructor.name} ${id}`);
-  await DomainEvents.dispatchEventsForAggregate(aggregateId);
+  if (model.constructor.name === 'transaction') {
+    console.log('Transaction is an internal entity to Account aggregate, so use account id to check for events');
+    id = model['accountId'];
+  }
+  await DomainEvents.dispatchEventsForAggregate(new EntityID(id));
 };
 
 export default function () {
-  const { User } = models;
+  const { User, Account, Transaction } = models;
 
   const hooks = [
     'afterCreate',
@@ -25,11 +29,17 @@ export default function () {
     'afterSave',
     'afterUpsert',
   ];
-  hooks.map((h) =>
+  hooks.map((h) => {
     User.addHook(h, (m: any, options: any) =>
       dispatchEventsCallback(m, options, 'id', h)
-    )
-  );
+    );
+    Account.addHook(h, (m: any, options: any) =>
+      dispatchEventsCallback(m, options, 'id', h)
+    );
+    Transaction.addHook(h, (m: any, options: any) =>
+      dispatchEventsCallback(m, options, 'id', h)
+    );
+  });
 
   console.log('[Hooks]: Sequelize hooks setup.');
 }

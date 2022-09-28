@@ -33,8 +33,10 @@ export abstract class BaseTransaction<Request, ExeResponse> {
     switch (r) {
       case SUCCESS:
         return;
-      case RETRY:
-        return this.execute(this.event, this.context);
+      case RETRY: {
+        const e = await this.execute(this.event, this.context);
+        return e;
+      }
       case ERROR:
       case EXHAUSTED:
       default:

@@ -1,6 +1,6 @@
 import { StackContext, Function, AppSyncApi } from '@serverless-stack/resources';
-import * as cdk from "aws-cdk-lib";
-import * as appsync from "@aws-cdk/aws-appsync-alpha";
+import * as cdk from 'aws-cdk-lib';
+import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { SSM } from 'aws-sdk';
 
 export async function MyStack({ stack, app }: StackContext) {
@@ -63,8 +63,13 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const createTransaction = new Function(stack, 'createTransaction', {
     handler: 'modules/accounts/useCases/createTransaction/index.handler',
-    environment: dbCreds,
+    environment: {
+      ...dbCreds,
+      distributeDomainEvents: distributeDomainEvents.functionName,
+    },
   });
+  distributeDomainEvents.grantInvoke(createTransaction);
+
   const transfer = new Function(stack, 'transfer', {
     handler: 'modules/accounts/useCases/transfer/index.handler',
     environment: dbCreds,
@@ -74,7 +79,15 @@ export async function MyStack({ stack, app }: StackContext) {
     environment: dbCreds,
   });
 
-  const responseMapping = { file: 'src/shared/infra/appsync/response.vtl' };
+  const adaptResult = {
+    file: 'src/shared/infra/appsync/templates/adaptResult.vtl',
+  };
+  const passResponse = {
+    file: 'src/shared/infra/appsync/templates/pass.response.vtl',
+  };
+  const passRequest = {
+    file: 'src/shared/infra/appsync/templates/pass.request.vtl',
+  };
   const api = new AppSyncApi(stack, 'AppSyncApi', {
     schema: 'src/shared/infra/appsync/schema.graphql',
     cdk: {
@@ -94,26 +107,48 @@ export async function MyStack({ stack, app }: StackContext) {
       createTransaction,
       transfer,
       createUser,
+      none: { type: 'none' },
     },
     resolvers: {
       'Query getAccountByUserId': {
         dataSource: 'getAccountByUserId',
-        responseMapping,
+        responseMapping: adaptResult,
       },
       'Mutation createTransaction': {
         dataSource: 'createTransaction',
-        responseMapping,
+        responseMapping: adaptResult,
       },
       'Mutation transfer': {
         dataSource: 'transfer',
-        responseMapping,
+        responseMapping: adaptResult,
       },
       'Mutation createUser': {
         dataSource: 'createUser',
-        responseMapping,
+        responseMapping: adaptResult,
+      },
+      'Mutation notifyTransactionCreated': {
+        dataSource: 'none',
+        requestMapping: passRequest,
+        responseMapping: passResponse,
+      },
+      'Subscription onNotifyTransactionCreated': {
+        dataSource: 'none',
+        requestMapping: passRequest,
+        responseMapping: passResponse,
       },
     },
   });
+
+  const notifyFE = new Function(stack, 'notifyFE', {
+    handler: 'modules/notification/useCases/notifyFE/index.handler',
+    environment: {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      appsyncKey: api.cdk.graphqlApi.apiKey!,
+      appsyncUrl: api.url,
+    },
+  });
+  distributeDomainEvents.addEnvironment('notifyFE', notifyFE.functionName);
+  notifyFE.grantInvoke(distributeDomainEvents);
 
   stack.addOutputs({
     appsyncId: api.apiId,

@@ -42,11 +42,11 @@ export abstract class BaseController<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async handleUnexpectedError(err: any) {
     this.commitRetries = 0;
-    console.log(`An unexpected error occurred: ${typeof err}`, err);
+    console.log(`An unexpected error occurred:  type ${typeof err} name ${err.name} code ${err.code}`, err);
     console.log(`Context`, this.context);
     console.log(`Event`, this.event);
-    if (err instanceof ConnectionAcquireTimeoutError) {
-      console.log(`ConnectionAcquireTimeoutError, will try to rollback and retry`);
+    if (err instanceof ConnectionAcquireTimeoutError || err.code === '40001' || err.name.includes('Database')) {
+      console.log(`Database error, will try to rollback and retry`);
       try {
         await this.transaction.rollback();
       } catch (e) {

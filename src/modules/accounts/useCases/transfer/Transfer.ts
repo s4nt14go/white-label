@@ -148,11 +148,11 @@ export class Transfer extends AppSyncController<Request, Response> {
     await this.accountRepo.transfer({
       from: {
         transaction: fromTransaction,
-        userId: fromUserId,
+        accountId: fromAccount.id.toString(),
       },
       to: {
         transaction: toTransaction,
-        userId: toUserId,
+        accountId: toAccount.id.toString(),
       },
     });
 

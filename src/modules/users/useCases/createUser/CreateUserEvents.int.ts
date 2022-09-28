@@ -14,7 +14,7 @@ import {
 } from '../../../../shared/utils/repos';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
-import { IDomainEvent } from '../../../../shared/domain/events/IDomainEvent';
+import { DomainEventBase } from '../../../../shared/domain/events/DomainEventBase';
 import { Context } from 'aws-lambda';
 import { Envelope } from '../../../../shared/core/Envelope';
 import { Created } from '../../../../shared/core/Created';
@@ -30,7 +30,7 @@ let createUser: CreateUser,
   dispatcherFake: IDispatcher,
   spyOnDispatch: jest.SpyInstance<
     Promise<unknown>,
-    [event: IDomainEvent, handler: string]
+    [event: DomainEventBase, handler: string]
   >;
 beforeAll(() => {
   setHooks();

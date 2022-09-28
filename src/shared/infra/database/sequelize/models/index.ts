@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires,@typescript-eslint/ban-ts-comment */ // @ts-ignore
-import config from '../config/config';
-import * as Sequelize from 'sequelize';
+/* eslint-disable @typescript-eslint/no-var-requires,@typescript-eslint/ban-ts-comment,no-undef */ // @ts-ignore
+const config = require('../config/config');
+const Sequelize = require('sequelize');
 
 const sequelize = config.connection;
 const getTransaction = () => {
@@ -14,11 +14,11 @@ const Account = require('./account.js')(sequelize);
 const Transaction = require('./transaction.js')(sequelize);
 
 User.hasOne(Account);
-User.hasMany(Transaction);
-Transaction.belongsTo(User);
 Account.belongsTo(User);
+Account.hasMany(Transaction);
+Transaction.belongsTo(Account);
 
-export default {
+module.exports = {
   User,
   Transaction,
   Account,

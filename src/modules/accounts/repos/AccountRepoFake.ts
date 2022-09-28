@@ -30,12 +30,12 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
       {
         const rawAccount = {
           user_id: userId,
-          id: 'faked',
+          id: 'faked_account_id',
           active: true,
         };
         const transaction = {
-          user_id: userId,
-          id: 'faked',
+          account_id: 'faked_account_id',
+          id: 'faked_tx_id',
           balance: 100,
           delta: 100,
           description: 'faked',
@@ -55,7 +55,7 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public createTransaction(transaction: Transaction, userId: string): void {
+  public createTransaction(transaction: Transaction, accountId: string): void {
     return;
   }
 

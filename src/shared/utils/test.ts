@@ -7,12 +7,53 @@ import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder, TextEncoder } from 'util';
 import Chance from 'chance';
 import { Request } from '../../modules/users/useCases/createUser/CreateUserDTO';
-import { Transaction } from 'sequelize';
-import { APIGatewayEvent, AppSyncResolverEvent } from 'aws-lambda';
+import { Transaction as SequelizeTransaction } from 'sequelize';
+import { AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
-import fetch from 'node-fetch';
 import bigDecimal = require('js-big-decimal');
+import { Amount } from '../../modules/accounts/domain/Amount';
+import { Description } from '../../modules/accounts/domain/Description';
+import { Account } from '../../modules/accounts/domain/Account';
+import { Transaction } from '../../modules/accounts/domain/Transaction';
+import * as velocityUtil from 'amplify-appsync-simulator/lib/velocity/util';
+import fs from 'fs';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import velocityTemplate from 'amplify-velocity-template';
+import * as velocityMapper from 'amplify-appsync-simulator/lib/velocity/value-mapper/mapper';
+
+export const invokeVtl = (templatePath: string, context: unknown) => {
+  const template = fs.readFileSync(templatePath, { encoding: 'utf-8' });
+  const ast = velocityTemplate.parse(template);
+  const compiler = new velocityTemplate.Compile(ast, {
+    valueMapper: velocityMapper.map,
+    escape: false,
+  });
+  return JSON.parse(compiler.render(context));
+};
+
+export const getAppsyncContext = (result: unknown) => {
+  const args = null;
+  const util = velocityUtil.create([], new Date(), Object(), Object());
+  const context = {
+    identity: null,
+    args,
+    arguments: args,
+    result,
+    source: null,
+    info: null,
+    prev: null,
+    stash: null,
+    error: null,
+  };
+  return {
+    context,
+    ctx: context,
+    util,
+    utils: util,
+  };
+};
 
 const chance = new Chance();
 
@@ -54,23 +95,10 @@ export const getNewUserDto = (): Request => ({
 const parsePayload = (payload?: Uint8Array) => {
   const decoded = new TextDecoder().decode(payload);
   console.log('decoded', decoded);
-  const parsed = JSON.parse(decoded);
-  // For API Gateway response we have to parse the body, while AppSync don't have a body property and the result is already parsed
-  if (parsed.body) parsed.body = JSON.parse(parsed.body);
-  return parsed;
+  return JSON.parse(decoded);
 };
 
-export const fakeTransaction = null as unknown as Promise<Transaction>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getAPIGatewayPOSTevent = (data: any) => {
-  return { body: JSON.stringify(data) } as unknown as APIGatewayEvent;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getAPIGatewayGETevent = (data: any) => {
-  return { queryStringParameters: data } as unknown as APIGatewayEvent;
-};
+export const fakeTransaction = null as unknown as Promise<SequelizeTransaction>;
 
 export const getAppSyncEvent = (data: unknown) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -113,26 +141,15 @@ export const invokeLambda = async (dto: any, FunctionName: string) => {
   return parsePayload(result.Payload);
 };
 
-export class AppSync {
-  private readonly url: string;
-  private readonly key: string;
-
-  public constructor(url: string, key: string) {
-    this.url = url;
-    this.key = key;
-  }
-
-  public query({ query, variables }: { query: string; variables: unknown }) {
-    return fetch(this.url, {
-      method: 'post',
-      headers: {
-        'x-api-key': this.key,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables,
-      }),
-    });
-  }
+export function seedAccount(active = true) {
+  const seedTransaction = Transaction.create({
+    balance: Amount.create({ value: 200 }).value,
+    delta: Amount.create({ value: 100 }).value,
+    date: new Date(),
+    description: Description.create({ value: 'Test: Seed transaction' }).value,
+  }).value;
+  return Account.create({
+    active,
+    transactions: [seedTransaction],
+  }).value;
 }

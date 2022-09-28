@@ -7,9 +7,12 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
 import { Request } from './CreateTransactionDTO';
-import { AppSync, getQty } from '../../../../shared/utils/test';
+import { getQty } from '../../../../shared/utils/test';
+import { GraphQLresponse } from '../../../../shared/utils/graphQLresponseTypes';
 import Chance from 'chance';
+import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 
+const appsync = new AppSyncClient();
 const chance = new Chance();
 
 // Add all process.env used:
@@ -18,8 +21,6 @@ if (!appsyncUrl || !appsyncKey) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
-
-const appsync = new AppSync(appsyncUrl, appsyncKey);
 
 let seed: { userId: string; account: Account };
 beforeAll(async () => {
@@ -37,7 +38,7 @@ test('Create transaction', async () => {
     description: `Test: ${chance.sentence()}`,
     delta: getQty({min: 0}),
   };
-  const response = await appsync.query({
+  const response = await appsync.send({
     query: `mutation ($userId: ID!, $description: String!, $delta: Float!) {
       createTransaction(userId: $userId, description: $description, delta: $delta) {
         response_time
@@ -47,7 +48,7 @@ test('Create transaction', async () => {
   });
 
   expect(response.status).toBe(200);
-  const json = await response.json();
+  const json = await response.json() as GraphQLresponse;
   expect(json.data.createTransaction).toMatchObject({
     response_time: expect.any(String),
   });

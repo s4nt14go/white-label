@@ -1,20 +1,20 @@
 import { Entity } from './Entity';
-import { IDomainEvent } from './events/IDomainEvent';
+import { DomainEventBase } from './events/DomainEventBase';
 import { DomainEvents } from './events/DomainEvents';
 import { EntityID } from './EntityID';
 
 export abstract class AggregateRoot<T> extends Entity<T> {
-  private _domainEvents: IDomainEvent[] = [];
+  private _domainEvents: DomainEventBase[] = [];
 
   get id(): EntityID {
     return this._id;
   }
 
-  get domainEvents(): IDomainEvent[] {
+  get domainEvents(): DomainEventBase[] {
     return this._domainEvents;
   }
 
-  protected addDomainEvent(domainEvent: IDomainEvent): void {
+  protected addDomainEvent(domainEvent: DomainEventBase): void {
     // Add the domain event to this aggregate's list of domain events
     this._domainEvents.push(domainEvent);
     // Add this aggregate instance to the domain event's list of aggregates who's
@@ -28,7 +28,7 @@ export abstract class AggregateRoot<T> extends Entity<T> {
     this._domainEvents.splice(0, this._domainEvents.length);
   }
 
-  private logDomainEventAdded(domainEvent: IDomainEvent): void {
+  private logDomainEventAdded(domainEvent: DomainEventBase): void {
     const thisClass = Object.getPrototypeOf(this);
     const domainEventClass = Object.getPrototypeOf(domainEvent);
     console.info(

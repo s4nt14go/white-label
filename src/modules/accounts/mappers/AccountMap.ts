@@ -8,11 +8,13 @@ export class AccountMap {
   public static toPersistence(account: Account): {
     balance: number;
     active: boolean;
+    id: string;
   } {
     const { balance, active } = account.props;
     return {
       balance: balance.value,
       active,
+      id: account.id.toString(),
     };
   }
 

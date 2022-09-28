@@ -6,13 +6,14 @@ import {
   getAppSyncEvent as getEvent,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
+import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 
 const chance = new Chance();
 
 let accountRepo, createTransaction: CreateTransaction;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  createTransaction = new CreateTransaction(accountRepo, {}, fakeTransaction);
+  createTransaction = new CreateTransaction(accountRepo, new DispatcherFake(), {}, fakeTransaction);
 });
 
 const context = {} as unknown as Context;

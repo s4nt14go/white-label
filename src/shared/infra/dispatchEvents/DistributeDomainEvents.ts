@@ -1,14 +1,15 @@
 import '../../../../environment';
 import { DispatcherLambda } from './DispatcherLambda';
 import { IDispatcher } from '../../domain/events/DomainEvents';
-import { IDomainEvent } from '../../domain/events/IDomainEvent';
+import { DomainEventBase } from '../../domain/events/DomainEventBase';
 import { DomainEventTypes } from '../../domain/events/DomainEventTypes';
 
-const { notifySlackChannel, someWork, createAccount } = process.env;
-const { UserCreatedEvent } = DomainEventTypes;
+const { notifySlackChannel, someWork, createAccount, notifyFE } = process.env;
+const { UserCreatedEvent, TransactionCreatedEvent } = DomainEventTypes;
 
 const subscribers = {
   [UserCreatedEvent]: [notifySlackChannel, someWork, createAccount],
+  [TransactionCreatedEvent]: [notifyFE],
 };
 
 class DistributeDomainEvents {
@@ -18,7 +19,7 @@ class DistributeDomainEvents {
     this.dispatcher = new DispatcherLambda();
   }
 
-  public async execute(event: IDomainEvent) {
+  public async execute(event: DomainEventBase) {
     console.log('event', event);
 
     await Promise.all(

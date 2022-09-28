@@ -6,16 +6,10 @@ import {
   deleteUsers,
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
-import { AppSync } from '../../../../shared/utils/test';
+import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
+import { GraphQLresponse } from '../../../../shared/utils/graphQLresponseTypes';
 
-// Add all process.env used:
-const { appsyncUrl, appsyncKey } = process.env;
-if (!appsyncUrl || !appsyncKey) {
-  console.log('process.env', process.env);
-  throw new Error(`Undefined env var!`);
-}
-
-const appsync = new AppSync(appsyncUrl, appsyncKey);
+const appsync = new AppSyncClient();
 
 let seed: { userId: string; account: Account };
 beforeAll(async () => {
@@ -28,7 +22,7 @@ afterAll(async () => {
 });
 
 it('gets an account', async () => {
-  const response = await appsync.query({
+  const response = await appsync.send({
     query: `query ($userId: ID!) { 
         getAccountByUserId(userId: $userId) { 
           balance 
@@ -45,7 +39,7 @@ it('gets an account', async () => {
   });
 
   expect(response.status).toBe(200);
-  const json = await response.json();
+  const json = (await response.json()) as GraphQLresponse;
   expect(json.data.getAccountByUserId.balance).toBe(0);
 
   const account = await AccountRepo.getAccountByUserId(seed.userId);

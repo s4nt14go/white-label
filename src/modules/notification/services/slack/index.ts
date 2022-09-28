@@ -30,3 +30,5 @@ export class SlackService implements ISlackService {
     }); // This message is checked in integration tests, keep it in sync with them
   }
 }
+
+export const slackService = new SlackService();

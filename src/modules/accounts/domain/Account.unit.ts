@@ -5,6 +5,7 @@ import { Account } from './Account';
 import { AccountErrors } from './AccountErrors';
 import Chance from 'chance';
 import { BaseError } from '../../../shared/core/AppError';
+import { seedAccount } from '../../../shared/utils/test';
 
 const chance = new Chance();
 
@@ -41,17 +42,7 @@ it(`fails if there aren't any transactions`, () => {
 
 describe('createTransaction', () => {
   test('creation', () => {
-    // Create account
-    const seedTransaction = Transaction.create({
-      balance: Amount.create({ value: 200 }).value,
-      delta: Amount.create({ value: 100 }).value,
-      date: new Date(),
-      description: Description.create({ value: 'Test: Seed transaction' }).value,
-    }).value;
-    const account = Account.create({
-      active: true,
-      transactions: [seedTransaction],
-    }).value;
+    const account = seedAccount();
 
     const quantity = 30;
     const delta = Amount.create({ value: quantity }).value;
@@ -68,17 +59,7 @@ describe('createTransaction', () => {
   });
 
   it('fails for negative balance', () => {
-    // Create account
-    const seedTransaction = Transaction.create({
-      balance: Amount.create({ value: 200 }).value,
-      delta: Amount.create({ value: 100 }).value,
-      date: new Date(),
-      description: Description.create({ value: 'Test: Seed transaction' }).value,
-    }).value;
-    const account = Account.create({
-      active: true,
-      transactions: [seedTransaction],
-    }).value;
+    const account = seedAccount();
 
     const quantity = -201;
     const delta = Amount.create({ value: quantity }).value;
@@ -94,17 +75,7 @@ describe('createTransaction', () => {
   });
 
   it('fails for inactive accounts', () => {
-    // Create account
-    const seedTransaction = Transaction.create({
-      balance: Amount.create({ value: 200 }).value,
-      delta: Amount.create({ value: 100 }).value,
-      date: new Date(),
-      description: Description.create({ value: 'Test: Seed transaction' }).value,
-    }).value;
-    const account = Account.create({
-      active: false,
-      transactions: [seedTransaction],
-    }).value;
+    const account = seedAccount(false);
 
     const delta = Amount.create({ value: 1 }).value;
     const description = Description.create({ value: `Test: ${chance.sentence()}` }).value;

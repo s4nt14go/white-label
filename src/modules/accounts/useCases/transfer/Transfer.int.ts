@@ -36,7 +36,7 @@ beforeAll(async () => {
     description: Description.create({ value: `Test: ${chance.sentence()}` }).value,
     date: new Date(),
   }).value;
-  await AccountRepo.createTransaction(fundT, fromSeed.userId);
+  await AccountRepo.createTransaction(fundT, fromSeed.account.id.toString());
   toSeed = await createUserAndAccount();
 });
 

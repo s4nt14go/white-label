@@ -1,6 +1,7 @@
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 type Transaction {
@@ -30,6 +31,29 @@ type IdResponse {
   response_time: AWSDateTime!
 }
 
+type TransactionWithId {
+  balance: Float!
+  delta: Float!
+  date: AWSDateTime!
+  description: String!
+  id: ID!
+}
+input TransactionWithIdInput {
+  balance: Float!
+  delta: Float!
+  date: AWSDateTime!
+  description: String!
+  id: ID!
+}
+type TransactionCreatedNotification {
+  accountId: ID!
+  transaction: TransactionWithId!
+}
+input NotifyTransactionCreatedInput {
+  accountId: ID!
+  transaction: TransactionWithIdInput!
+}
+
 type Mutation {
   createTransaction(userId: ID!, description: String!, delta: Float!): VoidResponse
   transfer(
@@ -45,4 +69,13 @@ type Mutation {
     username: String!
     alias: String
   ): IdResponse
+  notifyTransactionCreated(
+    data: NotifyTransactionCreatedInput!
+  ): TransactionCreatedNotification!
+  @aws_iam
+}
+
+type Subscription {
+  onNotifyTransactionCreated: TransactionCreatedNotification
+  @aws_subscribe(mutations: ["notifyTransactionCreated"])
 }

@@ -5,7 +5,9 @@ import { Result } from '../../../shared/core/Result';
 import { AccountErrors } from './AccountErrors';
 import { Description } from './Description';
 import { BaseError } from '../../../shared/core/AppError';
-import { Transaction } from './Transaction'; // This Entity is internal, no other class different from Account should use/import it
+// Transaction Entity is internal, no other class different from Account should use/import it
+import { Transaction, TransactionProps } from './Transaction';
+import { TransactionCreatedEvent } from './events/TransactionCreatedEvent';
 
 interface AccountProps {
   balance: Amount;
@@ -59,25 +61,33 @@ export class Account extends AggregateRoot<AccountProps> {
     );
   }
 
+  private _createTransaction(
+    props: TransactionProps,
+    errorClass: typeof AccountErrors.InvalidTransaction,
+  ): Result<Transaction> {
+    const transactionOrError = Transaction.create(props);
+    if (transactionOrError.isFailure)
+      return Result.fail(new errorClass(transactionOrError.error as BaseError));
+    const transaction = transactionOrError.value;
+    this.addDomainEvent(new TransactionCreatedEvent(this.id.toString(), transaction))
+    return Result.ok(transaction);
+  }
+
   public createTransaction(
     delta: Amount,
     description: Description
   ): Result<Transaction> {
-
     if (!this.active) return Result.fail(new AccountErrors.NotActive());
 
-    const transactionOrError = Transaction.create({
-      balance: this.balance.add(delta),
-      delta,
-      description,
-      date: new Date(),
-    });
-    if (transactionOrError.isFailure)
-      return Result.fail(
-        new AccountErrors.InvalidTransaction(transactionOrError.error as BaseError)
-      );
-
-    return Result.ok(transactionOrError.value);
+    return this._createTransaction(
+      {
+        balance: this.balance.add(delta),
+        delta,
+        description,
+        date: new Date(),
+      },
+      AccountErrors.InvalidTransaction
+    );
   }
 
   public transferTo(
@@ -86,37 +96,37 @@ export class Account extends AggregateRoot<AccountProps> {
     fromDescription: Description,
     toDescription: Description
   ): Result<{ fromTransaction: Transaction; toTransaction: Transaction }> {
-
     if (!this.active) return Result.fail(new AccountErrors.NotActive());
-    if (!toAccount.active) return Result.fail(new AccountErrors.ToAccountNotActive());
+    if (!toAccount.active)
+      return Result.fail(new AccountErrors.ToAccountNotActive());
 
     const date = new Date();
-    const fromTransactionOrError = Transaction.create({
-      balance: this.balance.subtract(delta),
-      delta: delta.negate(),
-      description: fromDescription,
-      date,
-    });
+    const fromTransactionOrError = this._createTransaction(
+      {
+        balance: this.balance.subtract(delta),
+        delta: delta.negate(),
+        description: fromDescription,
+        date,
+      },
+      AccountErrors.InvalidFromTransaction
+    );
     if (fromTransactionOrError.isFailure)
-      return Result.fail(
-        new AccountErrors.InvalidFromTransaction(
-          fromTransactionOrError.error as BaseError
-        )
-      );
+      return Result.fail(fromTransactionOrError.error as BaseError);
+
     const fromTransaction = fromTransactionOrError.value;
 
-    const toTransactionOrError = Transaction.create({
-      balance: toAccount.balance.add(delta),
-      delta,
-      description: toDescription,
-      date,
-    });
+    const toTransactionOrError = this._createTransaction(
+      {
+        balance: toAccount.balance.add(delta),
+        delta,
+        description: toDescription,
+        date,
+      },
+      AccountErrors.InvalidToTransaction
+    );
     if (toTransactionOrError.isFailure)
-      return Result.fail(
-        new AccountErrors.InvalidToTransaction(
-          toTransactionOrError.error as BaseError
-        )
-      );
+      return Result.fail(toTransactionOrError.error as BaseError);
+
     const toTransaction = toTransactionOrError.value;
 
     return Result.ok({

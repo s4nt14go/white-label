@@ -6,11 +6,11 @@ import { Transaction } from '../domain/Transaction';
 export interface TransferProps {
   from: {
     transaction: Transaction;
-    userId: string;
+    accountId: string;
   }
   to: {
     transaction: Transaction;
-    userId: string;
+    accountId: string;
   }
 }
 
@@ -21,6 +21,6 @@ export declare class IAccountRepo implements IRepo {
     userId: string,
     transactionsLimit?: number
   ): Promise<Account | null>;
-  public createTransaction(transaction: Transaction, userId: string): void;
+  public createTransaction(transaction: Transaction, accountId: string): void;
   public transfer(props: TransferProps): void;
 }

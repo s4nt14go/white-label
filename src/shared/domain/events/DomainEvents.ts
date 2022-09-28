@@ -1,9 +1,9 @@
-import { IDomainEvent } from './IDomainEvent';
+import { DomainEventBase } from './DomainEventBase';
 import { AggregateRoot } from '../AggregateRoot';
 import { EntityID } from '../EntityID';
 
 export interface IDispatcher {
-  dispatch(event: IDomainEvent, handler: string): Promise<unknown>;
+  dispatch(event: DomainEventBase, handler: string): Promise<unknown>;
 }
 
 export class DomainEvents {
@@ -73,6 +73,7 @@ export class DomainEvents {
   }
 
   public static register(handler: string, eventClassName: string): void {
+    if (!handler) throw Error(`Handler isn't defined for ${eventClassName}`);
     if (!Object.prototype.hasOwnProperty.call(this.handlersMap, eventClassName)) {
       this.handlersMap[eventClassName] = [];
     }
@@ -88,7 +89,7 @@ export class DomainEvents {
     this.markedAggregates = [];
   }
 
-  private static async dispatch(event: IDomainEvent): Promise<void> {
+  private static async dispatch(event: DomainEventBase): Promise<void> {
     const eventClassName: string = event.constructor.name;
 
     if (Object.prototype.hasOwnProperty.call(this.handlersMap, eventClassName)) {

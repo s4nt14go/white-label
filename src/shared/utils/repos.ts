@@ -1,4 +1,5 @@
-import models from '../infra/database/sequelize/models';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const models = require('../infra/database/sequelize/models/index.ts');
 import { UserRepo as _UserRepo } from '../../modules/users/repos/UserRepo';
 import { AccountRepo as _AccountRepo } from '../../modules/accounts/repos/AccountRepo';
 import { getNewUserDto } from './test';

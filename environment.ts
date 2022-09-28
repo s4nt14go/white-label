@@ -6,6 +6,7 @@ declare global {
       notifySlackChannel: string;
       someWork: string;
       createAccount: string;
+      notifyFE: string;
     }
   }
 }

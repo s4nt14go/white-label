@@ -19,11 +19,11 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
   }
 
   public async getTransactions(
-    userId: string,
+    accountId: string,
     transactionsLimit = 10
   ): Promise<Transaction[] | null> {
     const rawTransactions = await this.Transaction.findAll({
-      where: { userId },
+      where: { accountId },
       order: [['date', 'DESC']],
       limit: transactionsLimit,
       transaction: this.transaction,
@@ -37,25 +37,24 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     transactionsLimit = 10
   ): Promise<Account | null> {
     transactionsLimit = transactionsLimit < 1? 1 : transactionsLimit;
-    const transactions = await this.getTransactions(userId, transactionsLimit);
-    if (!transactions) return null;
     const rawAccount = await this.Account.findOne(
       {
         where: { userId },
       },
       { transaction: this.transaction }
     );
-
-    if (!rawAccount) throw Error(`Account not found for userId ${userId}`);
+    if (!rawAccount) return null;
+    const transactions = await this.getTransactions(rawAccount.id, transactionsLimit);
+    if (!transactions) throw Error(`No transactions for account ${rawAccount.id}`);
     return AccountMap.toDomain(rawAccount, transactions);
   }
 
-  public async createTransaction(transaction: Transaction, userId: string): Promise<void> {
+  public async createTransaction(transaction: Transaction, accountId: string): Promise<void> {
     const raw = TransactionMap.toPersistence(transaction);
     await this.Transaction.create(
       {
         ...raw,
-        userId,
+        accountId,
       },
       { transaction: this.transaction }
     );
@@ -67,8 +66,8 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
       to,
     } = props;
 
-    await this.createTransaction(from.transaction, from.userId);
-    await this.createTransaction(to.transaction, to.userId);
+    await this.createTransaction(from.transaction, from.accountId);
+    await this.createTransaction(to.transaction, to.accountId);
   }
 
   public async create(userId: string): Promise<Account> {
@@ -86,7 +85,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     await this.Transaction.create(
       {
         ...rawTransaction,
-        userId,
+        accountId: newAccount.id.toString(),
       },
       { transaction: this.transaction }
     );
@@ -94,11 +93,13 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
   }
 
   public async deleteByUserId(userId: string): Promise<void> {
-    await this.Account.destroy(
-      { where: { userId } },
+    const account = await this.getAccountByUserId(userId);
+    if (!account) return console.log(`No account for userId ${userId}, so nothing is deleted`);
+    await this.Transaction.destroy(
+      { where: { accountId: account.id.toString() } },
       { transaction: this.transaction }
     );
-    await this.Transaction.destroy(
+    await this.Account.destroy(
       { where: { userId } },
       { transaction: this.transaction }
     );
