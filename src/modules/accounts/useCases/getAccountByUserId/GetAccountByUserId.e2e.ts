@@ -7,7 +7,7 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import { GraphQLresponse } from '../../../../shared/utils/graphQLresponseTypes';
+import { QueryGetAccountByUserIdResponse } from '../../../../shared/utils/graphQLresponseTypes';
 
 const appsync = new AppSyncClient();
 
@@ -39,7 +39,7 @@ it('gets an account', async () => {
   });
 
   expect(response.status).toBe(200);
-  const json = (await response.json()) as GraphQLresponse;
+  const json = (await response.json()) as QueryGetAccountByUserIdResponse;
   expect(json.data.getAccountByUserId.balance).toBe(0);
 
   const account = await AccountRepo.getAccountByUserId(seed.userId);

@@ -12,7 +12,7 @@ import { Transaction } from '../../domain/Transaction';
 import { Amount } from '../../domain/Amount';
 import { Description } from '../../domain/Description';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import { GraphQLresponse } from '../../../../shared/utils/graphQLresponseTypes';
+import { MutationTransferResponse } from '../../../../shared/utils/graphQLresponseTypes';
 
 const chance = new Chance();
 const appsync = new AppSyncClient();
@@ -59,7 +59,7 @@ test('Transfer', async () => {
   });
 
   expect(response.status).toBe(200);
-  const json = await response.json() as GraphQLresponse;
+  const json = await response.json() as MutationTransferResponse;
   expect(json.data.transfer).toMatchObject({
     response_time: expect.any(String),
   });

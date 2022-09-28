@@ -1,9 +1,12 @@
 // Types used in tests
-type MutationCreateTransactionResponse = {
+type mutationCreateTransactionResponse = {
   createTransaction: VoidResponse;
 };
+export type MutationCreateTransactionResponse = {
+  data: mutationCreateTransactionResponse;
+}
 
-type QueryGetAccountByUserIdResponse = {
+type queryGetAccountByUserIdResponse = {
   getAccountByUserId: AccountResponse;
 };
 type AccountResponse = {
@@ -18,15 +21,16 @@ type Transaction = {
   date: Date;
   description: string;
 };
+export type QueryGetAccountByUserIdResponse = {
+  data: queryGetAccountByUserIdResponse;
+}
 
-type MutationTransferResponse = {
+type mutationTransferResponse = {
   transfer: VoidResponse;
 };
 type VoidResponse = {
   responseTime: string;
 };
-export type GraphQLresponse = {
-  data: MutationTransferResponse &
-    QueryGetAccountByUserIdResponse &
-    MutationCreateTransactionResponse;
-};
+export type MutationTransferResponse = {
+  data: mutationTransferResponse;
+}

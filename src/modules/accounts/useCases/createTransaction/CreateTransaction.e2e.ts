@@ -8,7 +8,7 @@ import {
 import { Account } from '../../domain/Account';
 import { Request } from './CreateTransactionDTO';
 import { getQty } from '../../../../shared/utils/test';
-import { GraphQLresponse } from '../../../../shared/utils/graphQLresponseTypes';
+import { MutationCreateTransactionResponse } from '../../../../shared/utils/graphQLresponseTypes';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 
@@ -48,7 +48,7 @@ test('Create transaction', async () => {
   });
 
   expect(response.status).toBe(200);
-  const json = await response.json() as GraphQLresponse;
+  const json = await response.json() as MutationCreateTransactionResponse;
   expect(json.data.createTransaction).toMatchObject({
     response_time: expect.any(String),
   });

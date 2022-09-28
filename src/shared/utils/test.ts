@@ -33,8 +33,7 @@ export const invokeVtl = (templatePath: string, context: unknown) => {
   return JSON.parse(compiler.render(context));
 };
 
-export const getAppsyncContext = (result: unknown) => {
-  const args = null;
+export const getAppsyncContext = (result: unknown, args: unknown = null) => {
   const util = velocityUtil.create([], new Date(), Object(), Object());
   const context = {
     identity: null,
