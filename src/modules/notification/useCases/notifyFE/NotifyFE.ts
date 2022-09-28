@@ -1,7 +1,7 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { Request, Response } from './NotifyFeDTO';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
-import { IFeService } from '../../services/fe';
+import { IFeService } from '../../services/fe/IFeService';
 
 export class NotifyFE extends SubscriberController<Request, Response> {
   private feService: IFeService;
