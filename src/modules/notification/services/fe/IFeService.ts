@@ -1,3 +1,5 @@
+import { NotifyTransactionCreated } from '../../../../shared/infra/appsync/schema.graphql';
+
 export interface IFeService {
-  transactionCreated(data: unknown): void;
+  transactionCreated(data: NotifyTransactionCreated): void;
 }

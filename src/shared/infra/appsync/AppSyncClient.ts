@@ -1,8 +1,11 @@
 import fetch from 'node-fetch';
+import { DocumentNode } from 'graphql';
+import { print } from 'graphql';
+import { IFeClient } from '../../../modules/notification/services/fe/IFeClient';
 
 const { appsyncUrl, appsyncKey } = process.env;
 
-export class AppSyncClient {
+export class AppSyncClient implements IFeClient {
   private readonly url: string;
   private readonly key: string;
 
@@ -15,7 +18,8 @@ export class AppSyncClient {
     this.key = appsyncKey;
   }
 
-  public send({ query, variables }: { query: string; variables: unknown }) {
+  public send({ query, variables }: { query: DocumentNode; variables: unknown }) {
+    console.log('query', query);
     return fetch(this.url, {
       method: 'post',
       headers: {
@@ -23,7 +27,7 @@ export class AppSyncClient {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        query,
+        query: print(query),
         variables,
       }),
     });

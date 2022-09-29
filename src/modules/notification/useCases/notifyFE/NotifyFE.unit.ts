@@ -34,16 +34,24 @@ test('Notification to FE', async () => {
   await useCase.execute(event);
 
   expect(spy).toHaveBeenCalledWith({
-    query: expect.stringContaining('notifyTransactionCreated'),
-    variables: {
-      accountId,
-      transaction: expect.objectContaining({
-        id: expect.any(String),
-        balance,
-        delta,
-        date,
-        description,
+    query: expect.objectContaining({
+      loc: expect.objectContaining({
+        source: expect.objectContaining({
+          body: expect.stringContaining('notifyTransactionCreated'),
+        }),
       }),
+    }),
+    variables: {
+      data: {
+        accountId,
+        transaction: expect.objectContaining({
+          id: expect.any(String),
+          balance,
+          delta,
+          date,
+          description,
+        }),
+      },
     },
   });
 });

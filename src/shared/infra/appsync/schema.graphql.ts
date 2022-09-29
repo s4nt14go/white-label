@@ -1,4 +1,3 @@
-// Types used in tests
 type mutationCreateTransactionResponse = {
   createTransaction: VoidResponse;
 };
@@ -33,4 +32,16 @@ type VoidResponse = {
 };
 export type MutationTransferResponse = {
   data: mutationTransferResponse;
+}
+
+type TransactionWithId = {
+  balance: number;
+  delta: number;
+  date: Date;
+  description: string;
+  id: string;
+}
+export type NotifyTransactionCreated = {
+  accountId: string;
+  transaction: TransactionWithId;
 }

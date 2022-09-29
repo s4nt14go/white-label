@@ -1,3 +1,5 @@
+import { DocumentNode } from 'graphql';
+
 export interface IFeClient {
-  send(data: unknown): void;
+  send(args: { query: DocumentNode, variables: unknown }): void;
 }

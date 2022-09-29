@@ -8,9 +8,10 @@ import {
 import { Account } from '../../domain/Account';
 import { Request } from './CreateTransactionDTO';
 import { getQty } from '../../../../shared/utils/test';
-import { MutationCreateTransactionResponse } from '../../../../shared/utils/graphQLresponseTypes';
+import { MutationCreateTransactionResponse } from '../../../../shared/infra/appsync/schema.graphql';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
+import gql from 'graphql-tag';
 
 const appsync = new AppSyncClient();
 const chance = new Chance();
@@ -39,7 +40,7 @@ test('Create transaction', async () => {
     delta: getQty({min: 0}),
   };
   const response = await appsync.send({
-    query: `mutation ($userId: ID!, $description: String!, $delta: Float!) {
+    query: gql `mutation ($userId: ID!, $description: String!, $delta: Float!) {
       createTransaction(userId: $userId, description: $description, delta: $delta) {
         response_time
       }

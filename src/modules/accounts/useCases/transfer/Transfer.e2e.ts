@@ -12,7 +12,8 @@ import { Transaction } from '../../domain/Transaction';
 import { Amount } from '../../domain/Amount';
 import { Description } from '../../domain/Description';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import { MutationTransferResponse } from '../../../../shared/utils/graphQLresponseTypes';
+import { MutationTransferResponse } from '../../../../shared/infra/appsync/schema.graphql';
+import gql from 'graphql-tag';
 
 const chance = new Chance();
 const appsync = new AppSyncClient();
@@ -50,7 +51,7 @@ test('Transfer', async () => {
     quantity: 50,
   };
   const response = await appsync.send({
-    query: `mutation MyMutation($fromDescription: String!, $fromUserId: ID!, $quantity: Float!, $toUserId: ID!, $toDescription: String) {
+    query: gql `mutation MyMutation($fromDescription: String!, $fromUserId: ID!, $quantity: Float!, $toUserId: ID!, $toDescription: String) {
       transfer(fromDescription: $fromDescription, fromUserId: $fromUserId, quantity: $quantity, toUserId: $toUserId, toDescription: $toDescription) {
         response_time
       }

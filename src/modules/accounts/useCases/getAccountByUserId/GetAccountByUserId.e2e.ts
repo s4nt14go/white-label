@@ -7,7 +7,8 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import { QueryGetAccountByUserIdResponse } from '../../../../shared/utils/graphQLresponseTypes';
+import { QueryGetAccountByUserIdResponse } from '../../../../shared/infra/appsync/schema.graphql';
+import gql from 'graphql-tag';
 
 const appsync = new AppSyncClient();
 
@@ -23,7 +24,7 @@ afterAll(async () => {
 
 it('gets an account', async () => {
   const response = await appsync.send({
-    query: `query ($userId: ID!) { 
+    query: gql `query ($userId: ID!) { 
         getAccountByUserId(userId: $userId) { 
           balance 
           active 

@@ -11,6 +11,7 @@ import { Transaction as SequelizeTransaction } from 'sequelize';
 import { AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
+// Avoid js quirks when dealing with numbers, it outputs strings. E.g  0.1 + 0.2 in js is 0.30000000000000004 (number), while bigDecimal.add(0.1, 0.2) gives correctly "0.3" (string)
 import bigDecimal = require('js-big-decimal');
 import { Amount } from '../../modules/accounts/domain/Amount';
 import { Description } from '../../modules/accounts/domain/Description';
@@ -119,12 +120,16 @@ export const getQty = ({
   return Math.round((randomFS * 100) / 2) / 100;
 };
 
-export const add3 = (a: number, b: number, c: number) => {
+// Add two or three decimal numbers
+export const addDecimals = (a: number, b: number, c = 0) => {
   const aRounded = bigDecimal.round(a, 2);
   const bRounded = bigDecimal.round(b, 2);
   const cRounded = bigDecimal.round(c, 2);
   const temp = bigDecimal.add(aRounded, bRounded);
-  return bigDecimal.add(temp, cRounded);
+  const stringResult = bigDecimal.add(temp, cRounded);
+  const result = Number(stringResult);
+  if (Math.abs(result) > Number.MAX_SAFE_INTEGER) throw Error(`addDecimals error: casting Number(${result}) it's not safe in js`);
+  return result;
 };
 
 const lambdaClient = new Lambda({});
