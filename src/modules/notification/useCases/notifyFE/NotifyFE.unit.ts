@@ -1,8 +1,7 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
 import { NotifyFE } from './NotifyFE';
 import { TransactionCreatedEvent } from '../../../accounts/domain/events/TransactionCreatedEvent';
 import { FeService } from '../../services/fe/FeService';
+process.env.appsyncUrl = process.env.appsyncKey = 'dummy';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import { Transaction } from '../../../accounts/domain/Transaction';
 import { Amount } from '../../../accounts/domain/Amount';
