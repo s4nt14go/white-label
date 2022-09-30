@@ -19,7 +19,6 @@ export class AppSyncClient implements IFeClient {
   }
 
   public send({ query, variables }: { query: DocumentNode; variables: unknown }) {
-    console.log('query', query);
     return fetch(this.url, {
       method: 'post',
       headers: {

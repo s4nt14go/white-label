@@ -1,12 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { AppSyncClient } from '../AppSyncClient';
+import gql from 'graphql-tag';
 
 const appsync = new AppSyncClient();
 
 it('should return error fields: message, errorType and errorInfo', async () => {
   const response = await appsync.send({
-    query: `query ($userId: ID!) { 
+    query: gql `query ($userId: ID!) { 
         getAccountByUserId(userId: $userId) { 
           response_time 
         } 

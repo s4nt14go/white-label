@@ -30,12 +30,35 @@ export class Amount extends ValueObject<AmountProps> {
     const combined = Guard.combine([guardNull, guardType]);
     if (combined.isFailure) return Result.fail(combined.error as BaseError);
 
-    const integer100 = Math.round((props.value + Number.EPSILON) * 100);
-
-    if (Math.abs(integer100) > Number.MAX_SAFE_INTEGER)
+    const integerPart = Math.trunc(props.value);
+    if (Math.abs(integerPart) + 1 > Number.MAX_SAFE_INTEGER)
       return Result.fail(new AmountErrors.MaxBreached(props.value));
 
-    return Result.ok<Amount>(new Amount({ value: integer100 / 100 }));
+    //#region round to 2 decimal precision number
+    let rounded = integerPart;
+
+    const decimalStr = props.value.toString().split('.')[1];
+    if (decimalStr) {
+      let str3 = decimalStr.substring(0, 3);  // e.g. '10.0759' to '075'
+      str3 = str3.padEnd(3, '0');             // e.g. '10.1' to '100'; '10.01' to '010'
+      const XXO = str3.at(2);           // e.g. '123' to '3'
+
+      let num3 = Number(str3);
+      if (Number(XXO) >= 5) {
+        num3 += 10;
+      }
+      const num2 = Math.trunc(num3/10);
+
+      if (num2 > 100) {
+        rounded += 1;
+      } else {
+        const num2_str = num2.toString().padStart(2, '0')
+        rounded = Number(rounded + '.' + num2_str);
+      }
+    }
+    //#endregion
+
+    return Result.ok<Amount>(new Amount({ value: rounded }));
   }
 
   public subtract(amount: Amount): Amount {

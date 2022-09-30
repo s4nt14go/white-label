@@ -1,3 +1,13 @@
+//#region Dependencies to test AppSync subscriptions
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+global.WebSocket = require('ws');
+require('isomorphic-fetch');
+import gql from 'graphql-tag';
+import retry from 'async-retry';
+import { AUTH_TYPE, AWSAppSyncClient } from 'aws-appsync';
+import { ZenObservable } from 'zen-observable-ts';
+//#endregion
 import * as dotenv from 'dotenv';
 dotenv.config();
 import {
@@ -10,16 +20,6 @@ import { Request } from '../../../accounts/useCases/createTransaction/CreateTran
 import { addDecimals, getQty } from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-//#region Dependencies to test AppSync subscriptions
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-global.WebSocket = require('ws');
-require('isomorphic-fetch');
-import gql from 'graphql-tag';
-import retry from 'async-retry';
-import { AUTH_TYPE, AWSAppSyncClient } from 'aws-appsync';
-import { ZenObservable } from 'zen-observable-ts';
-//#endregion
 import { NotifyTransactionCreated } from '../../../../shared/infra/appsync/schema.graphql';
 
 const appsync = new AppSyncClient();
@@ -67,9 +67,12 @@ beforeAll(async () => {
     })
     .subscribe({
       next: (resp) => {
+        console.log('subscription data:', resp);
         notifications.push(resp.data.onNotifyTransactionCreated);
       },
     });
+
+  await new Promise(resolve => setTimeout(resolve, 3000));  // Give some time to the subscription
 });
 
 afterAll(async () => {
@@ -102,18 +105,6 @@ test('Create transaction', async () => {
 
   expect(response.status).toBe(200);
 
-  /*const notificationExpected = expect.objectContaining({
-    accountId: seed.account.id.toString(),
-    transaction: expect.objectContaining({
-      balance: addDecimals(seed.account.balance.value, dto.delta),
-      delta: dto.delta,
-      date: expect.any(String),
-      description: dto.description,
-      id: expect.any(String),
-    }),
-  })*/
-
-  // console.log(`Expecting: ${notificationExpected.toString()}`);
   await retry(
     async () => {
       if (notifications.length) {

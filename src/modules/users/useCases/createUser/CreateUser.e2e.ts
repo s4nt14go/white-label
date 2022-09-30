@@ -7,6 +7,7 @@ import {
   UserRepo,
 } from '../../../../shared/utils/repos';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
+import gql from 'graphql-tag';
 
 const appsync = new AppSyncClient();
 
@@ -18,7 +19,7 @@ afterAll(async () => {
 test('User creation', async () => {
   const newUser = getNewUserDto();
   const response = await appsync.send({
-    query: `mutation MyMutation($email: AWSEmail!, $password: String!, $username: String!, $alias: String) {
+    query: gql `mutation MyMutation($email: AWSEmail!, $password: String!, $username: String!, $alias: String) {
       createUser(email: $email, password: $password, username: $username, alias: $alias) {
         id
         response_time

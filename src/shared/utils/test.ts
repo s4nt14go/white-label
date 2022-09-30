@@ -11,7 +11,7 @@ import { Transaction as SequelizeTransaction } from 'sequelize';
 import { AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
-// Avoid js quirks when dealing with numbers, it outputs strings. E.g  0.1 + 0.2 in js is 0.30000000000000004 (number), while bigDecimal.add(0.1, 0.2) gives correctly "0.3" (string)
+// To check js quirks when dealing with numbers, it outputs strings. E.g  0.1 + 0.2 in js is 0.30000000000000004 (number), while bigDecimal.add(0.1, 0.2) gives correctly "0.3" (string)
 import bigDecimal = require('js-big-decimal');
 import { Amount } from '../../modules/accounts/domain/Amount';
 import { Description } from '../../modules/accounts/domain/Description';
