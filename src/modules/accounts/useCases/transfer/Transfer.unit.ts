@@ -3,7 +3,7 @@ import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
-  getAppSyncEvent as getEvent, getQty,
+  getAppSyncEvent as getEvent,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 
@@ -48,7 +48,7 @@ test.each([
     const badData = {
       fromUserId: chance.guid(),
       toUserId: chance.guid(),
-      quantity: getQty({}),
+      quantity: chance.floating({ fixed: 2 }),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     delete badData[
@@ -73,7 +73,7 @@ test.each([
     const badData = {
       fromUserId: chance.guid(),
       toUserId: chance.guid(),
-      quantity: getQty({}),
+      quantity: chance.floating({ fixed: 2 }),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     badData[field as 'fromUserId' | 'toUserId'] = 1 as unknown as string;
@@ -97,7 +97,7 @@ test.each([
     const badData = {
       fromUserId: UserId.GOOD,
       toUserId: UserId.GOOD2,
-      quantity: getQty({}),
+      quantity: chance.floating({ fixed: 2 }),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     badData[field as 'fromUserId' | 'toUserId'] = UserId.NO_TRANSACTIONS;

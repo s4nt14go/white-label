@@ -2,7 +2,7 @@ import { Amount } from '../Amount';
 import { Description } from '../Description';
 import Chance from 'chance';
 import { TransactionCreatedEvent } from './TransactionCreatedEvent';
-import { getQty, seedAccount } from '../../../../shared/utils/test';
+import { seedAccount } from '../../../../shared/utils/test';
 
 const chance = new Chance();
 
@@ -10,7 +10,7 @@ test('TransactionCreatedEvent is added to account during creation', () => {
   const account = seedAccount();
 
   const transaction = account.createTransaction(
-    Amount.create({ value: getQty({min: 0}) }).value,
+    Amount.create({ value: chance.floating({ min: 0, fixed: 2 }) }).value,
     Description.create({ value: chance.sentence() }).value,
   ).value;
 

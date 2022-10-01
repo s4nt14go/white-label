@@ -7,7 +7,6 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
 import { Request } from './CreateTransactionDTO';
-import { getQty } from '../../../../shared/utils/test';
 import { MutationCreateTransactionResponse } from '../../../../shared/infra/appsync/schema.graphql';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
@@ -37,7 +36,7 @@ test('Create transaction', async () => {
   const dto: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: getQty({min: 0}),
+    delta: chance.floating({ min: 0, fixed: 2 }),
   };
   const response = await appsync.send({
     query: gql `mutation ($userId: ID!, $description: String!, $delta: Float!) {

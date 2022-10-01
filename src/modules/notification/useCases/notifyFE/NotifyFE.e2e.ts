@@ -17,7 +17,7 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../../accounts/domain/Account';
 import { Request } from '../../../accounts/useCases/createTransaction/CreateTransactionDTO';
-import { addDecimals, getQty } from '../../../../shared/utils/test';
+import { addDecimals } from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import { NotifyTransactionCreated } from '../../../../shared/infra/appsync/schema.graphql';
@@ -86,7 +86,7 @@ test('Create transaction', async () => {
   const dto: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: getQty({ min: 0 }),
+    delta: chance.floating({ min: 0, fixed: 2 }),
   };
   const response = await appsync.send({
     query: gql`

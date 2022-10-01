@@ -3,7 +3,6 @@ dotenv.config();
 import {
   addDecimals,
   getAppSyncEvent as getEvent,
-  getQty,
   invokeLambda,
 } from '../../../../shared/utils/test';
 import {
@@ -39,7 +38,7 @@ test('Create transactions', async () => {
   const dto1: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: getQty({ min: 0 , halfScale: true}),
+    delta: chance.floating({ min: 0, fixed: 2 }),
   };
   let invoked = await invokeLambda(getEvent(dto1), createTransaction);
 
@@ -54,7 +53,7 @@ test('Create transactions', async () => {
   const dto2: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: getQty({ min: -dto1.delta, halfScale: true }),
+    delta: chance.floating({ min: -dto1.delta, fixed: 2 }),
   };
   invoked = await invokeLambda(getEvent(dto2), createTransaction);
 
@@ -74,16 +73,6 @@ test('Create transactions', async () => {
   expect(account.transactions[1].delta.value).toBe(dto1.delta);
   expect(account.transactions[1].description.value).toBe(dto1.description);
   const expected = addDecimals(seed.account.balance.value, dto1.delta, dto2.delta);
-  if (account.transactions[0].balance.value !== expected) {
-    console.log("account.transactions[0].balance.value", account.transactions[0].balance.value);
-    console.log("seed.account.balance.value", seed.account.balance.value);
-    console.log("dto1.delta", dto1.delta);
-    console.log('dto2.delta', dto2.delta);
-    console.log('account', account);
-    console.log('seed', seed);
-    console.log('dto1', dto1);
-    console.log('dto2', dto2);
-  }
   expect(account.transactions[0].balance.value).toBe(expected);
   expect(account.transactions[0].delta.value).toBe(dto2.delta);
   expect(account.transactions[0].description.value).toBe(dto2.description);

@@ -54,6 +54,14 @@ test('round up 10.075', () => {
   expect(amount.value).toBe(10.08);
 });
 
+test('round up -10.995', () => {
+  const result = Amount.create({ value: -10.995 });
+
+  expect(result.isSuccess).toBe(true);
+  const amount = result.value;
+  expect(amount.value).toBe(-11);
+});
+
 test('Creation fails with a value greater than max', () => {
   const data = {
     value: Number.MAX_SAFE_INTEGER,

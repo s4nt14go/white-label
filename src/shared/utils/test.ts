@@ -105,21 +105,6 @@ export const getAppSyncEvent = (data: unknown) => {
   return { arguments: data } as AppSyncResolverEvent<any>;
 };
 
-const MAX_ABS_SAFE_NUMBER = Number.MAX_SAFE_INTEGER / 100;
-export const getQty = ({
-  min = -MAX_ABS_SAFE_NUMBER,
-  max = MAX_ABS_SAFE_NUMBER,
-  halfScale = false,
-}) => {
-  const randomFS = chance.floating({
-    min,
-    fixed: 2,
-    max,
-  });
-  if (!halfScale) return randomFS;
-  return Math.round((randomFS * 100) / 2) / 100;
-};
-
 // Add two or three decimal numbers
 export const addDecimals = (a: number, b: number, c = 0) => {
   const aRounded = bigDecimal.round(a, 2);
@@ -128,7 +113,10 @@ export const addDecimals = (a: number, b: number, c = 0) => {
   const temp = bigDecimal.add(aRounded, bRounded);
   const stringResult = bigDecimal.add(temp, cRounded);
   const result = Number(stringResult);
-  if (Math.abs(result) > Number.MAX_SAFE_INTEGER) throw Error(`addDecimals error: casting Number(${result}) it's not safe in js`);
+  if (Math.abs(result) > Number.MAX_SAFE_INTEGER)
+    throw Error(
+      `addDecimals error: casting Number(${result}) it's not safe in js`
+    );
   return result;
 };
 
