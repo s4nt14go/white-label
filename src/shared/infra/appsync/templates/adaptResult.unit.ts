@@ -1,6 +1,6 @@
 import {
   getAppsyncContext,
-  invokeVtl
+  invokeVtl,
 } from '../../../utils/test';
 import path from 'path';
 

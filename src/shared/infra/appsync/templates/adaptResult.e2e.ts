@@ -20,7 +20,7 @@ it('should return error fields: message, errorType and errorInfo', async () => {
 
   expect(json).toMatchObject({
     data: {
-      getAccountByUserId: null
+      getAccountByUserId: null,
     },
     errors: [
       {
@@ -32,7 +32,7 @@ it('should return error fields: message, errorType and errorInfo', async () => {
           message: expect.any(String),
         },
         message: expect.not.stringContaining('A custom error was thrown from a mapping template.'), // if <message> is not a string in $util.error(<message>, ...), AppSync returns this text
-      }
-    ]
+      },
+    ],
   })
 });

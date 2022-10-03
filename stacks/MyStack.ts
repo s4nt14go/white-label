@@ -172,10 +172,10 @@ export async function MyStack({ stack, app }: StackContext) {
   function allowAutoInvoke(lambda: Function) {
     const statement = new iam.PolicyStatement({
       actions: ['lambda:InvokeFunction'],
-      resources: [ lambda.functionArn ]
+      resources: [ lambda.functionArn ],
     });
     const policy = new iam.Policy(stack, `autoInvoke_${lambda.toString()}`, {
-      statements: [statement]
+      statements: [statement],
     });
     policy.attachToRole(<iam.IRole> lambda.role);
   }

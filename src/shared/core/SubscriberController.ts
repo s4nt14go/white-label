@@ -1,6 +1,6 @@
 import {
   BaseController,
-  EnvelopUnexpectedT
+  EnvelopUnexpectedT,
 } from './BaseController';
 import { Envelope } from './Envelope';
 import { BaseError } from './AppError';

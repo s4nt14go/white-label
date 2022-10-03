@@ -24,7 +24,8 @@
               "accessors": "off"
             }
           }
-        ]
+        ],
+        "comma-dangle": ["error", "always-multiline"]
       }
     }
   ]

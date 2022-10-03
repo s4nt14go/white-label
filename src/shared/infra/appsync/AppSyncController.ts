@@ -6,7 +6,7 @@ import { Envelope } from '../../core/Envelope';
 import { BaseError } from '../../core/AppError';
 import {
   BaseController,
-  EnvelopUnexpectedT
+  EnvelopUnexpectedT,
 } from '../../core/BaseController';
 import { Created } from '../../core/Created';
 
@@ -18,7 +18,7 @@ type ExeResponse = Promise<
   >
 export abstract class AppSyncController<
   Request,
-  Response,
+  Response
 > extends BaseController<AppSyncResolverEvent<Request>, Response, ExeResponse> {
   protected event!: AppSyncResolverEvent<Request>;
   protected context!: Context;
