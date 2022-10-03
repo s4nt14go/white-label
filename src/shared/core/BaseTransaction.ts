@@ -1,6 +1,6 @@
 import { Transaction } from 'sequelize/types';
 import { Context } from 'aws-lambda';
-import { EnvelopUnexpectedT } from './BaseController';
+import { IDispatcher } from '../domain/events/DomainEvents';
 
 enum CommitResult {
   SUCCESS = 'SUCCESS',
@@ -12,17 +12,16 @@ enum CommitResult {
 export abstract class BaseTransaction<Request, ExeResponse> {
   protected abstract execute(event: Request, context: Context): ExeResponse;
   protected abstract handleUnexpectedError(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    err: any
-  ): Promise<ExeResponse | { error: EnvelopUnexpectedT }>;
+    err: unknown
+  ): unknown;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected getTransaction?: any;
   protected transaction!: Transaction;
   protected commitRetries: number;
   protected abstract event: Request;
   protected abstract context: Context;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected constructor(getTransaction?: any) {
+  protected abstract dispatcher: IDispatcher;
+  protected constructor(getTransaction?: never) {
     this.getTransaction = getTransaction;
     this.commitRetries = 0;
   }
@@ -33,10 +32,8 @@ export abstract class BaseTransaction<Request, ExeResponse> {
     switch (r) {
       case SUCCESS:
         return;
-      case RETRY: {
-        const e = await this.execute(this.event, this.context);
-        return e;
-      }
+      case RETRY:
+        return this.dispatcher.dispatch(this.event as never, this.context.functionName);
       case ERROR:
       case EXHAUSTED:
       default:

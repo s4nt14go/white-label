@@ -6,8 +6,7 @@ import { UserName } from '../domain/UserName';
 import { Alias } from '../domain/Alias';
 
 export class UserMap {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public static async toPersistence(user: User): Promise<any> {
+  public static async toPersistence(user: User): Promise<unknown> {
     const { isDeleted, isEmailVerified, isAdminUser } = user.props;
     return {
       id: user.id.toString(),

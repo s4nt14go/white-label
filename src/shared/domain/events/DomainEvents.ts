@@ -3,7 +3,7 @@ import { AggregateRoot } from '../AggregateRoot';
 import { EntityID } from '../EntityID';
 
 export interface IDispatcher {
-  dispatch(event: DomainEventBase, handler: string): Promise<unknown>;
+  dispatch(event: DomainEventBase, handler: string): void;
 }
 
 export class DomainEvents {

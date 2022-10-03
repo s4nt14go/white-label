@@ -121,8 +121,7 @@ export const addDecimals = (a: number, b: number, c = 0) => {
 };
 
 const lambdaClient = new Lambda({});
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const invokeLambda = async (dto: any, FunctionName: string) => {
+export const invokeLambda = async (dto: unknown, FunctionName: string) => {
   const req = {
     FunctionName,
     Payload: new TextEncoder().encode(stringify(dto)),

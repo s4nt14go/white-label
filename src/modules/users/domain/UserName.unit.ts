@@ -13,14 +13,14 @@ test('Creation', () => {
 });
 
 test('Creation fails without username', () => {
-  const result = UserName.create({} as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const result = UserName.create({} as never);
   expect(result.isFailure).toBe(true);
   expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotDefined);
 });
 
 test('Creation fails with a non-string value', () => {
   const invalidData = {
-    name: 1 as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    name: 1 as never,
   };
 
   const result = UserName.create(invalidData);

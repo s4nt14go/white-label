@@ -21,7 +21,7 @@ test('Fails with null', () => {
 
 test('Creation fails with a non-number value', () => {
   const invalidData = {
-    value: '1' as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    value: '1' as never,
   };
 
   const result = Amount.create(invalidData);

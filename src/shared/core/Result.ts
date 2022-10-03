@@ -52,8 +52,7 @@ export class Result<T> {
     return new Result<any>(false, error);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public static combine(results: Result<any>[]): Result<any> {
+  public static combine(results: Result<unknown>[]): Result<unknown> {
     for (const result of results) {
       if (result.isFailure) return result;
     }

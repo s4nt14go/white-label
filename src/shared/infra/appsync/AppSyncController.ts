@@ -14,6 +14,7 @@ type ExeResponse = Promise<
   | Envelope<unknown | Created>
   | { error: Envelope<BaseError> }
   | { error: EnvelopUnexpectedT }
+  | void  // for lambda retry
   >
 export abstract class AppSyncController<
   Request,
@@ -41,7 +42,7 @@ export abstract class AppSyncController<
         };
       }
     } catch (err) {
-      return this.handleUnexpectedError(err);
+      return await this.handleUnexpectedError(err);
     }
   }
 }

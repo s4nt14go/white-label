@@ -14,7 +14,6 @@ const { CREATED, BAD_REQUEST } = Status;
 export class Transfer extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public constructor(
     accountRepo: IAccountRepo,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

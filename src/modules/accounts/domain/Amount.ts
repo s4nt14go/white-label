@@ -66,11 +66,19 @@ export class Amount extends ValueObject<AmountProps> {
   }
 
   public subtract(amount: Amount): Amount {
-    return Amount.create({ value: this.props.value - amount.value }).value;
+    console.log('subtracting this.props.value', this.props.value);
+    console.log('amount.value', amount.value);
+    const r = Amount.create({ value: this.props.value - amount.value }).value;
+    console.log('r.value', r.value);
+    return r;
   }
 
   public add(amount: Amount): Amount {
-    return Amount.create({ value: this.props.value + amount.value }).value;
+    console.log('adding this.props.value', this.props.value);
+    console.log('amount.value', amount.value);
+    const r = Amount.create({ value: this.props.value + amount.value }).value;
+    console.log('r.value', r.value);
+    return r;
   }
 
   public negate(): Amount {

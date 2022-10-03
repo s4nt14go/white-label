@@ -4,7 +4,8 @@ import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { CreateUser } from './CreateUser';
 import {
-  fakeTransaction, getAppSyncEvent as getEvent,
+  fakeTransaction,
+  getAppSyncEvent as getEvent,
   getNewUserDto,
 } from '../../../../shared/utils/test';
 import {
@@ -28,10 +29,7 @@ if (!distributeDomainEvents) {
 
 let createUser: CreateUser,
   dispatcherFake: IDispatcher,
-  spyOnDispatch: jest.SpyInstance<
-    Promise<unknown>,
-    [event: DomainEventBase, handler: string]
-  >;
+  spyOnDispatch: jest.SpyInstance<void, [event: DomainEventBase, handler: string]>;
 beforeAll(() => {
   setHooks();
   dispatcherFake = new DispatcherFake();
@@ -53,13 +51,16 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
 
   const newUser = getNewUserDto();
 
-  const response = await createUser.execute(getEvent(newUser), context) as Envelope<Created>;
+  const response = (await createUser.execute(
+    getEvent(newUser),
+    context
+  )) as Envelope<Created>;
 
   expect(response).toMatchObject({
     time: expect.any(String),
     result: {
       id: expect.any(String),
-    }
+    },
   });
 
   const dispatcherIntake = expect.objectContaining({
@@ -79,7 +80,7 @@ test('Domain event dispatcher calls distributeDomainEvents with user data for Us
   expect(spyOnDispatch).toBeCalledTimes(1);
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const id = response.result!.id;
-  createdUsers.push({ id })
+  createdUsers.push({ id });
 });
 
 test(`distributeDomainEvents isn't called when saving to DB fails`, async () => {
@@ -87,7 +88,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails`, async () => 
     new UserRepoFake(),
     dispatcherFake,
     {},
-    fakeTransaction,
+    fakeTransaction
   );
 
   const newUser = {

@@ -4,6 +4,8 @@ import { BaseTransaction } from './BaseTransaction';
 import { Context } from 'aws-lambda';
 import { ConnectionAcquireTimeoutError } from 'sequelize';
 import { Envelope } from './Envelope';
+import { DispatcherLambda } from '../infra/dispatchEvents/DispatcherLambda';
+import { IDispatcher } from '../domain/events/DomainEvents';
 
 export type EnvelopUnexpectedT =
   | Envelope<BaseError>
@@ -32,11 +34,13 @@ export abstract class BaseController<
   private maxDbConnTimeoutErrors = 3;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly renewConn?: any;
+  protected dispatcher: IDispatcher;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected constructor(renewConn?: any, getTransaction?: any) {
     super(getTransaction);
     this.renewConn = renewConn;
+    this.dispatcher = new DispatcherLambda();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,7 +66,7 @@ export abstract class BaseController<
             r // wait some before retrying
           ) => setTimeout(r, (this.dbConnTimeoutErrors + Math.random()) * 100)
         );
-        return this.execute(this.event, this.context);
+        return this.dispatcher.dispatch(this.event as never, this.context.functionName);
       }
 
       console.log(

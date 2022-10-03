@@ -2,6 +2,7 @@ import { StackContext, Function, AppSyncApi } from '@serverless-stack/resources'
 import * as cdk from 'aws-cdk-lib';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { SSM } from 'aws-sdk';
+import * as iam from "aws-cdk-lib/aws-iam";
 
 export async function MyStack({ stack, app }: StackContext) {
   const ssm = new SSM();
@@ -31,14 +32,17 @@ export async function MyStack({ stack, app }: StackContext) {
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
   });
+  allowAutoInvoke(notifySlackChannel);
   const someWork = new Function(stack, 'someWork', {
     handler: 'modules/users/useCases/someWork/index.handler',
   });
+  allowAutoInvoke(someWork);
 
   const createAccount = new Function(stack, 'createAccount', {
     handler: 'modules/accounts/useCases/createAccount/index.handler',
     environment: dbCreds,
   });
+  allowAutoInvoke(createAccount);
 
   const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
     handler: 'shared/infra/dispatchEvents/DistributeDomainEvents.handler',
@@ -48,6 +52,7 @@ export async function MyStack({ stack, app }: StackContext) {
       createAccount: createAccount.functionName,
     },
   });
+  allowAutoInvoke(distributeDomainEvents);
   notifySlackChannel.grantInvoke(distributeDomainEvents);
   someWork.grantInvoke(distributeDomainEvents);
   createAccount.grantInvoke(distributeDomainEvents);
@@ -59,6 +64,7 @@ export async function MyStack({ stack, app }: StackContext) {
       distributeDomainEvents: distributeDomainEvents.functionName,
     },
   });
+  allowAutoInvoke(createUser);
   distributeDomainEvents.grantInvoke(createUser);
 
   const createTransaction = new Function(stack, 'createTransaction', {
@@ -68,16 +74,19 @@ export async function MyStack({ stack, app }: StackContext) {
       distributeDomainEvents: distributeDomainEvents.functionName,
     },
   });
+  allowAutoInvoke(createTransaction);
   distributeDomainEvents.grantInvoke(createTransaction);
 
   const transfer = new Function(stack, 'transfer', {
     handler: 'modules/accounts/useCases/transfer/index.handler',
     environment: dbCreds,
   });
+  allowAutoInvoke(transfer);
   const getAccountByUserId = new Function(stack, 'getAccountByUserId', {
     handler: 'modules/accounts/useCases/getAccountByUserId/index.handler',
     environment: dbCreds,
   });
+  allowAutoInvoke(getAccountByUserId);
 
   const adaptResult = {
     file: 'src/shared/infra/appsync/templates/adaptResult.vtl',
@@ -147,6 +156,7 @@ export async function MyStack({ stack, app }: StackContext) {
       appsyncUrl: api.url,
     },
   });
+  allowAutoInvoke(notifyFE);
   distributeDomainEvents.addEnvironment('notifyFE', notifyFE.functionName);
   notifyFE.grantInvoke(distributeDomainEvents);
 
@@ -156,4 +166,17 @@ export async function MyStack({ stack, app }: StackContext) {
     appsyncKey: api.cdk.graphqlApi.apiKey!,
     appsyncUrl: api.url,
   });
+
+  // Allow function to call itself for retry strategy implemented in BaseController and BaseTransaction using lambda dispatcher
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  function allowAutoInvoke(lambda: Function) {
+    const statement = new iam.PolicyStatement({
+      actions: ['lambda:InvokeFunction'],
+      resources: [ lambda.functionArn ]
+    });
+    const policy = new iam.Policy(stack, `autoInvoke_${lambda.toString()}`, {
+      statements: [statement]
+    });
+    policy.attachToRole(<iam.IRole> lambda.role);
+  }
 }

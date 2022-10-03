@@ -13,7 +13,7 @@ test('Creation', () => {
 });
 
 test(`Creation is successful and gives null when it's not defined`, () => {
-  const result = Alias.create({} as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const result = Alias.create({} as never);
   expect(result.isSuccess).toBe(true);
   const alias = result.value;
   expect(alias.value).toBe(null);
@@ -21,7 +21,7 @@ test(`Creation is successful and gives null when it's not defined`, () => {
 
 test('Creation fails with a non-string value', () => {
   const invalidData = {
-    value: 1 as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    value: 1 as never,
   };
 
   const result = Alias.create(invalidData);

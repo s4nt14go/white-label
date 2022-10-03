@@ -14,8 +14,7 @@ export interface IGuardArgument {
 export type GuardArgumentCollection = IGuardArgument[];
 
 export class Guard {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public static combine(guardResults: Result<any>[]): Result<any> {
+  public static combine(guardResults: Result<unknown>[]): Result<unknown> {
     for (const result of guardResults) {
       if (result.isFailure) return result;
     }
@@ -27,8 +26,7 @@ export class Guard {
     numChars: number,
     text: string,
     error: BaseError
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): Result<any> {
+  ): Result<unknown> {
     return text.length >= numChars ? Result.ok() : Result.fail(error);
   }
 
