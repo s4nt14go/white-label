@@ -1,7 +1,7 @@
 import { IFeClient } from './IFeClient';
 import { IFeService } from './IFeService';
 import gql from 'graphql-tag';
-import { NotifyTransactionCreated } from '../../../../shared/infra/appsync/schema.graphql';
+import { NotifyTransactionCreatedInput } from '../../../../shared/infra/appsync/schema.graphql';
 
 export class FeService implements IFeService {
   private client: IFeClient;
@@ -10,7 +10,7 @@ export class FeService implements IFeService {
     this.client = client;
   }
 
-  public async transactionCreated(data: NotifyTransactionCreated) {
+  public async transactionCreated(data: NotifyTransactionCreatedInput) {
     await this.client.send({
       query: gql`
         mutation ($data: NotifyTransactionCreatedInput!) {

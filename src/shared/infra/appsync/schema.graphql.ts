@@ -1,12 +1,16 @@
-type mutationCreateTransactionResponse = {
-  createTransaction: VoidResponse;
-};
 export type MutationCreateTransactionResponse = {
-  data: mutationCreateTransactionResponse;
-}
+  data: {
+    createTransaction: VoidResponse;
+  };
+};
+type VoidResponse = {
+  responseTime: string;
+};
 
-type queryGetAccountByUserIdResponse = {
-  getAccountByUserId: AccountResponse;
+export type QueryGetAccountByUserIdResponse = {
+  data: {
+    getAccountByUserId: AccountResponse;
+  };
 };
 type AccountResponse = {
   balance: number;
@@ -20,28 +24,21 @@ type Transaction = {
   date: Date;
   description: string;
 };
-export type QueryGetAccountByUserIdResponse = {
-  data: queryGetAccountByUserIdResponse;
-}
 
-type mutationTransferResponse = {
-  transfer: VoidResponse;
-};
-type VoidResponse = {
-  responseTime: string;
-};
 export type MutationTransferResponse = {
-  data: mutationTransferResponse;
-}
+  data: {
+    transfer: VoidResponse;
+  };
+};
 
+export type NotifyTransactionCreatedInput = {
+  accountId: string;
+  transaction: TransactionWithId;
+};
 type TransactionWithId = {
   balance: number;
   delta: number;
   date: Date;
   description: string;
   id: string;
-}
-export type NotifyTransactionCreated = {
-  accountId: string;
-  transaction: TransactionWithId;
-}
+};

@@ -20,7 +20,7 @@ import { Request } from '../../../accounts/useCases/createTransaction/CreateTran
 import { addDecimals } from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import { NotifyTransactionCreated } from '../../../../shared/infra/appsync/schema.graphql';
+import { NotifyTransactionCreatedInput } from '../../../../shared/infra/appsync/schema.graphql';
 
 const appsync = new AppSyncClient();
 const chance = new Chance();
@@ -34,7 +34,7 @@ if (!appsyncUrl || !appsyncKey || !AWS_REGION) {
 
 let seed: { userId: string; account: Account };
 let client, subscription: ZenObservable.Subscription;
-const notifications: NotifyTransactionCreated[] = [];
+const notifications: NotifyTransactionCreatedInput[] = [];
 beforeAll(async () => {
   seed = await createUserAndAccount();
 
