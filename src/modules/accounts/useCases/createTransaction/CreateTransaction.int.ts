@@ -74,9 +74,12 @@ test('Create transactions', async () => {
   expect(account.transactions[1].description.value).toBe(dto1.description);
   const expected = addDecimals(seed.account.balance.value, dto1.delta, dto2.delta);
   if (account.transactions[0].balance.value !== expected) {
-    console.log("account.transactions[0].balance.value", account.transactions[0].balance.value);
-    console.log("seed.account.balance.value", seed.account.balance.value);
-    console.log("dto1.delta", dto1.delta);
+    console.log(
+      'account.transactions[0].balance.value',
+      account.transactions[0].balance.value
+    );
+    console.log('seed.account.balance.value', seed.account.balance.value);
+    console.log('dto1.delta', dto1.delta);
     console.log('dto2.delta', dto2.delta);
     console.log('account', account);
     console.log('seed', seed);

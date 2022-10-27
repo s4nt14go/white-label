@@ -9,7 +9,7 @@ test('Create transaction', () => {
     balance: Amount.create({ value: 100 }).value,
     delta: Amount.create({ value: -100 }).value,
     date,
-    description: Description.create({ value: 'Test transaction'}).value,
+    description: Description.create({ value: 'Test transaction' }).value,
   });
 
   expect(result.isSuccess).toBe(true);
@@ -33,7 +33,7 @@ it('fails with negative balance', () => {
     balance: Amount.create({ value: -1 }).value,
     delta: Amount.create({ value: -100 }).value,
     date,
-    description: Description.create({ value: 'Test transaction'}).value,
+    description: Description.create({ value: 'Test transaction' }).value,
   });
 
   expect(result.isFailure).toBe(true);

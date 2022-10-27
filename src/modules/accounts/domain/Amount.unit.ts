@@ -84,7 +84,7 @@ test('Creation fails with a value less than min', () => {
 });
 
 test('36326231234624.984 rounds to 36326231234624.98', () => {
-  const value = Amount.create({ value: 36326231234624.984}).value.value;
+  const value = Amount.create({ value: 36326231234624.984 }).value.value;
 
   expect(value.toString()).toBe('36326231234624.98');
-})
+});

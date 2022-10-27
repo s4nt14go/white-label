@@ -1,17 +1,15 @@
-import {
-  BaseController,
-  EnvelopUnexpectedT,
-} from './BaseController';
+import { BaseController, EnvelopUnexpectedT } from './BaseController';
 import { Envelope } from './Envelope';
 import { BaseError } from './AppError';
 import { Context } from 'aws-lambda';
 
 type ExeResponse = Promise<
-  | void
-  | { error: Envelope<BaseError> }
-  | { error: EnvelopUnexpectedT }
-  >
-export abstract class SubscriberController<Request, Response> extends BaseController<Request, Response, ExeResponse> {
+  void | { error: Envelope<BaseError> } | { error: EnvelopUnexpectedT }
+>;
+export abstract class SubscriberController<
+  Request,
+  Response
+> extends BaseController<Request, Response, ExeResponse> {
   protected event!: Request;
   protected context = {} as Context;
 

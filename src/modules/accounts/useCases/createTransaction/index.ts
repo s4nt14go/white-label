@@ -8,5 +8,10 @@ import { DispatcherLambda } from '../../../../shared/infra/dispatchEvents/Dispat
 setHooks();
 const dispatcher = new DispatcherLambda();
 const repo = new AccountRepo(models);
-const controller = new CreateTransaction(repo, dispatcher, models.renewConn, models.getTransaction);
+const controller = new CreateTransaction(
+  repo,
+  dispatcher,
+  models.renewConn,
+  models.getTransaction
+);
 export const handler = controller.execute.bind(controller);

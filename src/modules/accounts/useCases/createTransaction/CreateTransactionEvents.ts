@@ -9,6 +9,9 @@ const { distributeDomainEvents } = process.env;
 export class CreateTransactionEvents {
   public static registration(dispatcher: IDispatcher) {
     DomainEvents.setDispatcher(dispatcher);
-    DomainEvents.register(`${distributeDomainEvents}`, TransactionCreatedEvent.name);
+    DomainEvents.register(
+      `${distributeDomainEvents}`,
+      TransactionCreatedEvent.name
+    );
   }
 }

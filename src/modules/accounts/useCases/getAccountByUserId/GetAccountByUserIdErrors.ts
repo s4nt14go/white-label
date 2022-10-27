@@ -3,7 +3,6 @@ import { patch } from '../../../../shared/core/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GetAccountByUserIdErrors {
-
   export class UserIdNotDefined extends BaseError {
     public constructor() {
       super(`Provide userId`);

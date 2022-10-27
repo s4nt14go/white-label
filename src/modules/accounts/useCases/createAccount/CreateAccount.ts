@@ -11,7 +11,7 @@ export class CreateAccount extends SubscriberController<Request, Response> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     renewConn: any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getTransaction: any,
+    getTransaction: any
   ) {
     super(renewConn, getTransaction);
     this.accountRepo = accountRepo;

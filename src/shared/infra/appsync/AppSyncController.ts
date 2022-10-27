@@ -1,25 +1,20 @@
-import {
-  AppSyncResolverEvent,
-  Context,
-} from 'aws-lambda';
+import { AppSyncResolverEvent, Context } from 'aws-lambda';
 import { Envelope } from '../../core/Envelope';
 import { BaseError } from '../../core/AppError';
-import {
-  BaseController,
-  EnvelopUnexpectedT,
-} from '../../core/BaseController';
+import { BaseController, EnvelopUnexpectedT } from '../../core/BaseController';
 import { Created } from '../../core/Created';
 
 type ExeResponse = Promise<
   | Envelope<unknown | Created>
   | { error: Envelope<BaseError> }
   | { error: EnvelopUnexpectedT }
-  | void  // for lambda retry
-  >
-export abstract class AppSyncController<
-  Request,
-  Response
-> extends BaseController<AppSyncResolverEvent<Request>, Response, ExeResponse> {
+  | void // for lambda retry
+>;
+export abstract class AppSyncController<Request, Response> extends BaseController<
+  AppSyncResolverEvent<Request>,
+  Response,
+  ExeResponse
+> {
   protected event!: AppSyncResolverEvent<Request>;
   protected context!: Context;
 

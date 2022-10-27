@@ -11,7 +11,7 @@ test('TransactionCreatedEvent is added to account during creation', () => {
 
   const transaction = account.createTransaction(
     Amount.create({ value: chance.floating({ min: 0, fixed: 2 }) }).value,
-    Description.create({ value: chance.sentence() }).value,
+    Description.create({ value: chance.sentence() }).value
   ).value;
 
   expect(account.domainEvents.length).toBe(1);

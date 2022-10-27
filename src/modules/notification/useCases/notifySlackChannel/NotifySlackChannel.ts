@@ -11,9 +11,7 @@ type UserCreatedDTO = {
 export class NotifySlackChannel extends SubscriberController<Request, Response> {
   private slackService: ISlackService;
 
-  public constructor(
-    slackService: ISlackService,
-  ) {
+  public constructor(slackService: ISlackService) {
     super();
     this.slackService = slackService;
   }

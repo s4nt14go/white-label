@@ -19,7 +19,7 @@ export class TransactionMap {
   public static toDomain(raw: any): Transaction {
     return Transaction.create(
       {
-        balance: Amount.create({value: raw.balance }).value,
+        balance: Amount.create({ value: raw.balance }).value,
         delta: Amount.create({ value: raw.delta }).value,
         date: raw.date,
         description: Description.create({ value: raw.description }).value,

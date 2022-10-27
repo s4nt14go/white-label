@@ -20,14 +20,11 @@ test('Transfer', async () => {
   const data = {
     fromUserId: UserId.GOOD,
     toUserId: UserId.GOOD2,
-    quantity: 100,  // Faked balance is 100 so we can't transfer more than that
+    quantity: 100, // Faked balance is 100 so we can't transfer more than that
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(
-    getEvent(data),
-    context
-  );
+  const result = await transfer.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     time: expect.any(String),
@@ -116,14 +113,11 @@ it('fails when quantity is greater than source/from balance', async () => {
   const data = {
     fromUserId: UserId.GOOD,
     toUserId: UserId.GOOD2,
-    quantity: 101,  // Faked balance is 100
+    quantity: 101, // Faked balance is 100
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(
-    getEvent(data),
-    context
-  );
+  const result = await transfer.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {
@@ -135,14 +129,11 @@ it('fails when quantity is greater than destination/to balance', async () => {
   const data = {
     fromUserId: UserId.GOOD,
     toUserId: UserId.GOOD2,
-    quantity: -101,  // Faked balance is 100, this implies a transfer from toAccount to fromAccount
+    quantity: -101, // Faked balance is 100, this implies a transfer from toAccount to fromAccount
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(
-    getEvent(data),
-    context
-  );
+  const result = await transfer.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {
@@ -154,14 +145,11 @@ it('fails when source/from and destination/to accounts are the same', async () =
   const data = {
     fromUserId: UserId.GOOD,
     toUserId: UserId.GOOD,
-    quantity: 100,  // Faked balance is 100
+    quantity: 100, // Faked balance is 100
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(
-    getEvent(data),
-    context
-  );
+  const result = await transfer.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {

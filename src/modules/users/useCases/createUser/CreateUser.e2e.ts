@@ -19,12 +19,24 @@ afterAll(async () => {
 test('User creation', async () => {
   const newUser = getNewUserDto();
   const response = await appsync.send({
-    query: gql `mutation MyMutation($email: AWSEmail!, $password: String!, $username: String!, $alias: String) {
-      createUser(email: $email, password: $password, username: $username, alias: $alias) {
-        id
-        response_time
+    query: gql`
+      mutation MyMutation(
+        $email: AWSEmail!
+        $password: String!
+        $username: String!
+        $alias: String
+      ) {
+        createUser(
+          email: $email
+          password: $password
+          username: $username
+          alias: $alias
+        ) {
+          id
+          response_time
+        }
       }
-    }`,
+    `,
     variables: newUser,
   });
 

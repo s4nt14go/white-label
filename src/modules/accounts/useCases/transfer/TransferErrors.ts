@@ -3,7 +3,6 @@ import { patch } from '../../../../shared/core/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace TransferErrors {
-
   export class FromUserIdNotDefined extends BaseError {
     public constructor() {
       super(`Provide source/from account's userId`);
@@ -21,7 +20,9 @@ export namespace TransferErrors {
   }
   export class ToUserIdNotString extends BaseError {
     public constructor(type: string) {
-      super(`Destination/to account's userId should be a string instead of ${type}`);
+      super(
+        `Destination/to account's userId should be a string instead of ${type}`
+      );
     }
   }
   export class UserIdNotUuid extends BaseError {
@@ -54,13 +55,17 @@ export namespace TransferErrors {
   }
   export class ToDescriptionInvalid extends BaseError {
     public constructor(error: BaseError) {
-      super(`Destination/to description is invalid: ${error.message} [${error.type}]`);
+      super(
+        `Destination/to description is invalid: ${error.message} [${error.type}]`
+      );
     }
   }
 
   export class SameFromAndTo extends BaseError {
     public constructor(userId: string) {
-      super(`Source/from and destination/to accounts can't be the same: ${userId}`);
+      super(
+        `Source/from and destination/to accounts can't be the same: ${userId}`
+      );
     }
   }
 

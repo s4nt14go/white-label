@@ -78,7 +78,9 @@ describe('createTransaction', () => {
     const account = seedAccount(false);
 
     const delta = Amount.create({ value: 1 }).value;
-    const description = Description.create({ value: `Test: ${chance.sentence()}` }).value;
+    const description = Description.create({
+      value: `Test: ${chance.sentence()}`,
+    }).value;
     const transactionOrError = account.createTransaction(delta, description);
     const error = transactionOrError.error;
 

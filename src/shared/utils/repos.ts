@@ -33,10 +33,13 @@ export const getNewUser = (): User => {
     username: UserName.create({ name: username }).value,
     alias: Alias.create({ value: alias }).value,
   });
-}
+};
 
-export const createUserAndAccount = async (): Promise<{ userId: string, account: Account }> => {
+export const createUserAndAccount = async (): Promise<{
+  userId: string;
+  account: Account;
+}> => {
   const userId = (await UserRepo.create(getNewUser())).toString();
   const account = await AccountRepo.create(userId);
   return { userId, account };
-}
+};

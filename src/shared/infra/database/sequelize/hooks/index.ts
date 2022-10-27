@@ -12,7 +12,9 @@ const dispatchEventsCallback = async (
   let id = model[primaryKeyField];
   console.log(`Hooking ${hook} for ${model.constructor.name} ${id}`);
   if (model.constructor.name === 'transaction') {
-    console.log('Transaction is an internal entity to Account aggregate, so use account id to check for events');
+    console.log(
+      'Transaction is an internal entity to Account aggregate, so use account id to check for events'
+    );
     id = model['accountId'];
   }
   await DomainEvents.dispatchEventsForAggregate(new EntityID(id));

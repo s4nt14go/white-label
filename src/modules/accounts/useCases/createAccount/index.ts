@@ -4,5 +4,9 @@ import { CreateAccount } from './CreateAccount';
 import { AccountRepo } from '../../repos/AccountRepo';
 
 const repo = new AccountRepo(models);
-const controller = new CreateAccount(repo, models.renewConn, models.getTransaction);
+const controller = new CreateAccount(
+  repo,
+  models.renewConn,
+  models.getTransaction
+);
 export const handler = controller.execute.bind(controller);

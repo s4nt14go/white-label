@@ -2,7 +2,7 @@ import { Description } from './Description';
 import { DescriptionErrors } from './DescriptionErrors';
 
 test('Creation', () => {
-  const result = Description.create({ value: 'Well done transaction!'});
+  const result = Description.create({ value: 'Well done transaction!' });
 
   expect(result.isSuccess).toBe(true);
   const description = result.value;
@@ -37,9 +37,11 @@ test('Fails with a long value', () => {
   const invalidData = {
     value: '',
   };
-  Array(256).fill(null).map(() => {
-    invalidData.value = invalidData.value.concat('x');
-  });
+  Array(256)
+    .fill(null)
+    .map(() => {
+      invalidData.value = invalidData.value.concat('x');
+    });
 
   const result = Description.create(invalidData);
   expect(result.isFailure).toBe(true);

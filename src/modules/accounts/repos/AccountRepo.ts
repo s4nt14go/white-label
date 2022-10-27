@@ -36,7 +36,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     userId: string,
     transactionsLimit = 10
   ): Promise<Account | null> {
-    transactionsLimit = transactionsLimit < 1? 1 : transactionsLimit;
+    transactionsLimit = transactionsLimit < 1 ? 1 : transactionsLimit;
     const rawAccount = await this.Account.findOne(
       {
         where: { userId },
@@ -44,12 +44,18 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
       { transaction: this.transaction }
     );
     if (!rawAccount) return null;
-    const transactions = await this.getTransactions(rawAccount.id, transactionsLimit);
+    const transactions = await this.getTransactions(
+      rawAccount.id,
+      transactionsLimit
+    );
     if (!transactions) throw Error(`No transactions for account ${rawAccount.id}`);
     return AccountMap.toDomain(rawAccount, transactions);
   }
 
-  public async createTransaction(transaction: Transaction, accountId: string): Promise<void> {
+  public async createTransaction(
+    transaction: Transaction,
+    accountId: string
+  ): Promise<void> {
     const raw = TransactionMap.toPersistence(transaction);
     await this.Transaction.create(
       {
@@ -61,10 +67,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
   }
 
   public async transfer(props: TransferProps) {
-    const {
-      from,
-      to,
-    } = props;
+    const { from, to } = props;
 
     await this.createTransaction(from.transaction, from.accountId);
     await this.createTransaction(to.transaction, to.accountId);
@@ -94,7 +97,8 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
 
   public async deleteByUserId(userId: string): Promise<void> {
     const account = await this.getAccountByUserId(userId);
-    if (!account) return console.log(`No account for userId ${userId}, so nothing is deleted`);
+    if (!account)
+      return console.log(`No account for userId ${userId}, so nothing is deleted`);
     await this.Transaction.destroy(
       { where: { accountId: account.id.toString() } },
       { transaction: this.transaction }

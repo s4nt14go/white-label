@@ -21,7 +21,7 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     renewConn: any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getTransaction: any,
+    getTransaction: any
   ) {
     super(renewConn, getTransaction);
     this.accountRepo = accountRepo;
@@ -90,7 +90,10 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
         ),
       };
 
-    await this.accountRepo.createTransaction(transactionOrError.value, account.id.toString());
+    await this.accountRepo.createTransaction(
+      transactionOrError.value,
+      account.id.toString()
+    );
 
     return {
       status: CREATED,

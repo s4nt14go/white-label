@@ -1,7 +1,11 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import 'aws-testing-library/lib/jest';
-import { getAppSyncEvent as getEvent, getNewUserDto, invokeLambda } from '../../../../shared/utils/test';
+import {
+  getAppSyncEvent as getEvent,
+  getNewUserDto,
+  invokeLambda,
+} from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,

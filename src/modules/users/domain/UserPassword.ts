@@ -87,7 +87,8 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
         trimmed,
         new CreatePasswordErrors.TooShort(this.minLength)
       );
-      if (minLengthResult.isFailure) return Result.fail(minLengthResult.error as BaseError);
+      if (minLengthResult.isFailure)
+        return Result.fail(minLengthResult.error as BaseError);
     }
 
     return Result.ok<UserPassword>(

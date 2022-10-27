@@ -26,8 +26,7 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
   ): Promise<Account | null> {
     switch (userId) {
       case UserId.GOOD:
-      case UserId.GOOD2:
-      {
+      case UserId.GOOD2: {
         const rawAccount = {
           user_id: userId,
           id: 'faked_account_id',

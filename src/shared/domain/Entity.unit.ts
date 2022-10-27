@@ -22,7 +22,6 @@ export class Sample2 extends Sample {
 }
 
 describe('Entity equality by identifier', () => {
-
   it(`shouldn't be equal for brand new entities with same data`, () => {
     const sample1 = new Sample({ name: '1' });
     const sample2 = new Sample({ name: '1' });

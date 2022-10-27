@@ -13,7 +13,12 @@ const chance = new Chance();
 let accountRepo, createTransaction: CreateTransaction;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  createTransaction = new CreateTransaction(accountRepo, new DispatcherFake(), {}, fakeTransaction);
+  createTransaction = new CreateTransaction(
+    accountRepo,
+    new DispatcherFake(),
+    {},
+    fakeTransaction
+  );
 });
 
 const context = {} as unknown as Context;
@@ -24,10 +29,7 @@ it('creates a transaction', async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(
-    getEvent(validData),
-    context
-  );
+  const result = await createTransaction.execute(getEvent(validData), context);
 
   expect(result).toMatchObject({
     time: expect.any(String),
@@ -67,10 +69,7 @@ it(`fails when userId isn't a string`, async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(
-    getEvent(badData),
-    context
-  );
+  const result = await createTransaction.execute(getEvent(badData), context);
 
   expect(result).toMatchObject({
     error: {
@@ -85,10 +84,7 @@ it(`fails when userId isn't an uuid`, async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(
-    getEvent(badData),
-    context
-  );
+  const result = await createTransaction.execute(getEvent(badData), context);
 
   expect(result).toMatchObject({
     error: {
@@ -104,10 +100,7 @@ it('fails when delta subtracts more than balance', async () => {
     delta: -101, // faked balance is 100
   };
 
-  const result = await createTransaction.execute(
-    getEvent(data),
-    context
-  );
+  const result = await createTransaction.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {
@@ -123,10 +116,7 @@ it('fails when no transactions are found for the user', async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(
-    getEvent(data),
-    context
-  );
+  const result = await createTransaction.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {
@@ -142,10 +132,7 @@ test('Internal server error when no transactions are found for the user', async 
     delta: 30,
   };
 
-  const result = await createTransaction.execute(
-    getEvent(data),
-    context
-  );
+  const result = await createTransaction.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {

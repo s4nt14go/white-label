@@ -7,11 +7,11 @@ export interface TransferProps {
   from: {
     transaction: Transaction;
     accountId: string;
-  }
+  };
   to: {
     transaction: Transaction;
     accountId: string;
-  }
+  };
 }
 
 export declare class IAccountRepo implements IRepo {

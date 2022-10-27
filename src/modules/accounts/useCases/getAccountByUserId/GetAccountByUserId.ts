@@ -16,7 +16,7 @@ export class GetAccountByUserId extends AppSyncController<Request, Response> {
   public constructor(
     accountRepo: IAccountRepo,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    renewConn: any,
+    renewConn: any
   ) {
     super(renewConn);
     this.accountRepo = accountRepo;

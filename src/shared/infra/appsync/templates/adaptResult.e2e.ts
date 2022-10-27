@@ -7,11 +7,13 @@ const appsync = new AppSyncClient();
 
 it('should return error fields: message, errorType and errorInfo', async () => {
   const response = await appsync.send({
-    query: gql `query ($userId: ID!) { 
-        getAccountByUserId(userId: $userId) { 
-          response_time 
-        } 
-      }`,
+    query: gql`
+      query ($userId: ID!) {
+        getAccountByUserId(userId: $userId) {
+          response_time
+        }
+      }
+    `,
     variables: { userId: 'invalid userId' },
   });
 
@@ -31,8 +33,10 @@ it('should return error fields: message, errorType and errorInfo', async () => {
           time: expect.any(String),
           message: expect.any(String),
         },
-        message: expect.not.stringContaining('A custom error was thrown from a mapping template.'), // if <message> is not a string in $util.error(<message>, ...), AppSync returns this text
+        message: expect.not.stringContaining(
+          'A custom error was thrown from a mapping template.'
+        ), // if <message> is not a string in $util.error(<message>, ...), AppSync returns this text
       },
     ],
-  })
+  });
 });

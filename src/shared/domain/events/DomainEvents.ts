@@ -60,9 +60,7 @@ export class DomainEvents {
     return found;
   }
 
-  public static async dispatchEventsForAggregate(
-    id: EntityID
-  ): Promise<void> {
+  public static async dispatchEventsForAggregate(id: EntityID): Promise<void> {
     const aggregate = this.findMarkedAggregateByID(id);
 
     if (aggregate) {

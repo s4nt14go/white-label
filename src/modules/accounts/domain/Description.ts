@@ -21,7 +21,10 @@ export class Description extends ValueObject<DescriptionProps> {
   }
 
   public static create(props: DescriptionProps): Result<Description> {
-    const guardNull = Guard.againstNullOrUndefined(props.value, new DescriptionErrors.NotDefined());
+    const guardNull = Guard.againstNullOrUndefined(
+      props.value,
+      new DescriptionErrors.NotDefined()
+    );
     const guardType = Guard.isType(
       props.value,
       'string',
@@ -39,7 +42,6 @@ export class Description extends ValueObject<DescriptionProps> {
     if (length > this.maxLength)
       return Result.fail(new DescriptionErrors.TooLong(this.maxLength, length));
 
-    return Result.ok<Description>(new Description({ value: trimmed }))
-
+    return Result.ok<Description>(new Description({ value: trimmed }));
   }
 }

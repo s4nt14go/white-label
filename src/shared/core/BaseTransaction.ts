@@ -11,9 +11,7 @@ enum CommitResult {
 
 export abstract class BaseTransaction<Request, ExeResponse> {
   protected abstract execute(event: Request, context: Context): ExeResponse;
-  protected abstract handleUnexpectedError(
-    err: unknown
-  ): unknown;
+  protected abstract handleUnexpectedError(err: unknown): unknown;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected getTransaction?: any;
   protected transaction!: Transaction;
@@ -33,7 +31,10 @@ export abstract class BaseTransaction<Request, ExeResponse> {
       case SUCCESS:
         return;
       case RETRY:
-        return this.dispatcher.dispatch(this.event as never, this.context.functionName);
+        return this.dispatcher.dispatch(
+          this.event as never,
+          this.context.functionName
+        );
       case ERROR:
       case EXHAUSTED:
       default:

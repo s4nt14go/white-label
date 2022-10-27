@@ -3,7 +3,6 @@ import { BaseError } from '../../../shared/core/AppError';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AccountErrors {
-
   export class NoTransactions extends BaseError {
     public constructor() {
       super(`Accounts should have at least one transaction`);
@@ -18,12 +17,16 @@ export namespace AccountErrors {
 
   export class InvalidFromTransaction extends BaseError {
     public constructor(error: BaseError) {
-      super(`Source/from transaction is invalid: ${error.message} [${error.type}]`);
+      super(
+        `Source/from transaction is invalid: ${error.message} [${error.type}]`
+      );
     }
   }
   export class InvalidToTransaction extends BaseError {
     public constructor(error: BaseError) {
-      super(`Destination/to transaction is invalid: ${error.message} [${error.type}]`);
+      super(
+        `Destination/to transaction is invalid: ${error.message} [${error.type}]`
+      );
     }
   }
 

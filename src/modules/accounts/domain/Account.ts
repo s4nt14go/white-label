@@ -63,13 +63,15 @@ export class Account extends AggregateRoot<AccountProps> {
 
   private _createTransaction(
     props: TransactionProps,
-    errorClass: typeof AccountErrors.InvalidTransaction,
+    errorClass: typeof AccountErrors.InvalidTransaction
   ): Result<Transaction> {
     const transactionOrError = Transaction.create(props);
     if (transactionOrError.isFailure)
       return Result.fail(new errorClass(transactionOrError.error as BaseError));
     const transaction = transactionOrError.value;
-    this.addDomainEvent(new TransactionCreatedEvent(this.id.toString(), transaction))
+    this.addDomainEvent(
+      new TransactionCreatedEvent(this.id.toString(), transaction)
+    );
     return Result.ok(transaction);
   }
 

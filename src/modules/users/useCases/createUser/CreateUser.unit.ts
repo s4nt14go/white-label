@@ -10,12 +10,7 @@ import {
 let userRepo, createUser: CreateUser;
 beforeAll(() => {
   userRepo = new UserRepoFake();
-  createUser = new CreateUser(
-    userRepo,
-    new DispatcherFake(),
-    {},
-    fakeTransaction,
-  );
+  createUser = new CreateUser(userRepo, new DispatcherFake(), {}, fakeTransaction);
 });
 
 const context = {} as unknown as Context;
@@ -27,10 +22,7 @@ test('User creation with alias', async () => {
     alias: 'test_alias',
   };
 
-  const result = await createUser.execute(
-    getEvent(validData),
-    context
-  );
+  const result = await createUser.execute(getEvent(validData), context);
 
   expect(result).toMatchObject({
     time: expect.any(String),
@@ -47,10 +39,7 @@ test('User creation without alias', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUser.execute(
-    getEvent(validData),
-    context
-  );
+  const result = await createUser.execute(getEvent(validData), context);
 
   expect(result).toMatchObject({
     time: expect.any(String),
@@ -74,10 +63,7 @@ test.each([
     };
     delete badData[field as 'username' | 'email' | 'password'];
 
-    const result = await createUser.execute(
-      getEvent(badData),
-      context
-    );
+    const result = await createUser.execute(getEvent(badData), context);
 
     expect(result).toMatchObject({
       error: {
@@ -94,10 +80,7 @@ test('User creation fails for taken email', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUser.execute(
-    getEvent(data),
-    context
-  );
+  const result = await createUser.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {
@@ -113,10 +96,7 @@ test('User creation fails for taken username', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUser.execute(
-    getEvent(data),
-    context
-  );
+  const result = await createUser.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     error: {

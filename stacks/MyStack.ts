@@ -2,7 +2,7 @@ import { StackContext, Function, AppSyncApi } from '@serverless-stack/resources'
 import * as cdk from 'aws-cdk-lib';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { SSM } from 'aws-sdk';
-import * as iam from "aws-cdk-lib/aws-iam";
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export async function MyStack({ stack, app }: StackContext) {
   const ssm = new SSM();
@@ -172,11 +172,11 @@ export async function MyStack({ stack, app }: StackContext) {
   function allowAutoInvoke(lambda: Function) {
     const statement = new iam.PolicyStatement({
       actions: ['lambda:InvokeFunction'],
-      resources: [ lambda.functionArn ],
+      resources: [lambda.functionArn],
     });
     const policy = new iam.Policy(stack, `autoInvoke_${lambda.toString()}`, {
       statements: [statement],
     });
-    policy.attachToRole(<iam.IRole> lambda.role);
+    policy.attachToRole(<iam.IRole>lambda.role);
   }
 }

@@ -24,18 +24,20 @@ afterAll(async () => {
 
 it('gets an account', async () => {
   const response = await appsync.send({
-    query: gql `query ($userId: ID!) { 
-        getAccountByUserId(userId: $userId) { 
-          balance 
-          active 
-          transactions { 
-            balance 
-            delta 
-            date 
-          } 
-          response_time 
-        } 
-      }`,
+    query: gql`
+      query ($userId: ID!) {
+        getAccountByUserId(userId: $userId) {
+          balance
+          active
+          transactions {
+            balance
+            delta
+            date
+          }
+          response_time
+        }
+      }
+    `,
     variables: { userId: seed.userId },
   });
 

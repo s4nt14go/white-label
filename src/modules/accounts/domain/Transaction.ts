@@ -17,11 +17,11 @@ export class Transaction extends Entity<TransactionProps> {
   public static Initial(): Transaction {
     return this.create({
       description: Description.create({ value: 'Initial' }).value,
-      balance: Amount.create({value: 0}).value,
-      delta: Amount.create({value: 0}).value,
+      balance: Amount.create({ value: 0 }).value,
+      delta: Amount.create({ value: 0 }).value,
       date: new Date(),
     }).value;
-}
+  }
 
   get id(): EntityID {
     return this._id;
@@ -43,9 +43,14 @@ export class Transaction extends Entity<TransactionProps> {
     super(props, id);
   }
 
-  public static create(props: TransactionProps, id?: EntityID): Result<Transaction> {
+  public static create(
+    props: TransactionProps,
+    id?: EntityID
+  ): Result<Transaction> {
     if (props.balance.value < 0)
-      return Result.fail(new TransactionErrors.NegativeBalance(props.balance.value))
+      return Result.fail(
+        new TransactionErrors.NegativeBalance(props.balance.value)
+      );
 
     return Result.ok(new Transaction(props, id));
   }

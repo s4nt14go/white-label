@@ -72,7 +72,7 @@ beforeAll(async () => {
       },
     });
 
-  await new Promise(resolve => setTimeout(resolve, 3000));  // Give some time to the subscription
+  await new Promise((resolve) => setTimeout(resolve, 3000)); // Give some time to the subscription
 });
 
 afterAll(async () => {

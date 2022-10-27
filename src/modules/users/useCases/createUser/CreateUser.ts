@@ -23,7 +23,7 @@ export class CreateUser extends AppSyncController<Request, Response> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     renewConn: any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getTransaction: any,
+    getTransaction: any
   ) {
     super(renewConn, getTransaction);
     this.userRepo = userRepo;

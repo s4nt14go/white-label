@@ -39,16 +39,22 @@ test('Create transaction', async () => {
     delta: chance.floating({ min: 0, fixed: 2 }),
   };
   const response = await appsync.send({
-    query: gql `mutation ($userId: ID!, $description: String!, $delta: Float!) {
-      createTransaction(userId: $userId, description: $description, delta: $delta) {
-        response_time
+    query: gql`
+      mutation ($userId: ID!, $description: String!, $delta: Float!) {
+        createTransaction(
+          userId: $userId
+          description: $description
+          delta: $delta
+        ) {
+          response_time
+        }
       }
-    }`,
+    `,
     variables: dto,
   });
 
   expect(response.status).toBe(200);
-  const json = await response.json() as MutationCreateTransactionResponse;
+  const json = (await response.json()) as MutationCreateTransactionResponse;
   expect(json.data.createTransaction).toMatchObject({
     response_time: expect.any(String),
   });

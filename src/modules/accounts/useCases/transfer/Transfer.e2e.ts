@@ -51,16 +51,30 @@ test('Transfer', async () => {
     quantity: 50,
   };
   const response = await appsync.send({
-    query: gql `mutation MyMutation($fromDescription: String!, $fromUserId: ID!, $quantity: Float!, $toUserId: ID!, $toDescription: String) {
-      transfer(fromDescription: $fromDescription, fromUserId: $fromUserId, quantity: $quantity, toUserId: $toUserId, toDescription: $toDescription) {
-        response_time
+    query: gql`
+      mutation MyMutation(
+        $fromDescription: String!
+        $fromUserId: ID!
+        $quantity: Float!
+        $toUserId: ID!
+        $toDescription: String
+      ) {
+        transfer(
+          fromDescription: $fromDescription
+          fromUserId: $fromUserId
+          quantity: $quantity
+          toUserId: $toUserId
+          toDescription: $toDescription
+        ) {
+          response_time
+        }
       }
-    }`,
+    `,
     variables: dto,
   });
 
   expect(response.status).toBe(200);
-  const json = await response.json() as MutationTransferResponse;
+  const json = (await response.json()) as MutationTransferResponse;
   expect(json.data.transfer).toMatchObject({
     response_time: expect.any(String),
   });

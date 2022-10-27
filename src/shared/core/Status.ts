@@ -4,4 +4,4 @@ export const Status = {
   CONFLICT: 409,
   BAD_REQUEST: 400,
   INTERNAL_ERROR: 500,
-}
+};

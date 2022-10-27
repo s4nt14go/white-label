@@ -21,7 +21,6 @@ export class Sample2 extends Sample {
 }
 
 describe('ValueObject equality by structure', () => {
-
   it(`should be equal for same class and data`, () => {
     const sample1 = new Sample({ name: '1' });
     const sample2 = new Sample({ name: '1' });
