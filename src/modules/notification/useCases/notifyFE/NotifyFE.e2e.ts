@@ -17,24 +17,26 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../../accounts/domain/Account';
 import { Request } from '../../../accounts/useCases/createTransaction/CreateTransactionDTO';
-import { addDecimals } from '../../../../shared/utils/test';
+import { addDecimals, deleteNotifications } from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import { NotifyTransactionCreatedInput } from '../../../../shared/infra/appsync/schema.graphql';
+import { TransactionCreatedNotification } from '../../../../shared/infra/appsync/schema.graphql';
+import { NotificationTypes } from '../../domain/NotificationTypes';
+import { NotificationTargets } from '../../domain/NotificationTargets';
 
 const appsync = new AppSyncClient();
 const chance = new Chance();
 
 // Add all process.env used:
-const { appsyncUrl, appsyncKey, AWS_REGION } = process.env;
-if (!appsyncUrl || !appsyncKey || !AWS_REGION) {
+const { appsyncUrl, appsyncKey, AWS_REGION, NotificationsTable } = process.env;
+if (!appsyncUrl || !appsyncKey || !AWS_REGION || !NotificationsTable) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
 
 let seed: { userId: string; account: Account };
 let client, subscription: ZenObservable.Subscription;
-const notifications: NotifyTransactionCreatedInput[] = [];
+const notifications: TransactionCreatedNotification[] = [];
 beforeAll(async () => {
   seed = await createUserAndAccount();
 
@@ -53,6 +55,8 @@ beforeAll(async () => {
       query: gql`
         subscription onNotifyTransactionCreated {
           onNotifyTransactionCreated {
+            target
+            type
             accountId
             transaction {
               id
@@ -78,6 +82,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await AccountRepo.deleteByUserId(seed.userId);
   await deleteUsers([{ id: seed.userId }]);
+  await deleteNotifications(notifications, NotificationsTable);
 
   subscription.unsubscribe();
 });
@@ -115,6 +120,8 @@ test('Create transaction', async () => {
         expect.arrayContaining([
           expect.objectContaining({
             accountId: seed.account.id.toString(),
+            target: NotificationTargets.FE,
+            type: NotificationTypes.TransactionCreated,
             transaction: expect.objectContaining({
               balance: addDecimals(seed.account.balance.value, dto.delta),
               delta: dto.delta,

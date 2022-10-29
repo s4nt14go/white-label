@@ -1,3 +1,6 @@
+import { NotificationTypes } from '../../../modules/notification/domain/NotificationTypes';
+import { NotificationTargets } from '../../../modules/notification/domain/NotificationTargets';
+
 export type MutationCreateTransactionResponse = {
   data: {
     createTransaction: VoidResponse;
@@ -31,7 +34,7 @@ export type MutationTransferResponse = {
   };
 };
 
-export type NotifyTransactionCreatedInput = {
+export type NotifyTransactionCreatedData = {
   accountId: string;
   transaction: TransactionWithId;
 };
@@ -42,3 +45,9 @@ type TransactionWithId = {
   description: string;
   id: string;
 };
+export type TransactionCreatedNotification = {
+  type: NotificationTypes;
+  target: NotificationTargets;
+  accountId: string;
+  transaction: TransactionWithId;
+}

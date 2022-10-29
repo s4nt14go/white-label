@@ -23,18 +23,23 @@ import fs from 'fs';
 // @ts-ignore
 import velocityTemplate from 'amplify-velocity-template';
 import * as velocityMapper from 'amplify-appsync-simulator/lib/velocity/value-mapper/mapper';
+import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { TransactionCreatedNotification } from '../infra/appsync/schema.graphql';
 
-export const invokeVtl = (templatePath: string, context: unknown) => {
+const DocumentClient = new DynamoDB.DocumentClient();
+
+export const invokeVtl = (templatePath: string, input: unknown) => {
   const template = fs.readFileSync(templatePath, { encoding: 'utf-8' });
   const ast = velocityTemplate.parse(template);
   const compiler = new velocityTemplate.Compile(ast, {
     valueMapper: velocityMapper.map,
     escape: false,
   });
-  return JSON.parse(compiler.render(context));
+  return JSON.parse(compiler.render(input));
 };
 
-export const getAppsyncContext = (result: unknown, args: unknown = null) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getAppsyncInput = (result: any, args: unknown = null) => {
   const util = velocityUtil.create([], new Date(), Object(), Object());
   const context = {
     identity: null,
@@ -144,3 +149,17 @@ export function seedAccount(active = true) {
     transactions: [seedTransaction],
   }).value;
 }
+
+export const deleteNotifications = async (notifications: TransactionCreatedNotification[], TableName: string) => {
+  return Promise.all(
+    notifications.map(async (n) => {
+      await DocumentClient.delete({
+        TableName,
+        Key: {
+          type: n.type,
+          id: n.transaction.id,
+        },
+      }).promise();
+    })
+  );
+};

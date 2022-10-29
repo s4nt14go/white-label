@@ -1,0 +1,19 @@
+{
+  "version" : "2018-05-29",
+  "operation" : "PutItem",
+  "key": {
+    "type" : $util.dynamodb.toDynamoDBJson($ctx.args.data.type),
+    "accountId" : $util.dynamodb.toDynamoDBJson($ctx.args.data.accountId),
+    "id" : $util.dynamodb.toDynamoDBJson($ctx.args.data.transaction.id)
+  },
+  "attributeValues" : {
+    "target": $util.dynamodb.toDynamoDBJson($ctx.args.data.target),
+    "balance": $util.dynamodb.toDynamoDBJson($ctx.args.data.transaction.balance),
+    "delta": $util.dynamodb.toDynamoDBJson($ctx.args.data.transaction.delta),
+    "date": $util.dynamodb.toDynamoDBJson($ctx.args.data.transaction.date),
+    "description": $util.dynamodb.toDynamoDBJson($ctx.args.data.transaction.description)
+  },
+  "condition": {
+    "expression": "attribute_not_exists(id)"
+  }
+}

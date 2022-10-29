@@ -3,6 +3,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { SSM } from 'aws-sdk';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { Table } from '@serverless-stack/resources';
 
 export async function MyStack({ stack, app }: StackContext) {
   const ssm = new SSM();
@@ -91,12 +92,22 @@ export async function MyStack({ stack, app }: StackContext) {
   const adaptResult = {
     file: 'src/shared/infra/appsync/templates/adaptResult.vtl',
   };
-  const passResponse = {
-    file: 'src/shared/infra/appsync/templates/pass.response.vtl',
-  };
-  const passRequest = {
-    file: 'src/shared/infra/appsync/templates/pass.request.vtl',
-  };
+  const notificationsTable = new Table(stack, 'Notifications', {
+    fields: {
+      target: 'string', // e.g. FE
+      type: 'string', // e.g. TransactionCreated
+      accountId: 'string',
+      id: 'string', // for TransactionCreated type, id is the transaction id
+      balance: 'number',
+      delta: 'number',
+      date: 'string',
+      description: 'string',
+    },
+    primaryIndex: { partitionKey: 'type', sortKey: 'id' },
+    localIndexes: {
+      byAccountId: { sortKey: 'accountId' },
+    },
+  });
   const api = new AppSyncApi(stack, 'AppSyncApi', {
     schema: 'src/shared/infra/appsync/schema.graphql',
     cdk: {
@@ -117,6 +128,10 @@ export async function MyStack({ stack, app }: StackContext) {
       transfer,
       createUser,
       none: { type: 'none' },
+      notificationsTable: {
+        type: 'dynamodb',
+        table: notificationsTable,
+      },
     },
     resolvers: {
       'Query getAccountByUserId': {
@@ -136,14 +151,22 @@ export async function MyStack({ stack, app }: StackContext) {
         responseMapping: adaptResult,
       },
       'Mutation notifyTransactionCreated': {
-        dataSource: 'none',
-        requestMapping: passRequest,
-        responseMapping: passResponse,
+        dataSource: 'notificationsTable',
+        requestMapping: {
+          file: 'src/shared/infra/appsync/templates/Mutation.notifyTransactionCreated.request.vtl',
+        },
+        responseMapping: {
+          file: 'src/shared/infra/appsync/templates/Mutation.notifyTransactionCreated.response.vtl',
+        },
       },
       'Subscription onNotifyTransactionCreated': {
         dataSource: 'none',
-        requestMapping: passRequest,
-        responseMapping: passResponse,
+        requestMapping: {
+          inline: '#return',
+        },
+        responseMapping: {
+          inline: '$util.toJson($ctx.result)',
+        },
       },
     },
   });

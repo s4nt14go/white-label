@@ -6,6 +6,8 @@ import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import { Transaction } from '../../../accounts/domain/Transaction';
 import { Amount } from '../../../accounts/domain/Amount';
 import { Description } from '../../../accounts/domain/Description';
+import { NotificationTargets } from '../../domain/NotificationTargets';
+import { NotificationTypes } from '../../domain/NotificationTypes';
 
 test('Notification to FE', async () => {
   const appsyncClient = new AppSyncClient();
@@ -43,6 +45,8 @@ test('Notification to FE', async () => {
     variables: {
       data: {
         accountId,
+        target: NotificationTargets.FE,
+        type: NotificationTypes.TransactionCreated,
         transaction: expect.objectContaining({
           id: expect.any(String),
           balance,

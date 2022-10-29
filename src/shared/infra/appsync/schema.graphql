@@ -46,10 +46,14 @@ input TransactionWithIdInput {
   id: ID!
 }
 type TransactionCreatedNotification {
+  target: String!
+  type: String!
   accountId: ID!
   transaction: TransactionWithId!
 }
 input NotifyTransactionCreatedInput {
+  target: String!
+  type: String!
   accountId: ID!
   transaction: TransactionWithIdInput!
 }

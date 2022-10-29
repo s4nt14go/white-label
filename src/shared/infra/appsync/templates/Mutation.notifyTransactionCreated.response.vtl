@@ -1,0 +1,15 @@
+## Reconstruct transaction object from unwrapped data put in dynamo
+#set ($transaction = {})
+#set ($transaction["id"] = $ctx.result["id"])
+#set ($transaction["balance"] = $ctx.result["balance"])
+#set ($transaction["delta"] = $ctx.result["delta"])
+#set ($transaction["date"] = $ctx.result["date"])
+#set ($transaction["description"] = $ctx.result["description"])
+
+#set ($output = {})
+#set ($output["transaction"] = $transaction)
+#set ($output["type"] = $ctx.result.type)
+#set ($output["accountId"] = $ctx.result.accountId)
+#set ($output["target"] = $ctx.result.target)
+
+$util.toJson($output)

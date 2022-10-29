@@ -27,6 +27,13 @@ localLambdas.map(async l => {
     await $`echo ${l}=${deployed.PhysicalResourceId} >> ${envFile}`
 });
 
+const tables = resources.filter(r => r.ResourceType === 'AWS::DynamoDB::Table');
+tables.map(async t => {
+  const physicalResourceId = t.PhysicalResourceId;
+  const logicalName = physicalResourceId.split('-').pop() + 'Table';
+  await $`echo ${logicalName}=${physicalResourceId} >> ${envFile}`
+});
+
 $.verbose = false // Don't log sensitive data
 
 await $`aws appsync list-graphql-apis > appsync.json`
