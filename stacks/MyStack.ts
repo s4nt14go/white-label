@@ -80,9 +80,14 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const transfer = new Function(stack, 'transfer', {
     handler: 'modules/accounts/useCases/transfer/index.handler',
-    environment: dbCreds,
+    environment: {
+      ...dbCreds,
+      distributeDomainEvents: distributeDomainEvents.functionName,
+    },
   });
   allowAutoInvoke(transfer);
+  distributeDomainEvents.grantInvoke(transfer);
+
   const getAccountByUserId = new Function(stack, 'getAccountByUserId', {
     handler: 'modules/accounts/useCases/getAccountByUserId/index.handler',
     environment: dbCreds,

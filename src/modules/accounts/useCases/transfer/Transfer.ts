@@ -9,6 +9,8 @@ import { Guard } from '../../../../shared/core/Guard';
 import { CreateTransactionErrors } from '../createTransaction/CreateTransactionErrors';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
+import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
+import { CreateTransactionEvents } from '../createTransaction/CreateTransactionEvents';
 const { CREATED, BAD_REQUEST } = Status;
 
 export class Transfer extends AppSyncController<Request, Response> {
@@ -16,6 +18,7 @@ export class Transfer extends AppSyncController<Request, Response> {
 
   public constructor(
     accountRepo: IAccountRepo,
+    dispatcher: IDispatcher,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     renewConn: any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,6 +26,7 @@ export class Transfer extends AppSyncController<Request, Response> {
   ) {
     super(renewConn, getTransaction);
     this.accountRepo = accountRepo;
+    CreateTransactionEvents.registration(dispatcher);
   }
 
   protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
@@ -157,6 +161,10 @@ export class Transfer extends AppSyncController<Request, Response> {
 
     return {
       status: CREATED,
+      result: {
+        fromTransaction: fromTransaction.id.toString(),
+        toTransaction: toTransaction.id.toString(),
+      },
     };
   }
 }

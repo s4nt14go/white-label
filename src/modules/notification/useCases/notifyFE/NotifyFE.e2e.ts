@@ -10,17 +10,17 @@ import { ZenObservable } from 'zen-observable-ts';
 //#endregion
 import * as dotenv from 'dotenv';
 dotenv.config();
-import {
-  AccountRepo,
-  createUserAndAccount,
-  deleteUsers,
-} from '../../../../shared/utils/repos';
+import { createUserAndAccount, deleteUsers } from '../../../../shared/utils/repos';
 import { Account } from '../../../accounts/domain/Account';
 import { Request } from '../../../accounts/useCases/createTransaction/CreateTransactionDTO';
-import { addDecimals, deleteNotifications } from '../../../../shared/utils/test';
+import {
+  addDecimals,
+  deleteNotifications,
+  getRandom,
+  TransactionCreatedNotificationKeys,
+} from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import { TransactionCreatedNotification } from '../../../../shared/infra/appsync/schema.graphql';
 import { NotificationTypes } from '../../domain/NotificationTypes';
 import { NotificationTargets } from '../../domain/NotificationTargets';
 
@@ -36,7 +36,7 @@ if (!appsyncUrl || !appsyncKey || !AWS_REGION || !NotificationsTable) {
 
 let seed: { userId: string; account: Account };
 let client, subscription: ZenObservable.Subscription;
-const notifications: TransactionCreatedNotification[] = [];
+const notifications: TransactionCreatedNotificationKeys[] = [];
 beforeAll(async () => {
   seed = await createUserAndAccount();
 
@@ -80,7 +80,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await AccountRepo.deleteByUserId(seed.userId);
   await deleteUsers([{ id: seed.userId }]);
   await deleteNotifications(notifications, NotificationsTable);
 
@@ -91,7 +90,7 @@ test('Create transaction', async () => {
   const dto: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: chance.floating({ min: 0, fixed: 2 }),
+    delta: getRandom({ min: 0 }),
   };
   const response = await appsync.send({
     query: gql`
@@ -123,7 +122,7 @@ test('Create transaction', async () => {
             target: NotificationTargets.FE,
             type: NotificationTypes.TransactionCreated,
             transaction: expect.objectContaining({
-              balance: addDecimals(seed.account.balance.value, dto.delta),
+              balance: addDecimals(seed.account.balance().value, dto.delta),
               delta: dto.delta,
               date: expect.any(String),
               description: dto.description,

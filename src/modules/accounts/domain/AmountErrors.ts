@@ -20,6 +20,12 @@ export namespace AmountErrors {
       super(`Number ${value} is too big to be handled with 2 decimal precision`);
     }
   }
+
+  export class InvalidOperationResult extends BaseError {
+    public constructor(error: BaseError) {
+      super(`Invalid operation result: ${error.message} [${error.type}]`);
+    }
+  }
 }
 
 patch({ AmountErrors });

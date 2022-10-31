@@ -25,7 +25,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await AccountRepo.deleteByUserId(seed.userId);
   await deleteUsers([{ id: seed.userId }]);
 });
 

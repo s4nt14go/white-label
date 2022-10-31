@@ -95,6 +95,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     return newAccount;
   }
 
+  // Delete account and transactions
   public async deleteByUserId(userId: string): Promise<void> {
     const account = await this.getAccountByUserId(userId);
     if (!account)

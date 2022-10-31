@@ -12,6 +12,7 @@ export class TransactionMap {
       delta: delta.value,
       date,
       description: description.value,
+      id: transaction.id.toString(),
     };
   }
 

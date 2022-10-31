@@ -6,7 +6,7 @@ import { UserEmail } from '../../modules/users/domain/UserEmail';
 import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder, TextEncoder } from 'util';
 import Chance from 'chance';
-import { Request } from '../../modules/users/useCases/createUser/CreateUserDTO';
+import { Request as CreateUserDTOreq } from '../../modules/users/useCases/createUser/CreateUserDTO';
 import { Transaction as SequelizeTransaction } from 'sequelize';
 import { AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';
@@ -24,7 +24,7 @@ import fs from 'fs';
 import velocityTemplate from 'amplify-velocity-template';
 import * as velocityMapper from 'amplify-appsync-simulator/lib/velocity/value-mapper/mapper';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import { TransactionCreatedNotification } from '../infra/appsync/schema.graphql';
+import { NotificationTypes } from '../../modules/notification/domain/NotificationTypes';
 
 const DocumentClient = new DynamoDB.DocumentClient();
 
@@ -38,8 +38,12 @@ export const invokeVtl = (templatePath: string, input: unknown) => {
   return JSON.parse(compiler.render(input));
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getAppsyncInput = (result: any, args: unknown = null) => {
+export const getAppsyncInput = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result: any,
+  args: unknown = null,
+  error: unknown = null
+) => {
   const util = velocityUtil.create([], new Date(), Object(), Object());
   const context = {
     identity: null,
@@ -50,7 +54,7 @@ export const getAppsyncInput = (result: any, args: unknown = null) => {
     info: null,
     prev: null,
     stash: null,
-    error: null,
+    error,
   };
   return {
     context,
@@ -90,7 +94,7 @@ export function createUser({
   return User.create(props, id);
 }
 
-export const getNewUserDto = (): Request => ({
+export const getNewUserDto = (): CreateUserDTOreq => ({
   username: chance.first(),
   email: chance.email(),
   password: 'passwordd',
@@ -150,16 +154,40 @@ export function seedAccount(active = true) {
   }).value;
 }
 
-export const deleteNotifications = async (notifications: TransactionCreatedNotification[], TableName: string) => {
+export type TransactionCreatedNotificationKeys = {
+  type: NotificationTypes;
+  transaction: {
+    id: string;
+  };
+};
+export const deleteNotifications = async (
+  notifications: TransactionCreatedNotificationKeys[],
+  TableName: string
+) => {
   return Promise.all(
     notifications.map(async (n) => {
-      await DocumentClient.delete({
-        TableName,
-        Key: {
-          type: n.type,
-          id: n.transaction.id,
-        },
-      }).promise();
+      await deleteNotification(n, TableName);
     })
   );
 };
+
+export const deleteNotification = async (
+  notificationKeys: TransactionCreatedNotificationKeys,
+  TableName: string
+) => {
+  console.log('Deleting notification', {
+    type: notificationKeys.type,
+    id: notificationKeys.transaction.id,
+  });
+  await DocumentClient.delete({
+    TableName,
+    Key: {
+      type: notificationKeys.type,
+      id: notificationKeys.transaction.id,
+    },
+  }).promise();
+};
+
+export function getRandom({min = -Amount.MAX_ABS, max = Amount.MAX_ABS}) {
+  return chance.floating({ min, fixed: 2, max });
+}

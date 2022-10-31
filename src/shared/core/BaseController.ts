@@ -77,10 +77,11 @@ export abstract class BaseController<
             r // wait some before retrying
           ) => setTimeout(r, (this.dbConnTimeoutErrors + Math.random()) * 100)
         );
-        return this.dispatcher.dispatch(
+        await this.dispatcher.dispatch(
           this.event as never,
           this.context.functionName
         );
+        return;
       }
 
       console.log(

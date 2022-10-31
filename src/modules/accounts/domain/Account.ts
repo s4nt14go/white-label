@@ -10,12 +10,6 @@ import { Transaction, TransactionProps } from './Transaction';
 import { TransactionCreatedEvent } from './events/TransactionCreatedEvent';
 
 interface AccountProps {
-  balance: Amount;
-  active: boolean;
-  transactions: Transaction[];
-}
-
-interface AccountInput {
   active: boolean;
   transactions: Transaction[];
 }
@@ -31,8 +25,8 @@ export class Account extends AggregateRoot<AccountProps> {
   get id(): EntityID {
     return this._id;
   }
-  get balance(): Amount {
-    return this.props.balance;
+  public balance(): Amount {
+    return this.props.transactions[0].balance;
   }
   get active(): boolean {
     return this.props.active;
@@ -45,7 +39,7 @@ export class Account extends AggregateRoot<AccountProps> {
     super(props, id);
   }
 
-  public static create(props: AccountInput, id?: EntityID): Result<Account> {
+  public static create(props: AccountProps, id?: EntityID): Result<Account> {
     const transactionsLength = props.transactions.length;
     if (transactionsLength < 1)
       return Result.fail(new AccountErrors.NoTransactions());
@@ -54,7 +48,6 @@ export class Account extends AggregateRoot<AccountProps> {
       new Account(
         {
           ...props,
-          balance: props.transactions[0].balance,
         },
         id
       )
@@ -72,6 +65,7 @@ export class Account extends AggregateRoot<AccountProps> {
     this.addDomainEvent(
       new TransactionCreatedEvent(this.id.toString(), transaction)
     );
+    this.transactions.unshift(transaction);
     return Result.ok(transaction);
   }
 
@@ -81,9 +75,15 @@ export class Account extends AggregateRoot<AccountProps> {
   ): Result<Transaction> {
     if (!this.active) return Result.fail(new AccountErrors.NotActive());
 
+    const balanceOrError = this.balance().add(delta);
+    if (balanceOrError.isFailure)
+      return Result.fail(
+        new AccountErrors.InvalidTransaction(balanceOrError.error as BaseError)
+      );
+
     return this._createTransaction(
       {
-        balance: this.balance.add(delta),
+        balance: balanceOrError.value,
         delta,
         description,
         date: new Date(),
@@ -102,10 +102,16 @@ export class Account extends AggregateRoot<AccountProps> {
     if (!toAccount.active)
       return Result.fail(new AccountErrors.ToAccountNotActive());
 
+    let balanceOrError = this.balance().subtract(delta);
+    if (balanceOrError.isFailure)
+      return Result.fail(
+        new AccountErrors.InvalidTransfer(balanceOrError.error as BaseError)
+      );
+
     const date = new Date();
     const fromTransactionOrError = this._createTransaction(
       {
-        balance: this.balance.subtract(delta),
+        balance: balanceOrError.value,
         delta: delta.negate(),
         description: fromDescription,
         date,
@@ -117,9 +123,15 @@ export class Account extends AggregateRoot<AccountProps> {
 
     const fromTransaction = fromTransactionOrError.value;
 
+    balanceOrError = toAccount.balance().add(delta);
+    if (balanceOrError.isFailure)
+      return Result.fail(
+        new AccountErrors.InvalidTransfer(balanceOrError.error as BaseError)
+      );
+
     const toTransactionOrError = this._createTransaction(
       {
-        balance: toAccount.balance.add(delta),
+        balance: balanceOrError.value,
         delta,
         description: toDescription,
         date,

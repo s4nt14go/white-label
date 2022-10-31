@@ -15,6 +15,7 @@ export const UserRepo = new _UserRepo(models);
 export const AccountRepo = new _AccountRepo(models);
 
 export type CreatedUser = { id: string };
+// Delete user, account and transactions
 export const deleteUsers = async (users: CreatedUser[]) => {
   return Promise.all(
     users.map(async (u) => {

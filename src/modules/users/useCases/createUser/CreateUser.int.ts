@@ -68,7 +68,7 @@ test('User creation', async () => {
   // Side effect in module accounts
   const accountCreated = await AccountRepo.getAccountByUserId(user.id.toString());
   if (!accountCreated) throw Error('Account not created');
-  expect(accountCreated.balance.value).toBe(0);
+  expect(accountCreated.balance().value).toBe(0);
   expect(accountCreated.active).toBe(true);
   expect(accountCreated.transactions).toHaveLength(1);
   expect(accountCreated.transactions[0].balance.value).toBe(0);

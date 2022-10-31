@@ -11,6 +11,7 @@ import { MutationCreateTransactionResponse } from '../../../../shared/infra/apps
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import gql from 'graphql-tag';
+import { getRandom } from '../../../../shared/utils/test';
 
 const appsync = new AppSyncClient();
 const chance = new Chance();
@@ -28,7 +29,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await AccountRepo.deleteByUserId(seed.userId);
   await deleteUsers([{ id: seed.userId }]);
 });
 
@@ -36,7 +36,7 @@ test('Create transaction', async () => {
   const dto: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: chance.floating({ min: 0, fixed: 2 }),
+    delta: getRandom({min: 0}),
   };
   const response = await appsync.send({
     query: gql`
@@ -46,6 +46,7 @@ test('Create transaction', async () => {
           description: $description
           delta: $delta
         ) {
+          id
           response_time
         }
       }
@@ -56,6 +57,7 @@ test('Create transaction', async () => {
   expect(response.status).toBe(200);
   const json = (await response.json()) as MutationCreateTransactionResponse;
   expect(json.data.createTransaction).toMatchObject({
+    id: expect.any(String),
     response_time: expect.any(String),
   });
   expect(json).not.toMatchObject({
@@ -66,9 +68,9 @@ test('Create transaction', async () => {
   if (!account) throw new Error(`Account not found for userId ${seed.userId}`);
   expect(account.transactions.length).toBe(2); // Initial transaction when seeding with createUserAndAccount and the created one
   expect(account.transactions[0].balance.value).toBe(
-    seed.account.balance.value + dto.delta
+    seed.account.balance().value + dto.delta
   );
   expect(account.transactions[0].delta.value).toBe(dto.delta);
   expect(account.transactions[0].description.value).toBe(dto.description);
-  expect(account.balance.value).toBe(seed.account.balance.value + dto.delta);
+  expect(account.balance().value).toBe(seed.account.balance().value + dto.delta);
 });

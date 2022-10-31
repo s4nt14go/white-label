@@ -1,18 +1,21 @@
+process.env.distributeDomainEvents = 'dummy';
 import { Transfer } from './Transfer';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import {
   fakeTransaction,
   getAppSyncEvent as getEvent,
+  getRandom,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
+import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 
 const chance = new Chance();
 
 let accountRepo, transfer: Transfer;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  transfer = new Transfer(accountRepo, {}, fakeTransaction);
+  transfer = new Transfer(accountRepo, new DispatcherFake(), {}, fakeTransaction);
 });
 
 const context = {} as unknown as Context;
@@ -28,6 +31,10 @@ test('Transfer', async () => {
 
   expect(result).toMatchObject({
     time: expect.any(String),
+    result : {
+      fromTransaction: expect.any(String),
+      toTransaction: expect.any(String),
+    },
   });
   expect(result).not.toMatchObject({
     error: expect.anything(),
@@ -45,7 +52,7 @@ test.each([
     const badData = {
       fromUserId: chance.guid(),
       toUserId: chance.guid(),
-      quantity: chance.floating({ fixed: 2 }),
+      quantity: getRandom({}),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     delete badData[
@@ -70,7 +77,7 @@ test.each([
     const badData = {
       fromUserId: chance.guid(),
       toUserId: chance.guid(),
-      quantity: chance.floating({ fixed: 2 }),
+      quantity: getRandom({}),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     badData[field as 'fromUserId' | 'toUserId'] = 1 as unknown as string;
@@ -94,7 +101,7 @@ test.each([
     const badData = {
       fromUserId: UserId.GOOD,
       toUserId: UserId.GOOD2,
-      quantity: chance.floating({ fixed: 2 }),
+      quantity: getRandom({}),
       fromDescription: `Test: ${chance.sentence()}`,
     };
     badData[field as 'fromUserId' | 'toUserId'] = UserId.NO_TRANSACTIONS;

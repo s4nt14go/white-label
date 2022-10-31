@@ -1,3 +1,4 @@
+process.env.distributeDomainEvents = 'dummy';
 import { CreateUser } from './CreateUser';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';

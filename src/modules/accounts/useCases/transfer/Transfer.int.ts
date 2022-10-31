@@ -1,8 +1,9 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import {
+  deleteNotifications,
   getAppSyncEvent as getEvent,
-  invokeLambda,
+  invokeLambda, TransactionCreatedNotificationKeys,
 } from '../../../../shared/utils/test';
 import {
   deleteUsers,
@@ -15,12 +16,13 @@ import { Account } from '../../domain/Account';
 import { Transaction } from '../../domain/Transaction';
 import { Amount } from '../../domain/Amount';
 import { Description } from '../../domain/Description';
+import { NotificationTypes } from '../../../notification/domain/NotificationTypes';
 
 const chance = new Chance();
 
 // Add all process.env used:
-const { transfer } = process.env;
-if (!transfer) {
+const { transfer, NotificationsTable } = process.env;
+if (!transfer || !NotificationsTable) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
@@ -43,14 +45,13 @@ beforeAll(async () => {
   toSeed = await createUserAndAccount();
 });
 
+const notifications: TransactionCreatedNotificationKeys[] = [];
 afterAll(async () => {
-  await AccountRepo.deleteByUserId(fromSeed.userId);
-  await AccountRepo.deleteByUserId(toSeed.userId);
+  await deleteNotifications(notifications, NotificationsTable);
   await deleteUsers([{ id: fromSeed.userId }, { id: toSeed.userId }]);
 });
 
 test('transfer', async () => {
-  // Create first transaction
   const dto: Request = {
     fromUserId: fromSeed.userId,
     toUserId: toSeed.userId,
@@ -60,9 +61,6 @@ test('transfer', async () => {
   };
   const invoked = await invokeLambda(getEvent(dto), transfer);
 
-  expect(invoked).toMatchObject({
-    time: expect.any(String),
-  });
   expect(invoked).not.toMatchObject({
     error: expect.anything(),
   });
@@ -72,12 +70,12 @@ test('transfer', async () => {
     throw new Error(`fromAccount not found for userId ${fromSeed.userId}`);
   expect(fromAccount.transactions.length).toBe(3); // Initial transaction when seeding with createUserAndAccount, funding transaction and transfer
   expect(fromAccount.transactions[0].balance.value).toBe(
-    fromSeed.account.balance.value + fund - dto.quantity
+    fromSeed.account.balance().value + fund - dto.quantity
   );
   expect(fromAccount.transactions[0].delta.value).toBe(-dto.quantity);
   expect(fromAccount.transactions[0].description.value).toBe(dto.fromDescription);
-  expect(fromAccount.balance.value).toBe(
-    fromSeed.account.balance.value + fund - dto.quantity
+  expect(fromAccount.balance().value).toBe(
+    fromSeed.account.balance().value + fund - dto.quantity
   );
 
   const toAccount = await AccountRepo.getAccountByUserId(toSeed.userId);
@@ -85,11 +83,32 @@ test('transfer', async () => {
     throw new Error(`toAccount not found for userId ${toSeed.userId}`);
   expect(toAccount.transactions.length).toBe(2); // Initial transaction when seeding with createUserAndAccount and transfer
   expect(toAccount.transactions[0].balance.value).toBe(
-    toSeed.account.balance.value + dto.quantity
+    toSeed.account.balance().value + dto.quantity
   );
   expect(toAccount.transactions[0].delta.value).toBe(dto.quantity);
   expect(toAccount.transactions[0].description.value).toBe(dto.toDescription);
-  expect(toAccount.balance.value).toBe(
-    toSeed.account.balance.value + dto.quantity
+  expect(toAccount.balance().value).toBe(
+    toSeed.account.balance().value + dto.quantity
   );
+
+  expect(invoked).toMatchObject({
+    time: expect.any(String),
+    result : {
+      fromTransaction: fromAccount.transactions[0].id.toString(),
+      toTransaction: toAccount.transactions[0].id.toString(),
+    },
+  });
+
+  notifications.push({
+    type: NotificationTypes.TransactionCreated,
+    transaction: {
+      id: fromAccount.transactions[0].id.toString(),
+    },
+  });
+  notifications.push({
+    type: NotificationTypes.TransactionCreated,
+    transaction: {
+      id: toAccount.transactions[0].id.toString(),
+    },
+  });
 });

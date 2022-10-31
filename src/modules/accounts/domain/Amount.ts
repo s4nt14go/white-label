@@ -8,7 +8,16 @@ interface AmountProps {
   value: number;
 }
 
+enum Operation {
+  SUM = 'SUM',
+  SUBTRACT = 'SUBTRACT',
+}
+
 export class Amount extends ValueObject<AmountProps> {
+
+  // The operations add and subtract first multiply numbers by 100 to work with integers instead of decimals, and as it has no sense to allow a value we won't be able to add or subtract we set a maximum value for the creation:
+  public static MAX_ABS = 90071992547409 // JS Number.MAX_SAFE_INTEGER = 9007199254740991, Number.MIN_SAFE_INTEGER = -9007199254740991
+
   get value(): number {
     return this.props.value;
   }
@@ -31,13 +40,13 @@ export class Amount extends ValueObject<AmountProps> {
     if (combined.isFailure) return Result.fail(combined.error as BaseError);
 
     // Unsigned integer part
-    const integerPart = Math.trunc(Math.abs(props.value));
-    if (integerPart + 1 > Number.MAX_SAFE_INTEGER)
+    const integerAbsPart = Math.trunc(Math.abs(props.value));
+    if (integerAbsPart > Amount.MAX_ABS)
       return Result.fail(new AmountErrors.MaxBreached(props.value));
 
     //#region round unsigned integer part to 2 decimal precision number
     // using "const rounded = Math.round(props.value * 100) / 100;" fails rounding 10.075 into 10.07 instead of 10.08, so do this:
-    let rounded = integerPart;
+    let rounded = integerAbsPart;
 
     const decimalStr = props.value.toString().split('.')[1];
     if (decimalStr) {
@@ -65,20 +74,44 @@ export class Amount extends ValueObject<AmountProps> {
     return Result.ok<Amount>(new Amount({ value: rounded * sign }));
   }
 
-  public subtract(amount: Amount): Amount {
-    console.log('subtracting this.props.value', this.props.value);
+  private operation(amount: Amount, type: Operation): Result<Amount> {
+    console.log(`operation: ${type}`);
+    console.log('this.props.value', this.props.value);
     console.log('amount.value', amount.value);
-    const r = Amount.create({ value: this.props.value - amount.value }).value;
-    console.log('r.value', r.value);
-    return r;
+    const thisx100 = this.props.value*100;
+    const operandx100 = amount.value*100;
+    let resultx100;
+    switch (type) {
+      case Operation.SUM:
+        resultx100 = thisx100 + operandx100;
+        break;
+      case Operation.SUBTRACT:
+        resultx100 = thisx100 - operandx100;
+        break;
+      default:
+        throw Error(`Operation unknown: ${type}`);
+    }
+
+    const decimalPart = resultx100.toString().split('').slice(-2).join('');
+    const integerPart = resultx100.toString().split('').slice(0,-2).join('');
+    const value = Number(integerPart + '.' + decimalPart);
+
+    const resultOrError = Amount.create({ value });
+
+    if (resultOrError.isFailure)
+      return Result.fail(new AmountErrors.InvalidOperationResult(resultOrError.error as BaseError));
+
+    const result = resultOrError.value;
+    console.log('operation result', result);
+    return Result.ok(result);
   }
 
-  public add(amount: Amount): Amount {
-    console.log('adding this.props.value', this.props.value);
-    console.log('amount.value', amount.value);
-    const r = Amount.create({ value: this.props.value + amount.value }).value;
-    console.log('r.value', r.value);
-    return r;
+  public subtract(amount: Amount): Result<Amount> {
+    return this.operation(amount, Operation.SUBTRACT);
+  }
+
+  public add(amount: Amount): Result<Amount> {
+    return this.operation(amount, Operation.SUM);
   }
 
   public negate(): Amount {

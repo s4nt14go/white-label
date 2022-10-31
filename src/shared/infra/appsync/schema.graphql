@@ -30,6 +30,11 @@ type IdResponse {
   id: ID!
   response_time: AWSDateTime!
 }
+type TransferResponse {
+  fromTransaction: ID!
+  toTransaction: ID!
+  response_time: AWSDateTime!
+}
 
 type TransactionWithId {
   balance: Float!
@@ -45,28 +50,34 @@ input TransactionWithIdInput {
   description: String!
   id: ID!
 }
+enum NotificationTypes {
+  TransactionCreated
+}
+enum NotificationTargets {
+  FE
+}
 type TransactionCreatedNotification {
-  target: String!
-  type: String!
+  target: NotificationTargets!
+  type: NotificationTypes!
   accountId: ID!
   transaction: TransactionWithId!
 }
 input NotifyTransactionCreatedInput {
-  target: String!
-  type: String!
+  target: NotificationTargets!
+  type: NotificationTypes!
   accountId: ID!
   transaction: TransactionWithIdInput!
 }
 
 type Mutation {
-  createTransaction(userId: ID!, description: String!, delta: Float!): VoidResponse
+  createTransaction(userId: ID!, description: String!, delta: Float!): IdResponse
   transfer(
     fromUserId: ID!
     toUserId: ID!
     quantity: Float!
     fromDescription: String!
     toDescription: String
-  ): VoidResponse
+  ): TransferResponse
   createUser(
     email: AWSEmail!
     password: String!

@@ -1,12 +1,18 @@
 import { NotificationTypes } from '../../../modules/notification/domain/NotificationTypes';
 import { NotificationTargets } from '../../../modules/notification/domain/NotificationTargets';
 
-export type MutationCreateTransactionResponse = {
+export type MutationCreateUserResponse = {
   data: {
-    createTransaction: VoidResponse;
+    createUser: IdResponse;
   };
 };
-type VoidResponse = {
+export type MutationCreateTransactionResponse = {
+  data: {
+    createTransaction: IdResponse;
+  };
+};
+type IdResponse = {
+  id: string;
   responseTime: string;
 };
 
@@ -30,8 +36,13 @@ type Transaction = {
 
 export type MutationTransferResponse = {
   data: {
-    transfer: VoidResponse;
+    transfer: TransferResponse;
   };
+};
+type TransferResponse = {
+  fromTransaction: string;
+  toTransaction: string;
+  responseTime: string;
 };
 
 export type NotifyTransactionCreatedData = {

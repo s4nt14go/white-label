@@ -10,10 +10,9 @@ export class AccountMap {
     active: boolean;
     id: string;
   } {
-    const { balance, active } = account.props;
     return {
-      balance: balance.value,
-      active,
+      balance: account.balance().value,
+      active: account.props.active,
       id: account.id.toString(),
     };
   }

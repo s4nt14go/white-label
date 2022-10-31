@@ -30,6 +30,12 @@ export namespace AccountErrors {
     }
   }
 
+  export class InvalidTransfer extends BaseError {
+    public constructor(error: BaseError) {
+      super(`Invalid transfer: ${error.message} [${error.type}]`);
+    }
+  }
+
   export class NotActive extends BaseError {
     public constructor() {
       super(`Account isn't active`);

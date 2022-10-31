@@ -55,6 +55,7 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public createTransaction(transaction: Transaction, accountId: string): void {
+    if (transaction.description.value === 'THROW_WHEN_SAVE') throw Error();
     return;
   }
 

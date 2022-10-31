@@ -1,3 +1,4 @@
+process.env.distributeDomainEvents = 'dummy';
 import { CreateTransaction } from './CreateTransaction';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
@@ -32,6 +33,9 @@ it('creates a transaction', async () => {
   const result = await createTransaction.execute(getEvent(validData), context);
 
   expect(result).toMatchObject({
+    result: {
+      id: expect.any(String),
+    },
     time: expect.any(String),
   });
   expect(result).not.toMatchObject({

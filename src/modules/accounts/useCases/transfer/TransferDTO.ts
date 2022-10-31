@@ -6,4 +6,7 @@ export interface Request {
   toDescription?: string;
 }
 
-export type Response = void;
+export type Response = {
+  fromTransaction: string;
+  toTransaction: string;
+}

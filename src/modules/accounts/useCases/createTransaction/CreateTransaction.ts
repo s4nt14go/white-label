@@ -90,13 +90,12 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
         ),
       };
 
+    const transaction = transactionOrError.value;
     await this.accountRepo.createTransaction(
-      transactionOrError.value,
+      transaction,
       account.id.toString()
     );
 
-    return {
-      status: CREATED,
-    };
+    return { status: CREATED, result: { id: transaction.id.toString() } };
   }
 }

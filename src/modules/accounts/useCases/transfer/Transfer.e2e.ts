@@ -37,8 +37,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await AccountRepo.deleteByUserId(fromSeed.userId);
-  await AccountRepo.deleteByUserId(toSeed.userId);
   await deleteUsers([{ id: fromSeed.userId }, { id: toSeed.userId }]);
 });
 
@@ -66,6 +64,8 @@ test('Transfer', async () => {
           toUserId: $toUserId
           toDescription: $toDescription
         ) {
+          fromTransaction
+          toTransaction
           response_time
         }
       }
@@ -76,6 +76,8 @@ test('Transfer', async () => {
   expect(response.status).toBe(200);
   const json = (await response.json()) as MutationTransferResponse;
   expect(json.data.transfer).toMatchObject({
+    fromTransaction: expect.any(String),
+    toTransaction: expect.any(String),
     response_time: expect.any(String),
   });
   expect(json).not.toMatchObject({

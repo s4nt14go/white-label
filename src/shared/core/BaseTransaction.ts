@@ -31,10 +31,11 @@ export abstract class BaseTransaction<Request, ExeResponse> {
       case SUCCESS:
         return;
       case RETRY:
-        return this.dispatcher.dispatch(
+        await this.dispatcher.dispatch(
           this.event as never,
           this.context.functionName
         );
+        return;
       case ERROR:
       case EXHAUSTED:
       default:

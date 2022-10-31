@@ -25,7 +25,7 @@ test('Create account', () => {
   expect(result.isSuccess).toBe(true);
   const account = result.value;
   expect(account.active).toBe(active);
-  expect(account.balance.value).toBe(200);
+  expect(account.balance().value).toBe(200);
   expect(account.transactions[0].balance.value).toBe(200);
   expect(account.transactions[0].delta.value).toBe(100);
 });
@@ -49,9 +49,9 @@ describe('createTransaction', () => {
     const text = `Test: ${chance.sentence()}`;
     const description = Description.create({ value: text }).value;
     const transactionOrError = account.createTransaction(delta, description);
-    const transactionCreated = transactionOrError.value;
 
     expect(transactionOrError.isSuccess).toBe(true);
+    const transactionCreated = transactionOrError.value;
     expect(transactionCreated.balance.value).toBe(200 + quantity);
     expect(transactionCreated.description.value).toBe(text);
     expect(transactionCreated.delta.value).toBe(quantity);
@@ -254,5 +254,37 @@ describe('transferTo', () => {
     if (!(error instanceof BaseError))
       throw Error(`Transaction didn't error when should`);
     expect(error.type).toBe('AccountErrors.ToAccountNotActive');
+  });
+
+  it('fails when max is breached', () => {
+    const balanceToTransfer = Amount.create({ value: Amount.MAX_ABS }).value;
+    // Create accounts
+    const seedFromAccount = Transaction.create({
+      balance: balanceToTransfer,
+      delta: Amount.create({ value: 100 }).value,
+      date: new Date(),
+      description: Description.create({ value: 'Test: Seed transaction' }).value,
+    }).value;
+    const fromAccount = Account.create({
+      active: true,
+      transactions: [seedFromAccount],
+    }).value;
+    const toAccount = Account.Initial();
+    toAccount.createTransaction(Amount.create({value: 1}).value, Description.create({value: 'Test'}).value)
+
+    const fromDescription = Description.create({ value: 'Test' }).value;
+    const txsOrError = fromAccount.transferTo(
+      toAccount,
+      balanceToTransfer,
+      fromDescription,
+      fromDescription
+    );
+    const { error } = txsOrError;
+
+    expect(txsOrError.isFailure).toBe(true);
+    if (!(error instanceof BaseError))
+      throw Error(`Transfer didn't error when should`);
+    expect(error.type).toBe('AccountErrors.InvalidTransfer');
+    expect(error.message).toContain('AmountErrors.MaxBreached');
   });
 });
