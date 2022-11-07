@@ -30,33 +30,38 @@ export async function MyStack({ stack, app }: StackContext) {
     COCKROACH_cluster: cluster,
   };
 
+  const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
+    handler: 'shared/infra/dispatchEvents/DistributeDomainEvents.handler',
+  });
+  allowAutoInvoke(distributeDomainEvents);
+
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
   });
   allowAutoInvoke(notifySlackChannel);
+  notifySlackChannel.grantInvoke(distributeDomainEvents);
+  distributeDomainEvents.addEnvironment(
+    'notifySlackChannel',
+    notifySlackChannel.functionName
+  );
+
   const someWork = new Function(stack, 'someWork', {
     handler: 'modules/users/useCases/someWork/index.handler',
   });
   allowAutoInvoke(someWork);
+  someWork.grantInvoke(distributeDomainEvents);
+  distributeDomainEvents.addEnvironment('someWork', someWork.functionName);
 
   const createAccount = new Function(stack, 'createAccount', {
     handler: 'modules/accounts/useCases/createAccount/index.handler',
     environment: dbCreds,
   });
   allowAutoInvoke(createAccount);
-
-  const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
-    handler: 'shared/infra/dispatchEvents/DistributeDomainEvents.handler',
-    environment: {
-      notifySlackChannel: notifySlackChannel.functionName,
-      someWork: someWork.functionName,
-      createAccount: createAccount.functionName,
-    },
-  });
-  allowAutoInvoke(distributeDomainEvents);
-  notifySlackChannel.grantInvoke(distributeDomainEvents);
-  someWork.grantInvoke(distributeDomainEvents);
   createAccount.grantInvoke(distributeDomainEvents);
+  distributeDomainEvents.addEnvironment(
+    'createAccount',
+    createAccount.functionName
+  );
 
   const createUser = new Function(stack, 'createUser', {
     handler: 'modules/users/useCases/createUser/index.handler',
@@ -176,11 +181,15 @@ export async function MyStack({ stack, app }: StackContext) {
     },
   });
 
+  if (!api.cdk.graphqlApi.apiKey) {
+    console.log('api.cdk', api.cdk);
+    throw Error(`apiKey undefined`);
+  }
+
   const notifyFE = new Function(stack, 'notifyFE', {
     handler: 'modules/notification/useCases/notifyFE/index.handler',
     environment: {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      appsyncKey: api.cdk.graphqlApi.apiKey!,
+      appsyncKey: api.cdk.graphqlApi.apiKey,
       appsyncUrl: api.url,
     },
   });
@@ -188,10 +197,50 @@ export async function MyStack({ stack, app }: StackContext) {
   distributeDomainEvents.addEnvironment('notifyFE', notifyFE.functionName);
   notifyFE.grantInvoke(distributeDomainEvents);
 
+  const storageTable = new Table(stack, 'Storage', {
+    fields: {
+      // Keys
+      type: 'string', // UserCreatedEventStored | TransactionCreatedEventStored
+      aggregateId: 'string', // User.id | Account.id
+      typeAggregateId: 'string', // <type>#<aggregateId>
+      dateTimeOccurred: 'string',
+
+      // UserCreatedEventStored
+      username: 'string',
+      email: 'string',
+      // TransactionCreatedEventStored
+      id: 'string', // Transaction.id
+      balance: 'number',
+      delta: 'number',
+      date: 'string',
+      description: 'string',
+
+      version: 'number',
+    },
+    primaryIndex: { partitionKey: 'typeAggregateId', sortKey: 'dateTimeOccurred' },
+    globalIndexes: {
+      byDate: { partitionKey: 'type', sortKey: 'dateTimeOccurred' },
+      byAggregateId: { partitionKey: 'type', sortKey: 'aggregateId' },
+    },
+  });
+  const storeEvent = new Function(stack, 'storeEvent', {
+    handler: 'modules/audit/useCases/storeEvent/index.handler',
+    environment: {
+      StorageTable: storageTable.tableName,
+    },
+  });
+  allowAutoInvoke(storeEvent);
+  distributeDomainEvents.addEnvironment('storeEvent', storeEvent.functionName);
+  storeEvent.grantInvoke(distributeDomainEvents);
+  storeEvent.addToRolePolicy(new iam.PolicyStatement({
+    effect: iam.Effect.ALLOW,
+    resources: [storageTable.tableArn],
+    actions: ['dynamodb:PutItem'],
+  }));
+
   stack.addOutputs({
     appsyncId: api.apiId,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    appsyncKey: api.cdk.graphqlApi.apiKey!,
+    appsyncKey: api.cdk.graphqlApi.apiKey,
     appsyncUrl: api.url,
   });
 

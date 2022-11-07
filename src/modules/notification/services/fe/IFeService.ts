@@ -1,5 +1,8 @@
-import { NotifyTransactionCreatedData } from '../../../../shared/infra/appsync/schema.graphql';
+import { TransactionDTO } from '../../../accounts/domain/events/TransactionCreatedEvent';
 
 export interface IFeService {
-  transactionCreated(data: NotifyTransactionCreatedData): void;
+  transactionCreated(data: {
+    accountId: string;
+    transaction: TransactionDTO;
+  }): void;
 }

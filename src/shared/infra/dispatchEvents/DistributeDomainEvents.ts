@@ -1,20 +1,19 @@
-import '../../../../environment';
 import { DispatcherLambda } from './DispatcherLambda';
 import { IDispatcher } from '../../domain/events/DomainEvents';
 import { DomainEventBase } from '../../domain/events/DomainEventBase';
 import { DomainEventTypes } from '../../domain/events/DomainEventTypes';
 
 // Add all process.env used:
-const { notifySlackChannel, someWork, createAccount, notifyFE } = process.env;
-if (!notifySlackChannel || !someWork || !createAccount || !notifyFE) {
+const { notifySlackChannel, someWork, createAccount, notifyFE, storeEvent } = process.env;
+if (!notifySlackChannel || !someWork || !createAccount || !notifyFE || !storeEvent) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
 const { UserCreatedEvent, TransactionCreatedEvent } = DomainEventTypes;
 
 const subscribers = {
-  [UserCreatedEvent]: [notifySlackChannel, someWork, createAccount],
-  [TransactionCreatedEvent]: [notifyFE],
+  [UserCreatedEvent]: [storeEvent, notifySlackChannel, someWork, createAccount],
+  [TransactionCreatedEvent]: [storeEvent, notifyFE],
 };
 
 class DistributeDomainEvents {

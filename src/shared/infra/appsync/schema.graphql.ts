@@ -61,4 +61,4 @@ export type TransactionCreatedNotification = {
   target: NotificationTargets;
   accountId: string;
   transaction: TransactionWithId;
-}
+};

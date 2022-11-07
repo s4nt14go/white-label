@@ -2,6 +2,7 @@ import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncContr
 import { Request, Response } from './TransferDTO';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { TransferErrors } from './TransferErrors';
+import { AccountService } from '../../services/AccountService';
 import { Amount } from '../../domain/Amount';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
@@ -133,12 +134,13 @@ export class Transfer extends AppSyncController<Request, Response> {
         result: new TransferErrors.ToAccountNotFound(toUserId),
       };
 
-    const transferOrError = fromAccount.transferTo(
-      toAccount,
+    const transferOrError = new AccountService().transfer({
       delta,
+      fromAccount,
       fromDescription,
-      toDescription
-    );
+      toAccount,
+      toDescription,
+    });
     if (transferOrError.isFailure)
       return {
         status: BAD_REQUEST,

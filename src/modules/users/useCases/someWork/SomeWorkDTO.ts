@@ -1,4 +1,6 @@
-import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
+import {
+  UserCreatedEventDTO,
+} from '../../domain/events/UserCreatedEvent';
 
-export type Request = UserCreatedEvent;
+export type Request = UserCreatedEventDTO;
 export type Response = void;

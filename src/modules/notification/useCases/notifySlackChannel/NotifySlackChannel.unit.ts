@@ -1,6 +1,8 @@
 import { SlackService } from '../../services/slack';
 import { NotifySlackChannel } from './NotifySlackChannel';
-import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
+import {
+  UserCreatedEvent,
+} from '../../../users/domain/events/UserCreatedEvent';
 import { createUser } from '../../../../shared/utils/test';
 
 test('Slack service is called when notifying on a channel', async () => {
@@ -13,7 +15,7 @@ test('Slack service is called when notifying on a channel', async () => {
     email: 'test@email.com',
     username: 'test_user',
   });
-  const event = new UserCreatedEvent(userOrError);
+  const event = new UserCreatedEvent(userOrError).toDTO();
 
   await notifySlackChannelUseCase.execute(event);
 

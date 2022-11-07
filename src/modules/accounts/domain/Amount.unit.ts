@@ -115,3 +115,12 @@ test('0 - -10.98 = 10.98', () => {
 
   expect(r).toBe(10.98);
 });
+
+test('82102892877577.4 - 42297692960849.49 = 39805199916727.91', () => {
+  const v1 = Amount.create({ value: 82102892877577.4 }).value;
+  const v2 = Amount.create({ value: 42297692960849.49 }).value;
+
+  const r = v1.subtract(v2).value.value;
+
+  expect(r).toBe(39805199916727.91);
+});

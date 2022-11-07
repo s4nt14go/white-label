@@ -12,7 +12,7 @@ switch (TEST_MODE) {
     break;
   case 'e2e':
     options.testRegex = '\\.e2e' + testRegex;
-    options.testTimeout = 15000;
+    options.testTimeout = 20000;
     break;
 
   default:

@@ -3,6 +3,7 @@ dotenv.config();
 import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { Transfer } from './Transfer';
+import { Response } from './TransferDTO';
 import {
   fakeTransaction,
   getAppSyncEvent as getEvent,
@@ -16,7 +17,6 @@ import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { DomainEventBase } from '../../../../shared/domain/events/DomainEventBase';
 import { Context } from 'aws-lambda';
 import { Envelope } from '../../../../shared/core/Envelope';
-import { Created } from '../../../../shared/core/Created';
 import { Account } from '../../domain/Account';
 import { Request } from './TransferDTO';
 import { Transaction } from '../../domain/Transaction';
@@ -82,18 +82,24 @@ test('Domain event dispatcher calls distributeDomainEvents with the 2 transactio
   const response = (await transfer.execute(
     getEvent(dto),
     context
-  )) as Envelope<Created>;
+  )) as Envelope<Response>;
 
   expect(response).not.toMatchObject({
     errorMessage: expect.anything(),
     errorType: expect.anything(),
   });
 
+  if (!response.result) {
+    console.log('response', response);
+    throw Error(`No result received`);
+  }
+
+  let accountId = fromSeed.account.id.toString();
   const intakeFrom = {
-    aggregateId: expect.any(String),
+    aggregateId: accountId,
     dateTimeOccurred: expect.any(Date),
     transaction: {
-      id: expect.any(String),
+      id: response.result.fromTransaction,
       balance: fromSeed.account.balance().value + fund - dto.quantity,
       delta: -dto.quantity,
       date: expect.any(Date),
@@ -107,10 +113,13 @@ test('Domain event dispatcher calls distributeDomainEvents with the 2 transactio
     dispatcherIntakeFrom,
     distributeDomainEvents
   );
+
+  accountId = toSeed.account.id.toString();
   const dispatcherIntakeTo = expect.objectContaining({
     ...intakeFrom,
+    aggregateId: accountId,
     transaction: {
-      id: expect.any(String),
+      id: response.result.toTransaction,
       balance: toSeed.account.balance().value + dto.quantity,
       delta: dto.quantity,
       date: expect.any(Date),

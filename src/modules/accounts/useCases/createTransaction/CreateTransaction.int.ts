@@ -1,12 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
+import retry from 'async-retry';
 import {
-  addDecimals,
-  deleteNotifications,
+  addDecimals, deleteItems,
+  getByPart,
   getAppSyncEvent as getEvent,
   getRandom,
   invokeLambda,
-  TransactionCreatedNotificationKeys,
+  retryDefault,
 } from '../../../../shared/utils/test';
 import {
   deleteUsers,
@@ -22,8 +23,8 @@ import { Amount } from '../../domain/Amount';
 const chance = new Chance();
 
 // Add all process.env used:
-const { createTransaction, NotificationsTable } = process.env;
-if (!createTransaction || !NotificationsTable) {
+const { createTransaction, NotificationsTable, StorageTable } = process.env;
+if (!createTransaction || !NotificationsTable || !StorageTable) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
@@ -33,10 +34,21 @@ beforeAll(async () => {
   seed = await createUserAndAccount();
 });
 
-const notifications: TransactionCreatedNotificationKeys[] = [];
+const notifications: {
+  type: NotificationTypes,
+  id: string,
+}[] = [];
+let auditEvents: Record<string, unknown>[];
 afterAll(async () => {
-  await deleteNotifications(notifications, NotificationsTable);
   await deleteUsers([{ id: seed.userId }]);
+  await deleteItems(auditEvents.map(event => {
+    const { typeAggregateId, dateTimeOccurred } = event;
+    return {
+      typeAggregateId,
+      dateTimeOccurred,
+    };
+  }), StorageTable);
+  await deleteItems(notifications, NotificationsTable);
 });
 
 test('Create transactions', async () => {
@@ -60,9 +72,7 @@ test('Create transactions', async () => {
   });
   notifications.push({
     type: NotificationTypes.TransactionCreated,
-    transaction: {
       id: invoked.result.id,
-    },
   });
 
   // Create second transaction
@@ -85,9 +95,7 @@ test('Create transactions', async () => {
   });
   notifications.push({
     type: NotificationTypes.TransactionCreated,
-    transaction: {
       id: invoked.result.id,
-    },
   });
 
   const account = await AccountRepo.getAccountByUserId(seed.userId);
@@ -120,4 +128,25 @@ test('Create transactions', async () => {
   expect(account.transactions[0].delta.value).toBe(dto2.delta);
   expect(account.transactions[0].description.value).toBe(dto2.description);
   expect(account.balance().value).toBe(expected);
+  // Side effects in audit module
+  const partValue = `TransactionCreatedEvent#${account.id.toString()}`;
+  await retry(
+    async () => {
+      const got = await getByPart('typeAggregateId', partValue, StorageTable);
+      if (!got) throw Error(`No audit events found for ${partValue}`);
+      auditEvents = got;
+      expect(auditEvents).toHaveLength(2);
+      expect(auditEvents).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            typeAggregateId: partValue,
+            id: account.transactions[1].id.toString(),
+          }),
+          expect.objectContaining({
+            typeAggregateId: partValue,
+            id: account.transactions[0].id.toString(),
+          }),
+        ])
+      );
+    }, retryDefault);
 });

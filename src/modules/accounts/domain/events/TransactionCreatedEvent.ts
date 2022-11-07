@@ -1,5 +1,19 @@
 import { Transaction } from '../Transaction';
-import { DomainEventBase } from '../../../../shared/domain/events/DomainEventBase';
+import {
+  DomainEventBase,
+  DomainEventBaseDTO,
+} from '../../../../shared/domain/events/DomainEventBase';
+
+export type TransactionDTO = {
+  id: string;
+  balance: number;
+  delta: number;
+  date: string;
+  description: string;
+}
+export type TransactionCreatedEventDTO = DomainEventBaseDTO & {
+  transaction: TransactionDTO
+}
 
 export class TransactionCreatedEvent extends DomainEventBase {
   public transaction;
@@ -13,5 +27,16 @@ export class TransactionCreatedEvent extends DomainEventBase {
       date: transaction.date,
       description: transaction.description.value,
     };
+  }
+
+  public toDTO(): TransactionCreatedEventDTO {
+    return {
+      ...DomainEventBase.baseProps(this),
+      dateTimeOccurred: this.dateTimeOccurred.toString(),
+      transaction: {
+        ...this.transaction,
+        date: this.transaction.date.toJSON(),
+      },
+    }
   }
 }

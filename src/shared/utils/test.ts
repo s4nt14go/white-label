@@ -24,7 +24,6 @@ import fs from 'fs';
 import velocityTemplate from 'amplify-velocity-template';
 import * as velocityMapper from 'amplify-appsync-simulator/lib/velocity/value-mapper/mapper';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import { NotificationTypes } from '../../modules/notification/domain/NotificationTypes';
 
 const DocumentClient = new DynamoDB.DocumentClient();
 
@@ -154,40 +153,39 @@ export function seedAccount(active = true) {
   }).value;
 }
 
-export type TransactionCreatedNotificationKeys = {
-  type: NotificationTypes;
-  transaction: {
-    id: string;
-  };
+export function getRandom({ min = -Amount.MAX_ABS, max = Amount.MAX_ABS }) {
+  return chance.floating({ min, fixed: 2, max });
+}
+
+export const getByPart = async (
+  partName: string,
+  partValue: string,
+  TableName: string
+) => {
+  const res = await DocumentClient.query({
+    TableName,
+    KeyConditionExpression: `${partName} = :pk`,
+    ExpressionAttributeValues: {
+      ':pk': partValue,
+    },
+  }).promise();
+  return res.Items;
 };
-export const deleteNotifications = async (
-  notifications: TransactionCreatedNotificationKeys[],
+export const deleteItems = async (
+  Keys: Record<string, unknown>[],
   TableName: string
 ) => {
   return Promise.all(
-    notifications.map(async (n) => {
-      await deleteNotification(n, TableName);
+    Keys.map(async (Key) => {
+      await DocumentClient.delete({
+        TableName,
+        Key,
+      }).promise();
     })
   );
 };
 
-export const deleteNotification = async (
-  notificationKeys: TransactionCreatedNotificationKeys,
-  TableName: string
-) => {
-  console.log('Deleting notification', {
-    type: notificationKeys.type,
-    id: notificationKeys.transaction.id,
-  });
-  await DocumentClient.delete({
-    TableName,
-    Key: {
-      type: notificationKeys.type,
-      id: notificationKeys.transaction.id,
-    },
-  }).promise();
+export const retryDefault = {
+  retries: 10,
+  maxTimeout: 1000,
 };
-
-export function getRandom({min = -Amount.MAX_ABS, max = Amount.MAX_ABS}) {
-  return chance.floating({ min, fixed: 2, max });
-}

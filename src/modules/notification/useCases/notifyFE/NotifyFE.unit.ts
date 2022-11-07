@@ -30,7 +30,7 @@ test('Notification to FE', async () => {
     date,
     description: Description.create({ value: description }).value,
   }).value;
-  const event = new TransactionCreatedEvent(accountId, transaction);
+  const event = new TransactionCreatedEvent(accountId, transaction).toDTO();
 
   await useCase.execute(event);
 
@@ -51,7 +51,7 @@ test('Notification to FE', async () => {
           id: expect.any(String),
           balance,
           delta,
-          date,
+          date: expect.any(String),
           description,
         }),
       },

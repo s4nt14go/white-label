@@ -3,7 +3,7 @@ dotenv.config();
 import gql from 'graphql-tag';
 import { AppSyncClient } from '../AppSyncClient';
 import Chance from 'chance';
-import { deleteNotification } from '../../../utils/test';
+import { deleteItems } from '../../../utils/test';
 import { NotificationTypes } from '../../../../modules/notification/domain/NotificationTypes';
 
 const appsync = new AppSyncClient();
@@ -15,6 +15,14 @@ if (!NotificationsTable) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
+
+let notification: {
+  type: NotificationTypes;
+  id: string;
+};
+afterAll(async () => {
+  await deleteItems([notification], NotificationsTable);
+});
 
 test('error should show error type and message', async () => {
   const id = chance.guid();
@@ -53,7 +61,9 @@ test('error should show error type and message', async () => {
           }
         }
       ) {
-        __typename
+        transaction {
+          id
+        }
       }
     }
   `;
@@ -68,10 +78,17 @@ test('error should show error type and message', async () => {
   expect(json).toStrictEqual({
     data: {
       notifyTransactionCreated: {
-        __typename: 'TransactionCreatedNotification',
+        transaction: {
+          id,
+        },
       },
     },
   });
+
+  notification = {
+    type: NotificationTypes.TransactionCreated,
+    id,
+  };
 
   const secondResponse = await appsync.send({
     query,
@@ -92,14 +109,4 @@ test('error should show error type and message', async () => {
       },
     ],
   });
-
-  await deleteNotification(
-    {
-      type: NotificationTypes.TransactionCreated,
-      transaction: {
-        id,
-      },
-    },
-    NotificationsTable
-  );
 });

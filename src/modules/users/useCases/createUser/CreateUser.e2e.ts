@@ -1,6 +1,10 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { getNewUserDto } from '../../../../shared/utils/test';
+import {
+  deleteItems,
+  getByPart,
+  getNewUserDto,
+} from '../../../../shared/utils/test';
 import {
   CreatedUser,
   deleteUsers,
@@ -12,11 +16,24 @@ import {
   MutationCreateUserResponse,
 } from '../../../../shared/infra/appsync/schema.graphql';
 
+// Add all process.env used:
+const { StorageTable } = process.env;
+if (!StorageTable) {
+  console.log('process.env', process.env);
+  throw new Error(`Undefined env var!`);
+}
+
 const appsync = new AppSyncClient();
 
 const createdUsers: CreatedUser[] = [];
+let auditEvent: Record<string, unknown>;
 afterAll(async () => {
   await deleteUsers(createdUsers);
+
+  await deleteItems([{
+    typeAggregateId: auditEvent.typeAggregateId,
+    dateTimeOccurred: auditEvent.dateTimeOccurred,
+  }], StorageTable);
 });
 
 test('User creation', async () => {
@@ -56,5 +73,12 @@ test('User creation', async () => {
   expect(user.username.value).toEqual(newUser.username);
   expect(user.email.value).toEqual(newUser.email);
   expect(user.alias.value).toEqual(newUser.alias);
-  createdUsers.push({ id: user.id.toString() });
+  const id = user.id.toString();
+  createdUsers.push({ id });
+
+  const partValue = `UserCreatedEvent#${id}`;
+  const items = await getByPart('typeAggregateId', partValue, StorageTable);
+  if (!items) throw Error(`No audit events found for ${partValue}`);
+  expect(items).toHaveLength(1);
+  auditEvent = items[0];
 });

@@ -78,8 +78,8 @@ export class Amount extends ValueObject<AmountProps> {
     console.log(`operation: ${type}`);
     console.log('this.props.value', this.props.value);
     console.log('amount.value', amount.value);
-    const thisx100 = this.props.value*100;
-    const operandx100 = amount.value*100;
+    const thisx100 = Amount.multiplyBy100(this.props.value);
+    const operandx100 = Amount.multiplyBy100(amount.value);
     let resultx100;
     switch (type) {
       case Operation.SUM:
@@ -92,11 +92,7 @@ export class Amount extends ValueObject<AmountProps> {
         throw Error(`Operation unknown: ${type}`);
     }
 
-    const decimalPart = resultx100.toString().split('').slice(-2).join('');
-    const integerPart = resultx100.toString().split('').slice(0,-2).join('');
-    const value = Number(integerPart + '.' + decimalPart);
-
-    const resultOrError = Amount.create({ value });
+    const resultOrError = Amount.create({ value: Amount.divideBy100(resultx100) });
 
     if (resultOrError.isFailure)
       return Result.fail(new AmountErrors.InvalidOperationResult(resultOrError.error as BaseError));
@@ -116,5 +112,27 @@ export class Amount extends ValueObject<AmountProps> {
 
   public negate(): Amount {
     return Amount.create({ value: -this.props.value }).value;
+  }
+
+  private static multiplyBy100(value: number): number {
+    const arrayStr = value.toString().split('');
+    let integerPart, decimalPart;
+    const dotIndex = arrayStr.indexOf('.');
+    if (dotIndex === -1) {
+      integerPart = value;
+      decimalPart = '00';
+    } else {
+      decimalPart = arrayStr.slice(dotIndex + 1).join('');
+      decimalPart = decimalPart.padEnd(2, '0');
+      integerPart = arrayStr.slice(0,dotIndex).join('');
+    }
+    return Number(integerPart + decimalPart);
+  }
+  private static divideBy100(value: number): number {
+    const arrayStr = value.toString().split('');
+    if (arrayStr.includes('.')) throw Error(`divideBy100 only handles integer numbers`);
+    const decimalPart = arrayStr.slice(-2).join('');
+    const integerPart = arrayStr.slice(0,-2).join('');
+    return Number(integerPart + '.' + decimalPart);
   }
 }

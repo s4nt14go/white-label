@@ -15,9 +15,10 @@ import { Account } from '../../../accounts/domain/Account';
 import { Request } from '../../../accounts/useCases/createTransaction/CreateTransactionDTO';
 import {
   addDecimals,
-  deleteNotifications,
+  deleteItems,
+  getByPart,
   getRandom,
-  TransactionCreatedNotificationKeys,
+  retryDefault,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
@@ -28,15 +29,23 @@ const appsync = new AppSyncClient();
 const chance = new Chance();
 
 // Add all process.env used:
-const { appsyncUrl, appsyncKey, AWS_REGION, NotificationsTable } = process.env;
-if (!appsyncUrl || !appsyncKey || !AWS_REGION || !NotificationsTable) {
+const { appsyncUrl, appsyncKey, AWS_REGION, NotificationsTable, StorageTable } =
+  process.env;
+if (
+  !appsyncUrl ||
+  !appsyncKey ||
+  !AWS_REGION ||
+  !NotificationsTable ||
+  !StorageTable
+) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
 
 let seed: { userId: string; account: Account };
 let client, subscription: ZenObservable.Subscription;
-const notifications: TransactionCreatedNotificationKeys[] = [];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const notifications: Record<string, any>[] = [];
 beforeAll(async () => {
   seed = await createUserAndAccount();
 
@@ -79,10 +88,29 @@ beforeAll(async () => {
   await new Promise((resolve) => setTimeout(resolve, 3000)); // Give some time to the subscription
 });
 
+let auditEvents: Record<string, unknown>[];
+let transactionId: number;
 afterAll(async () => {
   await deleteUsers([{ id: seed.userId }]);
-  await deleteNotifications(notifications, NotificationsTable);
-
+  await deleteItems(
+    [
+      {
+        type: NotificationTypes.TransactionCreated,
+        id: transactionId,
+      },
+    ],
+    NotificationsTable
+  );
+  await deleteItems(
+    auditEvents.map((event) => {
+      const { typeAggregateId, dateTimeOccurred } = event;
+      return {
+        typeAggregateId,
+        dateTimeOccurred,
+      };
+    }),
+    StorageTable
+  );
   subscription.unsubscribe();
 });
 
@@ -100,7 +128,7 @@ test('Create transaction', async () => {
           description: $description
           delta: $delta
         ) {
-          response_time
+          __typename
         }
       }
     `,
@@ -109,32 +137,35 @@ test('Create transaction', async () => {
 
   expect(response.status).toBe(200);
 
-  await retry(
-    async () => {
-      if (notifications.length) {
-        console.log(`Notifications collected:`, notifications);
-        console.log(`...when dto is:`, dto);
-      }
-      expect(notifications).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            accountId: seed.account.id.toString(),
-            target: NotificationTargets.FE,
-            type: NotificationTypes.TransactionCreated,
-            transaction: expect.objectContaining({
-              balance: addDecimals(seed.account.balance().value, dto.delta),
-              delta: dto.delta,
-              date: expect.any(String),
-              description: dto.description,
-              id: expect.any(String),
-            }),
-          }),
-        ])
-      );
-    },
-    {
-      retries: 10,
-      maxTimeout: 1000,
+  await retry(async () => {
+    if (notifications.length) {
+      console.log(`Notifications collected:`, notifications);
+      console.log(`...when dto is:`, dto);
     }
-  );
+    const accountId = seed.account.id.toString();
+    expect(notifications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          accountId,
+          target: NotificationTargets.FE,
+          type: NotificationTypes.TransactionCreated,
+          transaction: expect.objectContaining({
+            balance: addDecimals(seed.account.balance().value, dto.delta),
+            delta: dto.delta,
+            date: expect.any(String),
+            description: dto.description,
+            id: expect.any(String),
+          }),
+        }),
+      ])
+    );
+
+    transactionId = notifications.filter(n => n.accountId === accountId)[0].transaction.id;
+
+    const partValue = `TransactionCreatedEvent#${accountId}`;
+    const got = await getByPart('typeAggregateId', partValue, StorageTable);
+    if (!got) throw Error(`No audit events found for ${partValue}`);
+    auditEvents = got;
+    expect(auditEvents).toHaveLength(1);
+  }, retryDefault);
 });

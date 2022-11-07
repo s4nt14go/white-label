@@ -86,11 +86,10 @@ type Mutation {
   ): IdResponse
   notifyTransactionCreated(
     data: NotifyTransactionCreatedInput!
-  ): TransactionCreatedNotification!
-  @aws_iam
+  ): TransactionCreatedNotification! @aws_iam
 }
 
 type Subscription {
   onNotifyTransactionCreated: TransactionCreatedNotification
-  @aws_subscribe(mutations: ["notifyTransactionCreated"])
+    @aws_subscribe(mutations: ["notifyTransactionCreated"])
 }

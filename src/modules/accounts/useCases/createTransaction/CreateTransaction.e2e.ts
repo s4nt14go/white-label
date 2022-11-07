@@ -11,14 +11,21 @@ import { MutationCreateTransactionResponse } from '../../../../shared/infra/apps
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import gql from 'graphql-tag';
-import { getRandom } from '../../../../shared/utils/test';
+import {
+  deleteItems,
+  getByPart,
+  getRandom,
+  retryDefault,
+} from '../../../../shared/utils/test';
+import { NotificationTypes } from '../../../notification/domain/NotificationTypes';
+import retry from 'async-retry';
 
 const appsync = new AppSyncClient();
 const chance = new Chance();
 
 // Add all process.env used:
-const { appsyncUrl, appsyncKey } = process.env;
-if (!appsyncUrl || !appsyncKey) {
+const { StorageTable, NotificationsTable } = process.env;
+if (!StorageTable || !NotificationsTable) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
@@ -28,15 +35,30 @@ beforeAll(async () => {
   seed = await createUserAndAccount();
 });
 
+let auditEvent: Record<string, unknown>;
+const notifications: {
+  type: NotificationTypes;
+  id: string;
+}[] = [];
 afterAll(async () => {
   await deleteUsers([{ id: seed.userId }]);
+  await deleteItems(notifications, NotificationsTable);
+  await deleteItems(
+    [
+      {
+        typeAggregateId: auditEvent.typeAggregateId,
+        dateTimeOccurred: auditEvent.dateTimeOccurred,
+      },
+    ],
+    StorageTable
+  );
 });
 
 test('Create transaction', async () => {
   const dto: Request = {
     userId: seed.userId,
     description: `Test: ${chance.sentence()}`,
-    delta: getRandom({min: 0}),
+    delta: getRandom({ min: 0 }),
   };
   const response = await appsync.send({
     query: gql`
@@ -73,4 +95,17 @@ test('Create transaction', async () => {
   expect(account.transactions[0].delta.value).toBe(dto.delta);
   expect(account.transactions[0].description.value).toBe(dto.description);
   expect(account.balance().value).toBe(seed.account.balance().value + dto.delta);
+
+  const partValue = `TransactionCreatedEvent#${account.id.toString()}`;
+  await retry(async () => {
+    const items = await getByPart('typeAggregateId', partValue, StorageTable);
+    if (!items) throw Error(`No audit events found for ${partValue}`);
+    expect(items).toHaveLength(1);
+    auditEvent = items[0];
+  }, retryDefault);
+
+  notifications.push({
+    type: NotificationTypes.TransactionCreated,
+    id: json.data.createTransaction.id,
+  });
 });

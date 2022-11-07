@@ -1,5 +1,15 @@
 import { User } from '../User';
-import { DomainEventBase } from '../../../../shared/domain/events/DomainEventBase';
+import {
+  DomainEventBase,
+  DomainEventBaseDTO,
+} from '../../../../shared/domain/events/DomainEventBase';
+
+export type UserCreatedEventDTO = DomainEventBaseDTO & {
+  user: {
+    email: string;
+    username: string;
+  },
+}
 
 export class UserCreatedEvent extends DomainEventBase {
   public user;
@@ -10,5 +20,13 @@ export class UserCreatedEvent extends DomainEventBase {
       email: user.email.value,
       username: user.username.value,
     };
+  }
+
+  public toDTO(): UserCreatedEventDTO {
+    return {
+      ...DomainEventBase.baseProps(this),
+      dateTimeOccurred: this.dateTimeOccurred.toJSON(),
+      user: this.user,
+    }
   }
 }
