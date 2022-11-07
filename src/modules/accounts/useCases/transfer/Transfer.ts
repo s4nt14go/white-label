@@ -1,5 +1,5 @@
 import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncController';
-import { Request, Response } from './TransferDTO';
+import { Request, Response } from './TransferDTOs';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { TransferErrors } from './TransferErrors';
 import { AccountService } from '../../services/AccountService';

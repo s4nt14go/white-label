@@ -12,7 +12,7 @@ import {
   AccountRepo,
   createUserAndAccount,
 } from '../../../../shared/utils/repos';
-import { Request } from './TransferDTO';
+import { Request } from './TransferDTOs';
 import Chance from 'chance';
 import { Account } from '../../domain/Account';
 import { Transaction } from '../../domain/Transaction';

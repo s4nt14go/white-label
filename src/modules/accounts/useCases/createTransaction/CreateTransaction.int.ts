@@ -14,7 +14,7 @@ import {
   AccountRepo,
   createUserAndAccount,
 } from '../../../../shared/utils/repos';
-import { Request } from './CreateTransactionDTO';
+import { Request } from './CreateTransactionDTOs';
 import Chance from 'chance';
 import { Account } from '../../domain/Account';
 import { NotificationTypes } from '../../../notification/domain/NotificationTypes';

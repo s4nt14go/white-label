@@ -1,5 +1,5 @@
 import { GetAccountByUserId } from './GetAccountByUserId';
-import { Request, Response } from './GetAccountByUserIdDTO';
+import { Request, Response } from './GetAccountByUserIdDTOs';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
 import { getAppSyncEvent as getEvent } from '../../../../shared/utils/test';

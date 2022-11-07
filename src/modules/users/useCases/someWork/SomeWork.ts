@@ -1,6 +1,6 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { IExternalService } from '../../services/some';
-import { Request, Response } from './SomeWorkDTO';
+import { Request, Response } from './SomeWorkDTOs';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 
 export class SomeWork extends SubscriberController<Request, Response> {

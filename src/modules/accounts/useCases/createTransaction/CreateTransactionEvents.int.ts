@@ -18,7 +18,7 @@ import { Context } from 'aws-lambda';
 import { Envelope } from '../../../../shared/core/Envelope';
 import { Created } from '../../../../shared/core/Created';
 import { Account } from '../../domain/Account';
-import { Request as CreateTransactionDTOreq } from './CreateTransactionDTO';
+import { Request as CreateTransactionDTOreq } from './CreateTransactionDTOs';
 import { AccountRepoFake } from '../../repos/AccountRepoFake';
 
 // Add all process.env used:

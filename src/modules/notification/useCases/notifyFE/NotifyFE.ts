@@ -1,5 +1,5 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
-import { Request, Response } from './NotifyFeDTO';
+import { Request, Response } from './NotifyFeDTOs';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { IFeService } from '../../services/fe/IFeService';
 

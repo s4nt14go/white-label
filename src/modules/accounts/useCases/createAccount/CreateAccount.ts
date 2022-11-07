@@ -1,5 +1,5 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
-import { Request, Response } from './CreateAccountDTO';
+import { Request, Response } from './CreateAccountDTOs';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 

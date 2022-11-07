@@ -2,7 +2,7 @@ import { EntityID } from '../../../shared/domain/EntityID';
 import { Transaction } from '../domain/Transaction';
 import { Account } from '../domain/Account';
 import { TransactionMap } from './TransactionMap';
-import { Response } from '../useCases/getAccountByUserId/GetAccountByUserIdDTO';
+import { Response } from '../useCases/getAccountByUserId/GetAccountByUserIdDTOs';
 
 export class AccountMap {
   public static toPersistence(account: Account): {

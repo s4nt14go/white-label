@@ -6,7 +6,7 @@ import {
   deleteUsers,
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
-import { Request } from './TransferDTO';
+import { Request } from './TransferDTOs';
 import Chance from 'chance';
 import { Transaction } from '../../domain/Transaction';
 import { Amount } from '../../domain/Amount';

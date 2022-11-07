@@ -6,7 +6,7 @@ import {
   deleteUsers,
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
-import { Request } from './CreateTransactionDTO';
+import { Request } from './CreateTransactionDTOs';
 import { MutationCreateTransactionResponse } from '../../../../shared/infra/appsync/schema.graphql';
 import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';

@@ -1,5 +1,5 @@
 import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncController';
-import { Request, Response } from './CreateTransactionDTO';
+import { Request, Response } from './CreateTransactionDTOs';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { CreateTransactionErrors } from './CreateTransactionErrors';
 import { Amount } from '../../domain/Amount';

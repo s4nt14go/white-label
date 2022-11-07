@@ -6,7 +6,7 @@ import { UserEmail } from '../../modules/users/domain/UserEmail';
 import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder, TextEncoder } from 'util';
 import Chance from 'chance';
-import { Request as CreateUserDTOreq } from '../../modules/users/useCases/createUser/CreateUserDTO';
+import { Request as CreateUserDTOreq } from '../../modules/users/useCases/createUser/CreateUserDTOs';
 import { Transaction as SequelizeTransaction } from 'sequelize';
 import { AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';

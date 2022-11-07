@@ -1,5 +1,5 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
-import { Request, Response } from './StoreEventDTO';
+import { Request, Response } from './StoreEventDTOs';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { DomainEventTypes } from '../../../../shared/domain/events/DomainEventTypes';
 import { StoreService } from '../../services/StoreService';

@@ -1,6 +1,6 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { ISlackService } from '../../services/slack';
-import { Request, Response } from './NotifySlackChannelDTO';
+import { Request, Response } from './NotifySlackChannelDTOs';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 
 type UserCreatedDTO = {

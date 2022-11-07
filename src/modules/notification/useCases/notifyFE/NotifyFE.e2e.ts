@@ -12,7 +12,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import { createUserAndAccount, deleteUsers } from '../../../../shared/utils/repos';
 import { Account } from '../../../accounts/domain/Account';
-import { Request } from '../../../accounts/useCases/createTransaction/CreateTransactionDTO';
+import { Request } from '../../../accounts/useCases/createTransaction/CreateTransactionDTOs';
 import {
   addDecimals,
   deleteItems,

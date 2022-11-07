@@ -1,4 +1,4 @@
-import { Request, Response } from './GetAccountByUserIdDTO';
+import { Request, Response } from './GetAccountByUserIdDTOs';
 import { IAccountRepo } from '../../repos/IAccountRepo';
 import { Guard } from '../../../../shared/core/Guard';
 import { GetAccountByUserIdErrors } from './GetAccountByUserIdErrors';

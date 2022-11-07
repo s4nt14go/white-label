@@ -9,7 +9,7 @@ import {
   AccountRepo,
   createUserAndAccount,
 } from '../../../../shared/utils/repos';
-import { Request } from './GetAccountByUserIdDTO';
+import { Request } from './GetAccountByUserIdDTOs';
 import { Account } from '../../domain/Account';
 
 // Add all process.env used:

@@ -3,7 +3,7 @@ dotenv.config();
 import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
 import { Transfer } from './Transfer';
-import { Response } from './TransferDTO';
+import { Response } from './TransferDTOs';
 import {
   fakeTransaction,
   getAppSyncEvent as getEvent,
@@ -18,7 +18,7 @@ import { DomainEventBase } from '../../../../shared/domain/events/DomainEventBas
 import { Context } from 'aws-lambda';
 import { Envelope } from '../../../../shared/core/Envelope';
 import { Account } from '../../domain/Account';
-import { Request } from './TransferDTO';
+import { Request } from './TransferDTOs';
 import { Transaction } from '../../domain/Transaction';
 import { Amount } from '../../domain/Amount';
 import { Description } from '../../domain/Description';

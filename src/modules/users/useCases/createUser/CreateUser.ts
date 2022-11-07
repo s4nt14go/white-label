@@ -1,5 +1,5 @@
 import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncController';
-import { Request, Response } from './CreateUserDTO';
+import { Request, Response } from './CreateUserDTOs';
 import { CreateUserErrors } from './CreateUserErrors';
 import { UserEmail } from '../../domain/UserEmail';
 import { UserPassword } from '../../domain/UserPassword';
