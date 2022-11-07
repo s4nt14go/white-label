@@ -48,6 +48,8 @@ Unit tests (with faked repos):
 - Aggregates:
     - Users: [User](src/modules/users/domain/User.unit.ts)
     - Accounts: [Account](src/modules/accounts/domain/Account.ts) (with internal entity [Transaction](src/modules/accounts/domain/Transaction.unit.ts))
+- Services:
+    - Accounts: [AccountService](src/modules/accounts/services/AccountService.unit.ts)
 - Use cases/controllers: 
     - Users: [CreateUser](src/modules/users/useCases/createUser/CreateUser.unit.ts), [SomeWork](src/modules/users/useCases/someWork/SomeWork.unit.ts)
     - Notification: [NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.unit.ts), [NotifyFE](src/modules/notification/useCases/notifyFE/NotifyFE.unit.ts)
@@ -57,14 +59,13 @@ Unit tests (with faked repos):
 Integration tests (real repos):
 
 - Users:
-  - [CreateUser](src/modules/users/useCases/createUser/CreateUser.int.ts), 
-  - Domain event registration and dispatching [CreateUserEvents](src/modules/users/useCases/createUser/CreateUserEvents.int.ts)
+  - [CreateUser](src/modules/users/useCases/createUser/CreateUser.int.ts), event registration and dispatching [CreateUserEvents](src/modules/users/useCases/createUser/CreateUserEvents.int.ts)
 - Accounts:
-  - [Transfer](src/modules/accounts/useCases/transfer/Transfer.int.ts)
   - [GetAccountByUserId](src/modules/accounts/useCases/getAccountByUserId/GetAccountByUserId.int.ts)
-  - [CreateTransaction](src/modules/accounts/useCases/createTransaction/CreateTransaction.int.ts)
+  - [CreateTransaction](src/modules/accounts/useCases/createTransaction/CreateTransaction.int.ts), event registration and dispatching [CreateTransactionEvents](src/modules/accounts/useCases/createTransaction/CreateTransactionEvents.int.ts)
+  - [Transfer](src/modules/accounts/useCases/transfer/Transfer.int.ts), dispatching the creation of 2 transactions [TransferEvents](src/modules/accounts/useCases/transfer/TransferEvents.int.ts)
 
-E2E test:
+E2E tests:
 
 - Users:
   - [CreateUser](src/modules/users/useCases/createUser/CreateUser.e2e.ts)
