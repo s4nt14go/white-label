@@ -2,15 +2,15 @@
 
 Domain Events are a fundamental building block in DDD, if you want to indicate an event that is significant to your app, raise this event and let other modules of your app subscribe and react to it.
 
-This project exemplifies a `CreateUser` use case and how we can trigger an event signaling we have a new user onboard.
+This project exemplifies a `CreateUser` use case and how we can trigger an event, signaling we have a new user onboard.
 
-Domain events (e.g. [UserCreatedEvent](src/modules/users/domain/events/UserCreatedEvent.ts)) are dispatched after the aggregates ([User](src/modules/users/domain/User.ts)) changes are persisted in the database. We can subscribe to it from the same module ([SomeWork](src/modules/users/useCases/someWork/SomeWork.ts)) or a different one ([NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/CreateAccount.ts)).
+Domain events (e.g. [UserCreatedEvent](src/modules/users/domain/events/UserCreatedEvent.ts)) are dispatched after the aggregates ([User](src/modules/users/domain/User.ts)) changes are persisted in the database. We can subscribe to it from the same module ([SomeWork](src/modules/users/useCases/someWork/SomeWork.ts)) or a different one ([StoreEvent](src/modules/audit/useCases/storeEvent/StoreEvent.ts), [NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/CreateAccount.ts)).
 
 Communication in the same module is given as an example but using domain events for intra-module/app communication inside a same domain model may involve adding an indirection that doesn't add value and a direct/explicit flow is more convenient.
 
 The lambda entry point for `CreateUser` use case is [src/modules/users/useCases/createUser/index.ts](src/modules/users/useCases/createUser/index.ts), there we:
 * Create [CreateUser](src/modules/users/useCases/createUser/CreateUser.ts) controller
-* In `CreateUser.constructor` we register `UserCreatedEvent` to an intermediate lambda [DistributeDomainEvents](src/shared/infra/dispatchEvents/DistributeDomainEvents.ts) that will invoke all its subscribers (`CreateAccount`, `NotifySlackChannel` and `SomeWork` lambdas).
+* In `CreateUser.constructor` we register `UserCreatedEvent` to an intermediate lambda [DistributeDomainEvents](src/shared/infra/dispatchEvents/DistributeDomainEvents.ts) that will invoke all its subscribers (`StoreEvent`, `CreateAccount`, `NotifySlackChannel` and `SomeWork` lambdas).
 
 This is the transaction tracing from [Lumigo](https://lumigo.io):
 
@@ -22,7 +22,7 @@ This is the transaction tracing from [Lumigo](https://lumigo.io):
 
 ## Timelines
 
-If it's been some time since last request, we get cold starts and the execution of lambdas takes ~3s, below we can spot 3 cold starts:
+If it's been some time since last request, we get cold starts and the execution of `createUser` takes ~1,2s, while all the invoked lambdas (`distributeDomainEvents`, `createAccount`, `notifySlackChannel`, `storeEvent` and `someWrok`) take an extra ~2,1s, so the whole distributed transaction takes ~3,3s:
 
 <br />
 <p align="center">
@@ -30,7 +30,7 @@ If it's been some time since last request, we get cold starts and the execution 
 </p>
 <br />
 
-If we repeat a request in the next 5m, we don't have cold starts and they take ~700ms:
+If we repeat a request in the next 5m, we don't have cold starts, `createUser` takes 240ms, all the invoked lambdas an extra ~280ms, so the whole distributed transaction takes ~520ms:
 
 <br />
 <p align="center">
@@ -49,15 +49,16 @@ Unit tests (with faked repos):
     - Users: [User](src/modules/users/domain/User.unit.ts)
     - Accounts: [Account](src/modules/accounts/domain/Account.ts) (with internal entity [Transaction](src/modules/accounts/domain/Transaction.unit.ts))
 - Use cases/controllers: 
-    - Users: [CreateUser](src/modules/users/useCases/createUser/CreateUser.unit.ts) , [SomeWork](src/modules/users/useCases/someWork/SomeWork.unit.ts)
-    - Notification: [NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.unit.ts)
+    - Users: [CreateUser](src/modules/users/useCases/createUser/CreateUser.unit.ts), [SomeWork](src/modules/users/useCases/someWork/SomeWork.unit.ts)
+    - Notification: [NotifySlackChannel](src/modules/notification/useCases/notifySlackChannel/NotifySlackChannel.unit.ts), [NotifyFE](src/modules/notification/useCases/notifyFE/NotifyFE.unit.ts)
     - Accounts: [CreateTransaction](src/modules/accounts/useCases/createTransaction/CreateTransaction.unit.ts), [GetAccountByUserId](src/modules/accounts/useCases/getAccountByUserId/GetAccountByUserId.unit.ts), [Transfer](src/modules/accounts/useCases/transfer/Transfer.unit.ts)
+    - Audit: [StoreEvent](src/modules/audit/useCases/storeEvent/StoreEvent.unit.ts)
 
 Integration tests (real repos):
 
 - Users:
+  - [CreateUser](src/modules/users/useCases/createUser/CreateUser.int.ts), 
   - Domain event registration and dispatching [CreateUserEvents](src/modules/users/useCases/createUser/CreateUserEvents.int.ts)
-  - [CreateUser](src/modules/users/useCases/createUser/CreateUser.int.ts)
 - Accounts:
   - [Transfer](src/modules/accounts/useCases/transfer/Transfer.int.ts)
   - [GetAccountByUserId](src/modules/accounts/useCases/getAccountByUserId/GetAccountByUserId.int.ts)
@@ -66,15 +67,17 @@ Integration tests (real repos):
 E2E test:
 
 - Users:
-    - [CreateUser](src/modules/users/useCases/createUser/CreateUser.e2e.ts)
+  - [CreateUser](src/modules/users/useCases/createUser/CreateUser.e2e.ts)
 - Accounts:
-    - [Transfer](src/modules/accounts/useCases/transfer/Transfer.e2e.ts)
-    - [GetAccountByUserId](src/modules/accounts/useCases/getAccountByUserId/GetAccountByUserId.e2e.ts)
-    - [CreateTransaction](src/modules/accounts/useCases/createTransaction/CreateTransaction.e2e.ts)
+  - [Transfer](src/modules/accounts/useCases/transfer/Transfer.e2e.ts)
+  - [GetAccountByUserId](src/modules/accounts/useCases/getAccountByUserId/GetAccountByUserId.e2e.ts)
+  - [CreateTransaction](src/modules/accounts/useCases/createTransaction/CreateTransaction.e2e.ts)
+- Notifications:
+  - [NotifyFE](src/modules/notification/useCases/notifyFE/NotifyFE.e2e.ts)
 
 ## Stack
 
-* DB: PostgreSQL [CockroachDB](https://www.cockroachlabs.com) Serverless
+* DBs: PostgreSQL [CockroachDB](https://www.cockroachlabs.com) Serverless and DynamoDB
 * ORM: [Sequelize](https://sequelize.org)
 * IaC: [SST Serverless Stack](https://sst.dev)
 * AWS services: Lambda, AppSync, Systems Manager Parameter Store 
@@ -86,11 +89,11 @@ I've used **SST Serverless Stack** as it allows debugging lambda code locally wh
 
 I started this project using Khalil Stemmler's [white-label](https://github.com/stemmlerjs/white-label) `users` module and applied some concepts based on [Vladimir Khorikov](https://enterprisecraftsmanship.com) courses where he tackles DDD in a great way.
 
-I also added `accounts` module, transactions support, refactored from REST to GraphQL API, turned it into serverless and wrote a bunch of tests.
+I also added modules `accounts`, `audit`, use case `NotifyFE`, transactions support, refactored from REST to GraphQL API, turned it into serverless and wrote a bunch of tests.
 
 ## Instructions
 
 ```
-npm i
+npm ci
 npm test
 ```
