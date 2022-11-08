@@ -34,7 +34,15 @@ If we repeat a request in the next 5m, we don't have cold starts, `createUser` t
 
 <br />
 <p align="center">
-    <img alt="timeline1" src="doc/timeline2.png" />
+    <img alt="timeline2" src="doc/timeline2.png" />
+</p>
+<br />
+
+## Event modeling
+
+<br />
+<p align="center">
+    <img alt="event modeling" src="doc/eventModeling.png" />
 </p>
 <br />
 
