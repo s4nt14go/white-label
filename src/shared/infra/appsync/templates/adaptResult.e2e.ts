@@ -31,7 +31,7 @@ it('should return error fields: message, errorType and errorInfo', async () => {
         errorInfo: {
           errorType: expect.any(String),
           time: expect.any(String),
-          message: expect.any(String),
+          errorMessage: expect.any(String),
         },
         message: expect.not.stringContaining(
           'A custom error was thrown from a mapping template.'

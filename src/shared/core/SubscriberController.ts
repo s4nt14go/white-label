@@ -1,11 +1,9 @@
-import { BaseController, EnvelopUnexpectedT } from './BaseController';
-import { Envelope } from './Envelope';
+import { BaseController } from './BaseController';
 import { BaseError } from './AppError';
 import { Context } from 'aws-lambda';
+import { successfulCodes } from '../infra/appsync/AppSyncController';
 
-type ExeResponse = Promise<
-  void | { error: Envelope<BaseError> } | { error: EnvelopUnexpectedT }
->;
+type ExeResponse = Promise<void>;
 export abstract class SubscriberController<
   Request,
   Response
@@ -20,14 +18,19 @@ export abstract class SubscriberController<
     try {
       if (this.getTransaction) this.transaction = await this.getTransaction();
       implResult = await this.executeImpl(event);
-      if ([200, 201].includes(implResult.status)) {
+      if (successfulCodes.includes(implResult.status)) {
         if (this.transaction) await this.handleCommit();
         return;
       }
     } catch (err) {
       await this.handleUnexpectedError(err);
+      let message = 'Unexpected Error';
+      if (err instanceof Error) {
+        message += `: ${err.message}`;
+      }
+      throw Error(message);
     }
-    console.log('implResult', implResult);
-    throw Error('No success??');
+    console.log('implResult error', implResult);
+    throw Error((implResult.result as BaseError).type);
   }
 }

@@ -62,9 +62,7 @@ test.each([
     const result = await transfer.execute(getEvent(badData), context);
 
     expect(result).toMatchObject({
-      error: {
         errorType,
-      },
     });
   }
 );
@@ -85,9 +83,7 @@ test.each([
     const result = await transfer.execute(getEvent(badData), context);
 
     expect(result).toMatchObject({
-      error: {
         errorType,
-      },
     });
   }
 );
@@ -109,9 +105,7 @@ test.each([
     const result = await transfer.execute(getEvent(badData), context);
 
     expect(result).toMatchObject({
-      error: {
         errorType,
-      },
     });
   }
 );
@@ -127,9 +121,7 @@ it('fails when quantity is greater than source/from balance', async () => {
   const result = await transfer.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
-    error: {
       errorType: 'TransferErrors.InvalidTransfer',
-    },
   });
 });
 it('fails when quantity is greater than destination/to balance', async () => {
@@ -143,9 +135,7 @@ it('fails when quantity is greater than destination/to balance', async () => {
   const result = await transfer.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
-    error: {
       errorType: 'TransferErrors.InvalidTransfer',
-    },
   });
 });
 it('fails when source/from and destination/to accounts are the same', async () => {
@@ -159,8 +149,6 @@ it('fails when source/from and destination/to accounts are the same', async () =
   const result = await transfer.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
-    error: {
       errorType: 'TransferErrors.SameFromAndTo',
-    },
   });
 });

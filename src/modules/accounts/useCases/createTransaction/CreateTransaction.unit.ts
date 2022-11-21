@@ -60,9 +60,7 @@ test.each([
     const result = await createTransaction.execute(getEvent(badData), context);
 
     expect(result).toMatchObject({
-      error: {
-        errorType,
-      },
+      errorType,
     });
   }
 );
@@ -76,9 +74,7 @@ it(`fails when userId isn't a string`, async () => {
   const result = await createTransaction.execute(getEvent(badData), context);
 
   expect(result).toMatchObject({
-    error: {
-      errorType: 'CreateTransactionErrors.UserIdNotString',
-    },
+    errorType: 'CreateTransactionErrors.UserIdNotString',
   });
 });
 it(`fails when userId isn't an uuid`, async () => {
@@ -91,9 +87,7 @@ it(`fails when userId isn't an uuid`, async () => {
   const result = await createTransaction.execute(getEvent(badData), context);
 
   expect(result).toMatchObject({
-    error: {
-      errorType: 'CreateTransactionErrors.UserIdNotUuid',
-    },
+    errorType: 'CreateTransactionErrors.UserIdNotUuid',
   });
 });
 
@@ -107,9 +101,7 @@ it('fails when delta subtracts more than balance', async () => {
   const result = await createTransaction.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
-    error: {
-      errorType: 'CreateTransactionErrors.InvalidTransaction',
-    },
+    errorType: 'CreateTransactionErrors.InvalidTransaction',
   });
 });
 
@@ -123,9 +115,7 @@ it('fails when no transactions are found for the user', async () => {
   const result = await createTransaction.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
-    error: {
-      errorType: 'CreateTransactionErrors.AccountNotFound',
-    },
+    errorType: 'CreateTransactionErrors.AccountNotFound',
   });
 });
 
@@ -139,8 +129,6 @@ test('Internal server error when no transactions are found for the user', async 
   const result = await createTransaction.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
-    error: {
-      errorType: 'UnexpectedError',
-    },
+    errorType: 'UnexpectedError',
   });
 });

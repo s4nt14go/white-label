@@ -7,7 +7,7 @@ import { Envelope } from './Envelope';
 import { DispatcherLambda } from '../infra/dispatchEvents/DispatcherLambda';
 import { IDispatcher } from '../domain/events/DomainEvents';
 
-export type EnvelopUnexpectedT =
+export type EnvelopUnexpectedError =
   | Envelope<BaseError>
   | {
       logGroup: string;
@@ -93,23 +93,19 @@ export abstract class BaseController<
     return this.serverError(this.context);
   }
 
-  protected async serverError(
-    context: Context
-  ): Promise<{ error: EnvelopUnexpectedT }> {
+  protected async serverError(context: Context): Promise<EnvelopUnexpectedError> {
     if (this.transaction)
+      // guard against the error being because of the rollback itself
       try {
-        // guard against the error being because of the rollback itself
         await this.transaction.rollback();
       } catch (e) {
         console.log('Error when rolling back inside serverError', e);
       }
     return {
-      error: {
-        ...Envelope.error(new UnexpectedError()),
-        logGroup: context.logGroupName,
-        logStream: context.logStreamName,
-        awsRequest: context.awsRequestId,
-      },
+      ...Envelope.error(new UnexpectedError()),
+      logGroup: context.logGroupName,
+      logStream: context.logStreamName,
+      awsRequest: context.awsRequestId,
     };
   }
 }

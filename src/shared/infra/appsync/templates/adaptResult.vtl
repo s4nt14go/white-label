@@ -1,11 +1,5 @@
-#if (!$util.isNull($ctx.result.error))
-  #set($newError = $ctx.result.error)
-
-  ## Rename errorMessage to message
-  #set($newError.message = $newError.errorMessage)
-  $util.qr($newError.remove("errorMessage"))
-
-  $util.error($newError.message, $newError.errorType, null, $newError)
+#if (!$util.isNull($ctx.result.errorType))
+  $util.error($ctx.result.errorMessage, $ctx.result.errorType, null, $ctx.result)
 #end
 
 ## Unnest $ctx.result.result, e.g. instead of returning { time: <value1>, result: { some: <value2> } }, we end up with { time: <value1>, some: <value2> }

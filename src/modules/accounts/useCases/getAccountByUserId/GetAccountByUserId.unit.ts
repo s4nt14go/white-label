@@ -27,11 +27,9 @@ it('gets an account', async () => {
 });
 
 it(`fails when userId isn't defined`, async () => {
-  const result = (await getAccountByUserId.execute(getEvent({}), context)) as {
-    error: Envelope<BaseError>;
-  };
+  const result = (await getAccountByUserId.execute(getEvent({}), context)) as Envelope<BaseError>;
 
-  expect(result.error.errorType).toBe('GetAccountByUserIdErrors.UserIdNotDefined');
+  expect(result.errorType).toBe('GetAccountByUserIdErrors.UserIdNotDefined');
 });
 it(`fails when userId isn't a string`, async () => {
   const badData = {
@@ -41,9 +39,9 @@ it(`fails when userId isn't a string`, async () => {
   const result = (await getAccountByUserId.execute(
     getEvent(badData),
     context
-  )) as { error: Envelope<BaseError> };
+  )) as Envelope<BaseError>;
 
-  expect(result.error.errorType).toBe('GetAccountByUserIdErrors.UserIdNotString');
+  expect(result.errorType).toBe('GetAccountByUserIdErrors.UserIdNotString');
 });
 it(`fails when userId isn't an uuid`, async () => {
   const badData = {
@@ -53,9 +51,9 @@ it(`fails when userId isn't an uuid`, async () => {
   const result = (await getAccountByUserId.execute(
     getEvent(badData),
     context
-  )) as { error: Envelope<BaseError> };
+  )) as Envelope<BaseError>;
 
-  expect(result.error.errorType).toBe('GetAccountByUserIdErrors.UserIdNotUuid');
+  expect(result.errorType).toBe('GetAccountByUserIdErrors.UserIdNotUuid');
 });
 
 it(`fails when account isn't found`, async () => {
@@ -66,9 +64,9 @@ it(`fails when account isn't found`, async () => {
   const response = (await getAccountByUserId.execute(
     getEvent(validData),
     context
-  )) as { error: Envelope<BaseError> };
+  )) as Envelope<BaseError>;
 
-  expect(response.error.errorType).toBe(
+  expect(response.errorType).toBe(
     'GetAccountByUserIdErrors.AccountNotFound'
   );
 });
