@@ -13,12 +13,8 @@ const { OK, BAD_REQUEST } = Status;
 export class GetAccountByUserId extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
-  public constructor(
-    accountRepo: IAccountRepo,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    renewConn: any
-  ) {
-    super(renewConn);
+  public constructor(accountRepo: IAccountRepo) {
+    super();
     this.accountRepo = accountRepo;
   }
 

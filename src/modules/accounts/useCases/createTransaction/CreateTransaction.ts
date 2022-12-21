@@ -8,29 +8,24 @@ import { Description } from '../../domain/Description';
 import { Guard } from '../../../../shared/core/Guard';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
-import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateTransactionEvents } from './CreateTransactionEvents';
-const { BAD_REQUEST, CREATED } = Status;
+import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
+
+const {BAD_REQUEST, CREATED} = Status;
 
 export class CreateTransaction extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
   public constructor(
     accountRepo: IAccountRepo,
-    dispatcher: IDispatcher,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    renewConn: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getTransaction: any
+    invoker: IInvoker
   ) {
-    super(renewConn, getTransaction);
+    super();
     this.accountRepo = accountRepo;
-    CreateTransactionEvents.registration(dispatcher);
+    CreateTransactionEvents.registration(invoker);
   }
 
   protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
-    // As this use case is a command, include all repos queries in a serializable transaction
-    this.accountRepo.setTransaction(this.transaction);
 
     const { userId } = dto;
 

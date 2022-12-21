@@ -1,12 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const models = require('../../../../shared/infra/database/sequelize/models/index.ts');
+import { Transaction } from '../../../../shared/decorators/Transaction';
+import { DBretry } from '../../../../shared/decorators/DBretry';
+
 import { CreateAccount } from './CreateAccount';
 import { AccountRepo } from '../../repos/AccountRepo';
 
 const repo = new AccountRepo(models);
-const controller = new CreateAccount(
-  repo,
-  models.renewConn,
-  models.getTransaction
-);
-export const handler = controller.execute.bind(controller);
+const controller = new CreateAccount(repo);
+
+const decorated1 = new Transaction(controller, models.getTransaction, [repo]);
+const decorated2 = new DBretry(decorated1);
+export const handler = decorated2.execute.bind(decorated2);

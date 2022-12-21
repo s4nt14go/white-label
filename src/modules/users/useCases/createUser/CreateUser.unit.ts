@@ -1,20 +1,17 @@
 process.env.distributeDomainEvents = 'dummy';
 import { CreateUser } from './CreateUser';
 import { UserRepoFake } from '../../repos/UserRepoFake';
-import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
-import { Context } from 'aws-lambda';
+import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
 import {
-  fakeTransaction,
   getAppSyncEvent as getEvent,
 } from '../../../../shared/utils/test';
 
 let userRepo, createUser: CreateUser;
 beforeAll(() => {
   userRepo = new UserRepoFake();
-  createUser = new CreateUser(userRepo, new DispatcherFake(), {}, fakeTransaction);
+  createUser = new CreateUser(userRepo, new LambdaInvokerFake());
 });
 
-const context = {} as unknown as Context;
 test('User creation with alias', async () => {
   const validData = {
     username: 'test_username',
@@ -23,7 +20,7 @@ test('User creation with alias', async () => {
     alias: 'test_alias',
   };
 
-  const result = await createUser.execute(getEvent(validData), context);
+  const result = await createUser.execute(getEvent(validData));
 
   expect(result).toMatchObject({
     time: expect.any(String),
@@ -40,7 +37,7 @@ test('User creation without alias', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUser.execute(getEvent(validData), context);
+  const result = await createUser.execute(getEvent(validData));
 
   expect(result).toMatchObject({
     time: expect.any(String),
@@ -64,7 +61,7 @@ test.each([
     };
     delete badData[field as 'username' | 'email' | 'password'];
 
-    const result = await createUser.execute(getEvent(badData), context);
+    const result = await createUser.execute(getEvent(badData));
 
     expect(result).toMatchObject({
         errorType,
@@ -79,7 +76,7 @@ test('User creation fails for taken email', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUser.execute(getEvent(data), context);
+  const result = await createUser.execute(getEvent(data));
 
   expect(result).toMatchObject({
       errorType: 'CreateUserErrors.EmailAlreadyTaken',
@@ -93,7 +90,7 @@ test('User creation fails for taken username', async () => {
     password: 'passwordd',
   };
 
-  const result = await createUser.execute(getEvent(data), context);
+  const result = await createUser.execute(getEvent(data));
 
   expect(result).toMatchObject({
       errorType: 'CreateUserErrors.UsernameAlreadyTaken',

@@ -1,8 +1,8 @@
 import {
   DomainEvents,
-  IDispatcher,
 } from '../../../../shared/domain/events/DomainEvents';
 import { UserCreatedEvent } from '../../domain/events/UserCreatedEvent';
+import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
 
 // Add all process.env used:
 const { distributeDomainEvents } = process.env;
@@ -12,8 +12,8 @@ if (!distributeDomainEvents) {
 }
 
 export class CreateUserEvents {
-  public static registration(dispatcher: IDispatcher) {
-    DomainEvents.setDispatcher(dispatcher);
+  public static registration(invoker: IInvoker) {
+    DomainEvents.setInvoker(invoker);
     DomainEvents.register(`${distributeDomainEvents}`, UserCreatedEvent.name);
   }
 }

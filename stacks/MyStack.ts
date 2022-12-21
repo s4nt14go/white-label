@@ -31,14 +31,12 @@ export async function MyStack({ stack, app }: StackContext) {
   };
 
   const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
-    handler: 'shared/infra/dispatchEvents/DistributeDomainEvents.handler',
+    handler: 'shared/infra/invocation/DistributeDomainEvents.handler',
   });
-  allowAutoInvoke(distributeDomainEvents);
 
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
   });
-  allowAutoInvoke(notifySlackChannel);
   notifySlackChannel.grantInvoke(distributeDomainEvents);
   distributeDomainEvents.addEnvironment(
     'notifySlackChannel',
@@ -48,7 +46,6 @@ export async function MyStack({ stack, app }: StackContext) {
   const someWork = new Function(stack, 'someWork', {
     handler: 'modules/users/useCases/someWork/index.handler',
   });
-  allowAutoInvoke(someWork);
   someWork.grantInvoke(distributeDomainEvents);
   distributeDomainEvents.addEnvironment('someWork', someWork.functionName);
 
@@ -56,7 +53,7 @@ export async function MyStack({ stack, app }: StackContext) {
     handler: 'modules/accounts/useCases/createAccount/index.handler',
     environment: dbCreds,
   });
-  allowAutoInvoke(createAccount);
+  allowAutoInvoke(createAccount); // wip: All use cases involving CockroachDB should be retryable if we get db errors [Note 1]
   createAccount.grantInvoke(distributeDomainEvents);
   distributeDomainEvents.addEnvironment(
     'createAccount',
@@ -70,7 +67,7 @@ export async function MyStack({ stack, app }: StackContext) {
       distributeDomainEvents: distributeDomainEvents.functionName,
     },
   });
-  allowAutoInvoke(createUser);
+  allowAutoInvoke(createUser); // See Note 1
   distributeDomainEvents.grantInvoke(createUser);
 
   const createTransaction = new Function(stack, 'createTransaction', {
@@ -80,7 +77,7 @@ export async function MyStack({ stack, app }: StackContext) {
       distributeDomainEvents: distributeDomainEvents.functionName,
     },
   });
-  allowAutoInvoke(createTransaction);
+  allowAutoInvoke(createTransaction); // // See Note 1
   distributeDomainEvents.grantInvoke(createTransaction);
 
   const transfer = new Function(stack, 'transfer', {
@@ -90,14 +87,14 @@ export async function MyStack({ stack, app }: StackContext) {
       distributeDomainEvents: distributeDomainEvents.functionName,
     },
   });
-  allowAutoInvoke(transfer);
+  allowAutoInvoke(transfer); // // See Note 1
   distributeDomainEvents.grantInvoke(transfer);
 
   const getAccountByUserId = new Function(stack, 'getAccountByUserId', {
     handler: 'modules/accounts/useCases/getAccountByUserId/index.handler',
     environment: dbCreds,
   });
-  allowAutoInvoke(getAccountByUserId);
+  allowAutoInvoke(getAccountByUserId); // See Note 1
 
   const adaptResult = {
     file: 'src/shared/infra/appsync/templates/adaptResult.vtl',
@@ -193,7 +190,6 @@ export async function MyStack({ stack, app }: StackContext) {
       appsyncUrl: api.url,
     },
   });
-  allowAutoInvoke(notifyFE);
   distributeDomainEvents.addEnvironment('notifyFE', notifyFE.functionName);
   notifyFE.grantInvoke(distributeDomainEvents);
 
@@ -229,14 +225,15 @@ export async function MyStack({ stack, app }: StackContext) {
       StorageTable: storageTable.tableName,
     },
   });
-  allowAutoInvoke(storeEvent);
   distributeDomainEvents.addEnvironment('storeEvent', storeEvent.functionName);
   storeEvent.grantInvoke(distributeDomainEvents);
-  storeEvent.addToRolePolicy(new iam.PolicyStatement({
-    effect: iam.Effect.ALLOW,
-    resources: [storageTable.tableArn],
-    actions: ['dynamodb:PutItem'],
-  }));
+  storeEvent.addToRolePolicy(
+    new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      resources: [storageTable.tableArn],
+      actions: ['dynamodb:PutItem'],
+    })
+  );
 
   stack.addOutputs({
     appsyncId: api.apiId,

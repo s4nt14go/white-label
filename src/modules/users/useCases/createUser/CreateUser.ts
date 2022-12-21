@@ -7,32 +7,23 @@ import { UserName } from '../../domain/UserName';
 import { Result } from '../../../../shared/core/Result';
 import { User } from '../../domain/User';
 import { IUserRepo } from '../../repos/IUserRepo';
-import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/Alias';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
 import { BaseError } from '../../../../shared/core/AppError';
+import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
 const { BAD_REQUEST, CREATED, CONFLICT } = Status;
 
 export class CreateUser extends AppSyncController<Request, Response> {
   private readonly userRepo: IUserRepo;
-  public constructor(
-    userRepo: IUserRepo,
-    dispatcher: IDispatcher,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    renewConn: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getTransaction: any
-  ) {
-    super(renewConn, getTransaction);
+  public constructor(userRepo: IUserRepo, invoker: IInvoker) {
+    super();
     this.userRepo = userRepo;
-    CreateUserEvents.registration(dispatcher);
+    CreateUserEvents.registration(invoker);
   }
 
   protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
-    // As this use case is a command, include all repos queries in a serializable transaction
-    this.userRepo.setTransaction(this.transaction);
 
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });

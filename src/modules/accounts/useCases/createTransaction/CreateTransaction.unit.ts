@@ -1,25 +1,19 @@
+import { ReturnUnexpectedError } from '../../../../shared/decorators/ReturnUnexpectedError';
 process.env.distributeDomainEvents = 'dummy';
 import { CreateTransaction } from './CreateTransaction';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import { Context } from 'aws-lambda';
-import {
-  fakeTransaction,
-  getAppSyncEvent as getEvent,
-} from '../../../../shared/utils/test';
+import { getAppSyncEvent as getEvent } from '../../../../shared/utils/test';
 import Chance from 'chance';
-import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
+import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
+import { Transaction } from '../../../../shared/decorators/Transaction';
 
 const chance = new Chance();
 
-let accountRepo, createTransaction: CreateTransaction;
+let accountRepo: AccountRepoFake, controller: CreateTransaction;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  createTransaction = new CreateTransaction(
-    accountRepo,
-    new DispatcherFake(),
-    {},
-    fakeTransaction
-  );
+  controller = new CreateTransaction(accountRepo, new LambdaInvokerFake());
 });
 
 const context = {} as unknown as Context;
@@ -30,7 +24,7 @@ it('creates a transaction', async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(getEvent(validData), context);
+  const result = await controller.execute(getEvent(validData));
 
   expect(result).toMatchObject({
     result: {
@@ -57,7 +51,7 @@ test.each([
     };
     delete badData[field as 'description' | 'delta'];
 
-    const result = await createTransaction.execute(getEvent(badData), context);
+    const result = await controller.execute(getEvent(badData));
 
     expect(result).toMatchObject({
       errorType,
@@ -71,7 +65,7 @@ it(`fails when userId isn't a string`, async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(getEvent(badData), context);
+  const result = await controller.execute(getEvent(badData));
 
   expect(result).toMatchObject({
     errorType: 'CreateTransactionErrors.UserIdNotString',
@@ -84,7 +78,7 @@ it(`fails when userId isn't an uuid`, async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(getEvent(badData), context);
+  const result = await controller.execute(getEvent(badData));
 
   expect(result).toMatchObject({
     errorType: 'CreateTransactionErrors.UserIdNotUuid',
@@ -98,7 +92,7 @@ it('fails when delta subtracts more than balance', async () => {
     delta: -101, // faked balance is 100
   };
 
-  const result = await createTransaction.execute(getEvent(data), context);
+  const result = await controller.execute(getEvent(data));
 
   expect(result).toMatchObject({
     errorType: 'CreateTransactionErrors.InvalidTransaction',
@@ -112,7 +106,7 @@ it('fails when no transactions are found for the user', async () => {
     delta: 30,
   };
 
-  const result = await createTransaction.execute(getEvent(data), context);
+  const result = await controller.execute(getEvent(data));
 
   expect(result).toMatchObject({
     errorType: 'CreateTransactionErrors.AccountNotFound',
@@ -126,7 +120,9 @@ test('Internal server error when no transactions are found for the user', async 
     delta: 30,
   };
 
-  const result = await createTransaction.execute(getEvent(data), context);
+  const decorated1 = new Transaction(controller, Object(), [accountRepo]);
+  const decorated2 = new ReturnUnexpectedError(decorated1);
+  const result = await decorated2.execute(getEvent(data), context);
 
   expect(result).toMatchObject({
     errorType: 'UnexpectedError',

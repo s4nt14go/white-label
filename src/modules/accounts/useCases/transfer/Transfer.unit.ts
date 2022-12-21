@@ -1,24 +1,21 @@
 process.env.distributeDomainEvents = 'dummy';
 import { Transfer } from './Transfer';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
-import { Context } from 'aws-lambda';
 import {
-  fakeTransaction,
   getAppSyncEvent as getEvent,
   getRandom,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
-import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
+import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
 
 const chance = new Chance();
 
 let accountRepo, transfer: Transfer;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  transfer = new Transfer(accountRepo, new DispatcherFake(), {}, fakeTransaction);
+  transfer = new Transfer(accountRepo, new LambdaInvokerFake());
 });
 
-const context = {} as unknown as Context;
 test('Transfer', async () => {
   const data = {
     fromUserId: UserId.GOOD,
@@ -27,7 +24,7 @@ test('Transfer', async () => {
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(getEvent(data), context);
+  const result = await transfer.execute(getEvent(data));
 
   expect(result).toMatchObject({
     time: expect.any(String),
@@ -59,7 +56,7 @@ test.each([
       field as 'fromUserId' | 'toUserId' | 'quantity' | 'fromDescription'
     ];
 
-    const result = await transfer.execute(getEvent(badData), context);
+    const result = await transfer.execute(getEvent(badData));
 
     expect(result).toMatchObject({
         errorType,
@@ -80,7 +77,7 @@ test.each([
     };
     badData[field as 'fromUserId' | 'toUserId'] = 1 as unknown as string;
 
-    const result = await transfer.execute(getEvent(badData), context);
+    const result = await transfer.execute(getEvent(badData));
 
     expect(result).toMatchObject({
         errorType,
@@ -102,7 +99,7 @@ test.each([
     };
     badData[field as 'fromUserId' | 'toUserId'] = UserId.NO_TRANSACTIONS;
 
-    const result = await transfer.execute(getEvent(badData), context);
+    const result = await transfer.execute(getEvent(badData));
 
     expect(result).toMatchObject({
         errorType,
@@ -118,7 +115,7 @@ it('fails when quantity is greater than source/from balance', async () => {
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(getEvent(data), context);
+  const result = await transfer.execute(getEvent(data));
 
   expect(result).toMatchObject({
       errorType: 'TransferErrors.InvalidTransfer',
@@ -132,7 +129,7 @@ it('fails when quantity is greater than destination/to balance', async () => {
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(getEvent(data), context);
+  const result = await transfer.execute(getEvent(data));
 
   expect(result).toMatchObject({
       errorType: 'TransferErrors.InvalidTransfer',
@@ -146,7 +143,7 @@ it('fails when source/from and destination/to accounts are the same', async () =
     fromDescription: `Test: ${chance.sentence()}`,
   };
 
-  const result = await transfer.execute(getEvent(data), context);
+  const result = await transfer.execute(getEvent(data));
 
   expect(result).toMatchObject({
       errorType: 'TransferErrors.SameFromAndTo',

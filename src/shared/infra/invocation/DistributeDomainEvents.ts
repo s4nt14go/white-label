@@ -1,5 +1,4 @@
-import { DispatcherLambda } from './DispatcherLambda';
-import { IDispatcher } from '../../domain/events/DomainEvents';
+import { IInvoker, LambdaInvoker } from './LambdaInvoker';
 import { DomainEventBase } from '../../domain/events/DomainEventBase';
 import { DomainEventTypes } from '../../domain/events/DomainEventTypes';
 
@@ -17,10 +16,10 @@ const subscribers = {
 };
 
 class DistributeDomainEvents {
-  private dispatcher: IDispatcher;
+  private invoker: IInvoker;
 
   public constructor() {
-    this.dispatcher = new DispatcherLambda();
+    this.invoker = new LambdaInvoker();
   }
 
   public async execute(event: DomainEventBase) {
@@ -28,7 +27,7 @@ class DistributeDomainEvents {
 
     await Promise.all(
       subscribers[event.type].map((lambda) => {
-        return this.dispatcher.dispatch(event, lambda);
+        return this.invoker.invokeEventHandler(event, lambda);
       })
     );
 

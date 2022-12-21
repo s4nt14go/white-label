@@ -10,29 +10,20 @@ import { Guard } from '../../../../shared/core/Guard';
 import { CreateTransactionErrors } from '../createTransaction/CreateTransactionErrors';
 import { ControllerResultAsync } from '../../../../shared/core/BaseController';
 import { Status } from '../../../../shared/core/Status';
-import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { CreateTransactionEvents } from '../createTransaction/CreateTransactionEvents';
+import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
 const { CREATED, BAD_REQUEST } = Status;
 
 export class Transfer extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
-  public constructor(
-    accountRepo: IAccountRepo,
-    dispatcher: IDispatcher,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    renewConn: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getTransaction: any
-  ) {
-    super(renewConn, getTransaction);
+  public constructor(accountRepo: IAccountRepo, invoker: IInvoker) {
+    super();
     this.accountRepo = accountRepo;
-    CreateTransactionEvents.registration(dispatcher);
+    CreateTransactionEvents.registration(invoker);
   }
 
   protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
-    // As this use case is a command, include all repos queries in a serializable transaction
-    this.accountRepo.setTransaction(this.transaction);
 
     const descriptionOrError = Description.create({ value: dto.fromDescription });
     if (descriptionOrError.isFailure)

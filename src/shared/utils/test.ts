@@ -7,7 +7,6 @@ import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder, TextEncoder } from 'util';
 import Chance from 'chance';
 import { Request as CreateUserDTOreq } from '../../modules/users/useCases/createUser/CreateUserDTOs';
-import { Transaction as SequelizeTransaction } from 'sequelize';
 import { AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';
 import stringify from 'json-stringify-safe';
@@ -105,8 +104,6 @@ const parsePayload = (payload?: Uint8Array) => {
   console.log('decoded', decoded);
   return JSON.parse(decoded);
 };
-
-export const fakeTransaction = null as unknown as Promise<SequelizeTransaction>;
 
 export const getAppSyncEvent = (data: unknown) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

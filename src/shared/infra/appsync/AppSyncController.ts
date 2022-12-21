@@ -1,51 +1,25 @@
-import { AppSyncResolverEvent, Context } from 'aws-lambda';
+import { AppSyncResolverEvent } from 'aws-lambda';
 import { Envelope } from '../../core/Envelope';
 import { BaseError } from '../../core/AppError';
-import { BaseController, EnvelopUnexpectedError } from '../../core/BaseController';
-import { Created } from '../../core/Created';
+import {ControllerResultAsync } from '../../core/BaseController';
+import { ExeResponse } from '../../decorators/IDecorator';
 
 export const successfulCodes = [200, 201];
 
-type ExeResponse = Promise<
-  // executeImpl didn't throw
-  // ...if it completed the use case successfully
-  | Envelope<unknown | Created>
-  // ...if it couldn't complete the use case because of an expected possible error
-  | Envelope<BaseError>
+export abstract class AppSyncController<Request, Response> {
 
-  // executeImpl threw
-  // ...if it's a db error, retry:
-  | void // for lambda retry
-  // ....if it's not a db error => handleUnexpectedError > serverError:
-  | EnvelopUnexpectedError
->;
-export abstract class AppSyncController<Request, Response> extends BaseController<
-  AppSyncResolverEvent<Request>,
-  Response,
-  ExeResponse
-> {
-  protected event!: AppSyncResolverEvent<Request>;
-  protected context!: Context;
-
+  protected abstract executeImpl(
+    dto: unknown | Request
+  ): ControllerResultAsync<Response>;
   public async execute(
     event: AppSyncResolverEvent<Request>,
-    context: Context
   ): ExeResponse {
-    this.event = event;
-    this.context = context;
+    console.log(`${this.constructor.name}.execute`);
 
-    try {
-      if (this.getTransaction) this.transaction = await this.getTransaction();
-      const implResult = await this.executeImpl(event.arguments);
-      if (successfulCodes.includes(implResult.status)) {
-        if (this.transaction) await this.handleCommit();
-        return Envelope.ok(implResult.result);
-      } else {
-        console.log('implResult error', implResult);
-        return Envelope.error(implResult.result as BaseError);
-      }
-    } catch (err) {
-      return await this.handleUnexpectedError(err);
-    }
+    const implResult = await this.executeImpl(event.arguments);
+    if (successfulCodes.includes(implResult.status)) return Envelope.ok(implResult.result);
+
+    console.log('implResult error', implResult);
+    return Envelope.error(implResult.result as BaseError);
   }
 }

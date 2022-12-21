@@ -1,18 +1,15 @@
 import { DomainEventBase } from './DomainEventBase';
 import { AggregateRoot } from '../AggregateRoot';
 import { EntityID } from '../EntityID';
-
-export interface IDispatcher {
-  dispatch(event: DomainEventBase, handler: string): void;
-}
+import { IInvoker } from '../../infra/invocation/LambdaInvoker';
 
 export class DomainEvents {
   private static handlersMap: Record<string, string[]> = {};
   private static markedAggregates: AggregateRoot<unknown>[] = [];
-  private static dispatcher: IDispatcher;
+  private static invoker: IInvoker;
 
-  public static setDispatcher(dispatcher: IDispatcher) {
-    DomainEvents.dispatcher = dispatcher;
+  public static setInvoker(invoker: IInvoker) {
+    DomainEvents.invoker = invoker;
   }
 
   /**
@@ -93,7 +90,7 @@ export class DomainEvents {
     if (Object.prototype.hasOwnProperty.call(this.handlersMap, eventClassName)) {
       const handlers: string[] = this.handlersMap[eventClassName];
       for (const handler of handlers) {
-        await DomainEvents.dispatcher.dispatch(event, handler);
+        await DomainEvents.invoker.invokeEventHandler(event, handler);
       }
     }
   }

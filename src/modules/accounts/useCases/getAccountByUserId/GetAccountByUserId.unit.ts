@@ -1,7 +1,6 @@
 import { GetAccountByUserId } from './GetAccountByUserId';
 import { Request, Response } from './GetAccountByUserIdDTOs';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
-import { Context } from 'aws-lambda';
 import { getAppSyncEvent as getEvent } from '../../../../shared/utils/test';
 import { Envelope } from '../../../../shared/core/Envelope';
 import { BaseError } from '../../../../shared/core/AppError';
@@ -9,25 +8,25 @@ import { BaseError } from '../../../../shared/core/AppError';
 let accountRepo, getAccountByUserId: GetAccountByUserId;
 beforeAll(() => {
   accountRepo = new AccountRepoFake();
-  getAccountByUserId = new GetAccountByUserId(accountRepo, {});
+  getAccountByUserId = new GetAccountByUserId(accountRepo);
 });
 
-const context = {} as unknown as Context;
 it('gets an account', async () => {
   const validData: Request = {
     userId: UserId.GOOD,
   };
 
   const response = (await getAccountByUserId.execute(
-    getEvent(validData),
-    context
+    getEvent(validData)
   )) as Envelope<Response>;
 
   expect(response.result?.balance).toBe(100); // faked balance is 100
 });
 
 it(`fails when userId isn't defined`, async () => {
-  const result = (await getAccountByUserId.execute(getEvent({}), context)) as Envelope<BaseError>;
+  const result = (await getAccountByUserId.execute(
+    getEvent({})
+  )) as Envelope<BaseError>;
 
   expect(result.errorType).toBe('GetAccountByUserIdErrors.UserIdNotDefined');
 });
@@ -37,8 +36,7 @@ it(`fails when userId isn't a string`, async () => {
   };
 
   const result = (await getAccountByUserId.execute(
-    getEvent(badData),
-    context
+    getEvent(badData)
   )) as Envelope<BaseError>;
 
   expect(result.errorType).toBe('GetAccountByUserIdErrors.UserIdNotString');
@@ -49,8 +47,7 @@ it(`fails when userId isn't an uuid`, async () => {
   };
 
   const result = (await getAccountByUserId.execute(
-    getEvent(badData),
-    context
+    getEvent(badData)
   )) as Envelope<BaseError>;
 
   expect(result.errorType).toBe('GetAccountByUserIdErrors.UserIdNotUuid');
@@ -62,11 +59,8 @@ it(`fails when account isn't found`, async () => {
   };
 
   const response = (await getAccountByUserId.execute(
-    getEvent(validData),
-    context
+    getEvent(validData)
   )) as Envelope<BaseError>;
 
-  expect(response.errorType).toBe(
-    'GetAccountByUserIdErrors.AccountNotFound'
-  );
+  expect(response.errorType).toBe('GetAccountByUserIdErrors.AccountNotFound');
 });

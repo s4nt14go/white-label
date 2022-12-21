@@ -1,21 +1,16 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import setHooks from '../../../../shared/infra/database/sequelize/hooks';
-import { DispatcherFake } from '../../../../shared/infra/dispatchEvents/DispatcherFake';
+import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
 import { Transfer } from './Transfer';
 import { Response } from './TransferDTOs';
-import {
-  fakeTransaction,
-  getAppSyncEvent as getEvent,
-} from '../../../../shared/utils/test';
+import { getAppSyncEvent as getEvent } from '../../../../shared/utils/test';
 import {
   AccountRepo,
   createUserAndAccount,
   deleteUsers,
 } from '../../../../shared/utils/repos';
-import { IDispatcher } from '../../../../shared/domain/events/DomainEvents';
 import { DomainEventBase } from '../../../../shared/domain/events/DomainEventBase';
-import { Context } from 'aws-lambda';
 import { Envelope } from '../../../../shared/core/Envelope';
 import { Account } from '../../domain/Account';
 import { Request } from './TransferDTOs';
@@ -24,6 +19,7 @@ import { Amount } from '../../domain/Amount';
 import { Description } from '../../domain/Description';
 import Chance from 'chance';
 import { AccountRepoFake } from '../../repos/AccountRepoFake';
+import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
 
 const chance = new Chance();
 
@@ -35,8 +31,11 @@ if (!distributeDomainEvents) {
 }
 
 let transfer: Transfer,
-  dispatcherFake: IDispatcher,
-  spyOnDispatch: jest.SpyInstance<void, [event: DomainEventBase, handler: string]>;
+  invokerFake: IInvoker,
+  spyOnInvoker: jest.SpyInstance<
+    unknown,
+    [event: DomainEventBase, handler: string]
+  >;
 interface Seed {
   userId: string;
   account: Account;
@@ -44,8 +43,8 @@ interface Seed {
 let fromSeed: Seed, toSeed: Seed, fund: number;
 beforeAll(async () => {
   setHooks();
-  dispatcherFake = new DispatcherFake();
-  spyOnDispatch = jest.spyOn(dispatcherFake, 'dispatch');
+  invokerFake = new LambdaInvokerFake();
+  spyOnInvoker = jest.spyOn(invokerFake, 'invokeEventHandler');
 
   fromSeed = await createUserAndAccount();
   fund = 100;
@@ -60,16 +59,15 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  spyOnDispatch.mockClear();
+  spyOnInvoker.mockClear();
 });
 
 afterAll(async () => {
   await deleteUsers([{ id: fromSeed.userId }, { id: toSeed.userId }]);
 });
 
-const context = {} as unknown as Context;
-test('Domain event dispatcher calls distributeDomainEvents with the 2 transactions data that produces a transfer', async () => {
-  transfer = new Transfer(AccountRepo, dispatcherFake, {}, fakeTransaction);
+test('Domain event dispatcher invokes distributeDomainEvents with the 2 transactions data that produces a transfer', async () => {
+  transfer = new Transfer(AccountRepo, invokerFake);
 
   const dto: Request = {
     fromUserId: fromSeed.userId,
@@ -81,7 +79,6 @@ test('Domain event dispatcher calls distributeDomainEvents with the 2 transactio
 
   const response = (await transfer.execute(
     getEvent(dto),
-    context
   )) as Envelope<Response>;
 
   expect(response).not.toMatchObject({
@@ -108,14 +105,14 @@ test('Domain event dispatcher calls distributeDomainEvents with the 2 transactio
     type: 'TransactionCreatedEvent',
     version: 0,
   };
-  const dispatcherIntakeFrom = expect.objectContaining(intakeFrom);
-  expect(spyOnDispatch).toHaveBeenCalledWith(
-    dispatcherIntakeFrom,
+  const invokerIntakeFrom = expect.objectContaining(intakeFrom);
+  expect(spyOnInvoker).toHaveBeenCalledWith(
+    invokerIntakeFrom,
     distributeDomainEvents
   );
 
   accountId = toSeed.account.id.toString();
-  const dispatcherIntakeTo = expect.objectContaining({
+  const invokerIntakeTo = expect.objectContaining({
     ...intakeFrom,
     aggregateId: accountId,
     transaction: {
@@ -126,20 +123,15 @@ test('Domain event dispatcher calls distributeDomainEvents with the 2 transactio
       description: dto.toDescription,
     },
   });
-  expect(spyOnDispatch).toHaveBeenCalledWith(
-    dispatcherIntakeTo,
+  expect(spyOnInvoker).toHaveBeenCalledWith(
+    invokerIntakeTo,
     distributeDomainEvents
   );
-  expect(spyOnDispatch).toBeCalledTimes(2);
+  expect(spyOnInvoker).toBeCalledTimes(2);
 });
 
 test(`distributeDomainEvents isn't called when saving to DB fails [transfer]`, async () => {
-  transfer = new Transfer(
-    new AccountRepoFake(),
-    dispatcherFake,
-    {},
-    fakeTransaction
-  );
+  transfer = new Transfer(new AccountRepoFake(), invokerFake);
 
   const dto: Request = {
     fromUserId: fromSeed.userId,
@@ -150,9 +142,9 @@ test(`distributeDomainEvents isn't called when saving to DB fails [transfer]`, a
   };
 
   try {
-    await transfer.execute(getEvent(dto), context);
+    await transfer.execute(getEvent(dto));
     // eslint-disable-next-line no-empty
   } catch {}
 
-  expect(spyOnDispatch).toBeCalledTimes(0);
+  expect(spyOnInvoker).toBeCalledTimes(0);
 });
