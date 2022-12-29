@@ -10,7 +10,7 @@ Communication in the same module is given as an example but using domain events 
 
 The lambda entry point for `CreateUser` use case is [src/modules/users/useCases/createUser/index.ts](src/modules/users/useCases/createUser/index.ts), there we:
 * Create [CreateUser](src/modules/users/useCases/createUser/CreateUser.ts) controller
-* In `CreateUser.constructor` we register `UserCreatedEvent` to an intermediate lambda [DistributeDomainEvents](src/shared/infra/dispatchEvents/DistributeDomainEvents.ts) that will invoke all its subscribers (`StoreEvent`, `CreateAccount`, `NotifySlackChannel` and `SomeWork` lambdas).
+* In `CreateUser.constructor` we register `UserCreatedEvent` to an intermediate lambda [DistributeDomainEvents](src/shared/infra/invocation/DistributeDomainEvents.ts) that will invoke all its subscribers (`StoreEvent`, `CreateAccount`, `NotifySlackChannel` and `SomeWork` lambdas).
 
 This is the transaction tracing from [Lumigo](https://lumigo.io):
 
@@ -84,6 +84,13 @@ E2E tests:
 - Notifications:
   - [NotifyFE](src/modules/notification/useCases/notifyFE/NotifyFE.e2e.ts)
 
+## Decorators
+
+For cross-cutting concerns these decorators are used:
+* [ReturnUnexpectedError](src/shared/decorators/ReturnUnexpectedError.ts): When we receive a FE client request and the server throws an unexpected error, we log the error, request and context; and return a well-formed error response to the FE client. Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [GetAccountByUserID](src/modules/accounts/useCases/getAccountByUserId/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
+* [Transaction](src/shared/decorators/Transaction.ts): All command use cases that use the SQL DB should be wrapped in a serializable transaction (for query use cases don't). Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
+* [DBretry](src/shared/decorators/DBretry.ts): Handle retries for DB/Sequelize connection failures. Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/index.ts), [GetAccountByUserID](src/modules/accounts/useCases/getAccountByUserId/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
+
 ## Stack
 
 * DBs: PostgreSQL [CockroachDB](https://www.cockroachlabs.com) Serverless and DynamoDB
@@ -98,7 +105,7 @@ I've used **SST Serverless Stack** as it allows debugging lambda code locally wh
 
 I started this project using Khalil Stemmler's [white-label](https://github.com/stemmlerjs/white-label) `users` module and applied some concepts based on [Vladimir Khorikov](https://enterprisecraftsmanship.com) courses where he tackles DDD in a great way.
 
-I also added modules `accounts`, `audit`, use case `NotifyFE`, transactions support, refactored from REST to GraphQL API, turned it into serverless and wrote a bunch of tests.
+I also added modules `accounts`, `audit`, `notifications`, decorators for cross-cutting concerns to support SQL transactions and DB retry, refactored from REST to GraphQL API, turned it into serverless and wrote a bunch of tests.
 
 ## Instructions
 
