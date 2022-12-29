@@ -46,10 +46,7 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const DBretryTable = new Table(stack, 'DBretry', {
     fields: {
-      // Key
       retryToken: 'string',
-      // Values
-      failNumber: 'number',
     },
     primaryIndex: { partitionKey: 'retryToken' },
   });
