@@ -5,7 +5,7 @@ import { GetAccountByUserIdErrors } from './GetAccountByUserIdErrors';
 import { AccountMap } from '../../mappers/AccountMap';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Status } from '../../../../shared/core/Status';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 import { AppSyncController } from '../../../../shared/infra/appsync/AppSyncController';
 
 const { OK, BAD_REQUEST } = Status;
@@ -18,7 +18,7 @@ export class GetAccountByUserId extends AppSyncController<Request, Response> {
     this.accountRepo = accountRepo;
   }
 
-  protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(dto: Request): ControllerResult<Response> {
     const { userId } = dto;
 
     const guardNull = Guard.againstNullOrUndefined(

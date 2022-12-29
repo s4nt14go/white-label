@@ -56,7 +56,6 @@ let connection = new Sequelize(
 );
 
 const renewConn = async () => {
-  await connection.close();
   connection = new Sequelize(
     databaseCredentials.database,
     databaseCredentials.username,

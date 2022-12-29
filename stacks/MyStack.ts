@@ -37,64 +37,56 @@ export async function MyStack({ stack, app }: StackContext) {
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
   });
-  notifySlackChannel.grantInvoke(distributeDomainEvents);
-  distributeDomainEvents.addEnvironment(
-    'notifySlackChannel',
-    notifySlackChannel.functionName
-  );
+  allowSubscribeToDomainEvents(notifySlackChannel, 'notifySlackChannel');
 
   const someWork = new Function(stack, 'someWork', {
     handler: 'modules/users/useCases/someWork/index.handler',
   });
-  someWork.grantInvoke(distributeDomainEvents);
-  distributeDomainEvents.addEnvironment('someWork', someWork.functionName);
+  allowSubscribeToDomainEvents(someWork, 'someWork');
+
+  const DBretryTable = new Table(stack, 'DBretry', {
+    fields: {
+      // Key
+      retryToken: 'string',
+      // Values
+      failNumber: 'number',
+    },
+    primaryIndex: { partitionKey: 'retryToken' },
+  });
 
   const createAccount = new Function(stack, 'createAccount', {
     handler: 'modules/accounts/useCases/createAccount/index.handler',
     environment: dbCreds,
   });
-  allowAutoInvoke(createAccount); // wip: All use cases involving CockroachDB should be retryable if we get db errors [Note 1]
-  createAccount.grantInvoke(distributeDomainEvents);
-  distributeDomainEvents.addEnvironment(
-    'createAccount',
-    createAccount.functionName
-  );
+  allowSubscribeToDomainEvents(createAccount, 'createAccount');
+  DBretryable(createAccount);
 
   const createUser = new Function(stack, 'createUser', {
     handler: 'modules/users/useCases/createUser/index.handler',
-    environment: {
-      ...dbCreds,
-      distributeDomainEvents: distributeDomainEvents.functionName,
-    },
+    environment: dbCreds,
   });
-  allowAutoInvoke(createUser); // See Note 1
-  distributeDomainEvents.grantInvoke(createUser);
+  allowEmittingDomainEvents(createUser);
+  DBretryable(createUser);
 
   const createTransaction = new Function(stack, 'createTransaction', {
     handler: 'modules/accounts/useCases/createTransaction/index.handler',
-    environment: {
-      ...dbCreds,
-      distributeDomainEvents: distributeDomainEvents.functionName,
-    },
+    environment: dbCreds,
   });
-  allowAutoInvoke(createTransaction); // // See Note 1
-  distributeDomainEvents.grantInvoke(createTransaction);
+  allowEmittingDomainEvents(createTransaction);
+  DBretryable(createTransaction);
 
   const transfer = new Function(stack, 'transfer', {
     handler: 'modules/accounts/useCases/transfer/index.handler',
-    environment: {
-      ...dbCreds,
-      distributeDomainEvents: distributeDomainEvents.functionName,
-    },
+    environment: dbCreds,
   });
-  allowAutoInvoke(transfer); // // See Note 1
-  distributeDomainEvents.grantInvoke(transfer);
+  allowEmittingDomainEvents(transfer);
+  DBretryable(transfer);
 
   const getAccountByUserId = new Function(stack, 'getAccountByUserId', {
     handler: 'modules/accounts/useCases/getAccountByUserId/index.handler',
     environment: dbCreds,
   });
-  allowAutoInvoke(getAccountByUserId); // See Note 1
+  DBretryable(getAccountByUserId);
 
   const adaptResult = {
     file: 'src/shared/infra/appsync/templates/adaptResult.vtl',
@@ -190,8 +182,7 @@ export async function MyStack({ stack, app }: StackContext) {
       appsyncUrl: api.url,
     },
   });
-  distributeDomainEvents.addEnvironment('notifyFE', notifyFE.functionName);
-  notifyFE.grantInvoke(distributeDomainEvents);
+  allowSubscribeToDomainEvents(notifyFE, 'notifyFE');
 
   const storageTable = new Table(stack, 'Storage', {
     fields: {
@@ -225,8 +216,7 @@ export async function MyStack({ stack, app }: StackContext) {
       StorageTable: storageTable.tableName,
     },
   });
-  distributeDomainEvents.addEnvironment('storeEvent', storeEvent.functionName);
-  storeEvent.grantInvoke(distributeDomainEvents);
+  allowSubscribeToDomainEvents(storeEvent, 'storeEvent');
   storeEvent.addToRolePolicy(
     new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
@@ -241,16 +231,28 @@ export async function MyStack({ stack, app }: StackContext) {
     appsyncUrl: api.url,
   });
 
-  // Allow function to call itself for retry strategy implemented in BaseController and BaseTransaction using lambda dispatcher
   // eslint-disable-next-line @typescript-eslint/ban-types
-  function allowAutoInvoke(lambda: Function) {
-    const statement = new iam.PolicyStatement({
-      actions: ['lambda:InvokeFunction'],
-      resources: [lambda.functionArn],
-    });
-    const policy = new iam.Policy(stack, `autoInvoke_${lambda.toString()}`, {
-      statements: [statement],
-    });
-    policy.attachToRole(<iam.IRole>lambda.role);
+  function allowEmittingDomainEvents(lambda: Function) {
+    distributeDomainEvents.grantInvoke(lambda);
+    lambda.addEnvironment(
+      'distributeDomainEvents',
+      distributeDomainEvents.functionName
+    );
+  }
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  function allowSubscribeToDomainEvents(lambda: Function, envVar: string) {
+    lambda.grantInvoke(distributeDomainEvents); // distributeDomainEvents can invoke lambda
+    distributeDomainEvents.addEnvironment(envVar, lambda.functionName);
+  }
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  function DBretryable(lambda: Function) {
+    lambda.addEnvironment('DBretryTable', DBretryTable.tableName);
+    lambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [DBretryTable.tableArn],
+        actions: ['dynamodb:UpdateItem', 'dynamodb:GetItem'],
+      })
+    );
   }
 }

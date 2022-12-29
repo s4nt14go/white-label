@@ -8,6 +8,7 @@ import { Amount } from '../../../accounts/domain/Amount';
 import { Description } from '../../../accounts/domain/Description';
 import { NotificationTargets } from '../../domain/NotificationTargets';
 import { NotificationTypes } from '../../domain/NotificationTypes';
+import { dateFormat } from '../../../../shared/utils/test';
 
 test('Notification to FE', async () => {
   const appsyncClient = new AppSyncClient();
@@ -51,7 +52,7 @@ test('Notification to FE', async () => {
           id: expect.any(String),
           balance,
           delta,
-          date: expect.any(String),
+          date: expect.stringMatching(dateFormat),
           description,
         }),
       },

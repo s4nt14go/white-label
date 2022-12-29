@@ -1,15 +1,9 @@
-import { Transaction as SequelizeTransaction } from 'sequelize';
 import { ExeResponse } from './IDecorator';
 import { ReturnUnexpectedError } from './ReturnUnexpectedError';
 import { Transaction } from './Transaction';
+import { fakeTransactionWithError } from '../utils/test';
 
 test('Return unexpected error when sequelize transaction errors', async () => {
-  const fakeTransactionWithError = () =>
-    ({
-      commit() {
-        throw Error(`Error faked!`);
-      },
-    } as unknown as SequelizeTransaction);
   const dummyController = {
     execute(): ExeResponse {
       return Object();

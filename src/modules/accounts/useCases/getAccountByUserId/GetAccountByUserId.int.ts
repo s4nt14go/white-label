@@ -11,6 +11,7 @@ import {
 } from '../../../../shared/utils/repos';
 import { Request } from './GetAccountByUserIdDTOs';
 import { Account } from '../../domain/Account';
+import { User } from '../../../users/domain/User';
 
 // Add all process.env used:
 const { getAccountByUserId } = process.env;
@@ -19,25 +20,26 @@ if (!getAccountByUserId) {
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { userId: string; account: Account };
+let seed: { user: User, account: Account }, seedUserId : string;
 beforeAll(async () => {
   seed = await createUserAndAccount();
+  seedUserId = seed.user.id.toString();
 });
 
 afterAll(async () => {
-  await deleteUsers([{ id: seed.userId }]);
+  await deleteUsers([{ id: seedUserId }]);
 });
 
 it('gets an account', async () => {
   const dto: Request = {
-    userId: seed.userId,
+    userId: seedUserId,
   };
   const invoked = await invokeLambda(getEvent(dto), getAccountByUserId);
 
   expect(invoked.result.balance).toBe(0);
 
-  const account = await AccountRepo.getAccountByUserId(seed.userId);
-  if (!account) throw new Error(`Account not found for userId ${seed.userId}`);
+  const account = await AccountRepo.getAccountByUserId(seedUserId);
+  if (!account) throw new Error(`Account not found for userId ${seedUserId}`);
   expect(account.transactions.length).toBe(1); // Initial transaction when seeding
   expect(account.transactions[0].balance.value).toBe(0);
 });

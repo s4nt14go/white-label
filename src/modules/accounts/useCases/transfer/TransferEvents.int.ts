@@ -20,6 +20,7 @@ import { Description } from '../../domain/Description';
 import Chance from 'chance';
 import { AccountRepoFake } from '../../repos/AccountRepoFake';
 import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
+import { User } from '../../../users/domain/User';
 
 const chance = new Chance();
 
@@ -36,17 +37,18 @@ let transfer: Transfer,
     unknown,
     [event: DomainEventBase, handler: string]
   >;
-interface Seed {
-  userId: string;
+type Seed = {
+  user: User;
   account: Account;
 }
-let fromSeed: Seed, toSeed: Seed, fund: number;
+let fromSeed: Seed, toSeed: Seed, fund: number, fromSeedUserId: string, toSeedUserId: string;
 beforeAll(async () => {
   setHooks();
   invokerFake = new LambdaInvokerFake();
-  spyOnInvoker = jest.spyOn(invokerFake, 'invokeEventHandler');
+  spyOnInvoker = jest.spyOn(invokerFake, 'invoke');
 
   fromSeed = await createUserAndAccount();
+  fromSeedUserId = fromSeed.user.id.toString();
   fund = 100;
   const fundT = Transaction.create({
     delta: Amount.create({ value: fund }).value,
@@ -56,6 +58,7 @@ beforeAll(async () => {
   }).value;
   await AccountRepo.createTransaction(fundT, fromSeed.account.id.toString());
   toSeed = await createUserAndAccount();
+  toSeedUserId = toSeed.user.id.toString();
 });
 
 beforeEach(async () => {
@@ -63,15 +66,15 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  await deleteUsers([{ id: fromSeed.userId }, { id: toSeed.userId }]);
+  await deleteUsers([{ id: fromSeedUserId }, { id: toSeedUserId }]);
 });
 
 test('Domain event dispatcher invokes distributeDomainEvents with the 2 transactions data that produces a transfer', async () => {
   transfer = new Transfer(AccountRepo, invokerFake);
 
   const dto: Request = {
-    fromUserId: fromSeed.userId,
-    toUserId: toSeed.userId,
+    fromUserId: fromSeedUserId,
+    toUserId: toSeedUserId,
     quantity: 30,
     fromDescription: `Test: ${chance.sentence()}`,
     toDescription: `Test: ${chance.sentence()}`,
@@ -134,8 +137,8 @@ test(`distributeDomainEvents isn't called when saving to DB fails [transfer]`, a
   transfer = new Transfer(new AccountRepoFake(), invokerFake);
 
   const dto: Request = {
-    fromUserId: fromSeed.userId,
-    toUserId: toSeed.userId,
+    fromUserId: fromSeedUserId,
+    toUserId: toSeedUserId,
     quantity: 30,
     fromDescription: 'THROW_WHEN_SAVE',
     toDescription: 'THROW_WHEN_SAVE',

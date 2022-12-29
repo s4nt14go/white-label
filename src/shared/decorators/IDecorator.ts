@@ -8,8 +8,6 @@ export type ExeResponse = Promise<
   | Envelope<unknown | Created>
   // ...if AppSyncController/SubscriberController couldn't complete the use case because of an expected possible error
   | Envelope<BaseError>
-  // ...when SubscriberController returns void
-  | void
   >;
 
 export interface IDecorator<Request> {

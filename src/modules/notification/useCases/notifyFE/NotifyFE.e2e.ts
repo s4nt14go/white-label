@@ -15,6 +15,7 @@ import { Account } from '../../../accounts/domain/Account';
 import { Request } from '../../../accounts/useCases/createTransaction/CreateTransactionDTOs';
 import {
   addDecimals,
+  dateFormat,
   deleteItems,
   getByPart,
   getRandom,
@@ -24,6 +25,7 @@ import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import { NotificationTypes } from '../../domain/NotificationTypes';
 import { NotificationTargets } from '../../domain/NotificationTargets';
+import { User } from '../../../users/domain/User';
 
 const appsync = new AppSyncClient();
 const chance = new Chance();
@@ -42,12 +44,13 @@ if (
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { userId: string; account: Account };
+let seed: { user: User; account: Account }, seedUserId: string;
 let client, subscription: ZenObservable.Subscription;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const notifications: Record<string, any>[] = [];
 beforeAll(async () => {
   seed = await createUserAndAccount();
+  seedUserId = seed.user.id.toString();
 
   client = new AWSAppSyncClient({
     url: appsyncUrl,
@@ -91,7 +94,7 @@ beforeAll(async () => {
 let auditEvents: Record<string, unknown>[];
 let transactionId: number;
 afterAll(async () => {
-  await deleteUsers([{ id: seed.userId }]);
+  await deleteUsers([{ id: seedUserId }]);
   await deleteItems(
     [
       {
@@ -116,7 +119,7 @@ afterAll(async () => {
 
 test('Create transaction', async () => {
   const dto: Request = {
-    userId: seed.userId,
+    userId: seedUserId,
     description: `Test: ${chance.sentence()}`,
     delta: getRandom({ min: 0 }),
   };
@@ -152,7 +155,7 @@ test('Create transaction', async () => {
           transaction: expect.objectContaining({
             balance: addDecimals(seed.account.balance().value, dto.delta),
             delta: dto.delta,
-            date: expect.any(String),
+            date: expect.stringMatching(dateFormat),
             description: dto.description,
             id: expect.any(String),
           }),
@@ -160,7 +163,8 @@ test('Create transaction', async () => {
       ])
     );
 
-    transactionId = notifications.filter(n => n.accountId === accountId)[0].transaction.id;
+    transactionId = notifications.filter((n) => n.accountId === accountId)[0]
+      .transaction.id;
 
     const partValue = `TransactionCreatedEvent#${accountId}`;
     const got = await getByPart('typeAggregateId', partValue, StorageTable);

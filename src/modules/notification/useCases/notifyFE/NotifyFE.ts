@@ -1,6 +1,6 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { Request, Response } from './NotifyFeDTOs';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 import { IFeService } from '../../services/fe/IFeService';
 
 export class NotifyFE extends SubscriberController<Request, Response> {
@@ -11,7 +11,7 @@ export class NotifyFE extends SubscriberController<Request, Response> {
     this.feService = feService;
   }
 
-  protected async executeImpl(event: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(event: Request): ControllerResult<Response> {
     const { aggregateId: accountId, transaction } = event;
 
     await this.feService.transactionCreated({

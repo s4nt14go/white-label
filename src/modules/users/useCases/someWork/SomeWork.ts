@@ -1,7 +1,7 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { IExternalService } from '../../services/some';
 import { Request, Response } from './SomeWorkDTOs';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 
 export class SomeWork extends SubscriberController<Request, Response> {
   private externalService: IExternalService;
@@ -11,7 +11,7 @@ export class SomeWork extends SubscriberController<Request, Response> {
     this.externalService = externalService;
   }
 
-  protected async executeImpl(event: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(event: Request): ControllerResult<Response> {
     const { user } = event;
 
     await this.externalService.sendToExternal(user);

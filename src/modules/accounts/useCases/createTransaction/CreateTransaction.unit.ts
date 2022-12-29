@@ -2,8 +2,10 @@ import { ReturnUnexpectedError } from '../../../../shared/decorators/ReturnUnexp
 process.env.distributeDomainEvents = 'dummy';
 import { CreateTransaction } from './CreateTransaction';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
-import { Context } from 'aws-lambda';
-import { getAppSyncEvent as getEvent } from '../../../../shared/utils/test';
+import {
+  dateFormat,
+  getAppSyncEvent as getEvent,
+} from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
 import { Transaction } from '../../../../shared/decorators/Transaction';
@@ -16,7 +18,6 @@ beforeAll(() => {
   controller = new CreateTransaction(accountRepo, new LambdaInvokerFake());
 });
 
-const context = {} as unknown as Context;
 it('creates a transaction', async () => {
   const validData = {
     userId: UserId.GOOD,
@@ -30,7 +31,7 @@ it('creates a transaction', async () => {
     result: {
       id: expect.any(String),
     },
-    time: expect.any(String),
+    time: expect.stringMatching(dateFormat),
   });
   expect(result).not.toMatchObject({
     error: expect.anything(),
@@ -122,7 +123,7 @@ test('Internal server error when no transactions are found for the user', async 
 
   const decorated1 = new Transaction(controller, Object(), [accountRepo]);
   const decorated2 = new ReturnUnexpectedError(decorated1);
-  const result = await decorated2.execute(getEvent(data), context);
+  const result = await decorated2.execute(getEvent(data), Object());
 
   expect(result).toMatchObject({
     errorType: 'UnexpectedError',

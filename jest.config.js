@@ -8,7 +8,7 @@ switch (TEST_MODE) {
     break;
   case 'int':
     options.testRegex = '\\.int' + testRegex;
-    options.testTimeout = 20000;
+    options.testTimeout = 30000;
     break;
   case 'e2e':
     options.testRegex = '\\.e2e' + testRegex;

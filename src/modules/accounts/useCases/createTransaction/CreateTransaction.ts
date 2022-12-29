@@ -6,7 +6,7 @@ import { Amount } from '../../domain/Amount';
 import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
 import { Guard } from '../../../../shared/core/Guard';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 import { Status } from '../../../../shared/core/Status';
 import { CreateTransactionEvents } from './CreateTransactionEvents';
 import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
@@ -25,7 +25,7 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
     CreateTransactionEvents.registration(invoker);
   }
 
-  protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(dto: Request): ControllerResult<Response> {
 
     const { userId } = dto;
 

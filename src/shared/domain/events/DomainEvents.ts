@@ -72,8 +72,10 @@ export class DomainEvents {
     if (!Object.prototype.hasOwnProperty.call(this.handlersMap, eventClassName)) {
       this.handlersMap[eventClassName] = [];
     }
-    console.log(`Register handler ${handler} for ${eventClassName}`);
-    this.handlersMap[eventClassName].push(handler);
+    if (!this.handlersMap[eventClassName].includes(handler)) {
+      console.log(`Register handler ${handler} for ${eventClassName}`);
+      this.handlersMap[eventClassName].push(handler);
+    }
   }
 
   public static clearHandlers(): void {
@@ -90,7 +92,7 @@ export class DomainEvents {
     if (Object.prototype.hasOwnProperty.call(this.handlersMap, eventClassName)) {
       const handlers: string[] = this.handlersMap[eventClassName];
       for (const handler of handlers) {
-        await DomainEvents.invoker.invokeEventHandler(event, handler);
+        await DomainEvents.invoker.invoke(event, handler);
       }
     }
   }

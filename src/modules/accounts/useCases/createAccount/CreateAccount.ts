@@ -1,7 +1,7 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { Request, Response } from './CreateAccountDTOs';
 import { IAccountRepo } from '../../repos/IAccountRepo';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 
 export class CreateAccount extends SubscriberController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
@@ -11,7 +11,7 @@ export class CreateAccount extends SubscriberController<Request, Response> {
     this.accountRepo = accountRepo;
   }
 
-  protected async executeImpl(event: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(event: Request): ControllerResult<Response> {
 
     const { aggregateId } = event;
     await this.accountRepo.create(aggregateId);

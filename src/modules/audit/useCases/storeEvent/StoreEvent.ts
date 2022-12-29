@@ -1,6 +1,6 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { Request, Response } from './StoreEventDTOs';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 import { DomainEventTypes } from '../../../../shared/domain/events/DomainEventTypes';
 import { StoreService } from '../../services/StoreService';
 import { IStorage } from '../../services/IStorage';
@@ -15,7 +15,7 @@ export class StoreEvent extends SubscriberController<Request, Response> {
     this.storeService = new StoreService(storage);
   }
 
-  protected async executeImpl(event: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(event: Request): ControllerResult<Response> {
 
     switch (event.type) {
       case DomainEventTypes.UserCreatedEvent:

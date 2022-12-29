@@ -36,11 +36,18 @@ export const getNewUser = (): User => {
   });
 };
 
+// Creates an user and saves it on DB
+export const createUser = async (): Promise<User> => {
+  const user = getNewUser();
+  await UserRepo.create(user);
+  return user;
+};
+
 export const createUserAndAccount = async (): Promise<{
-  userId: string;
   account: Account;
+  user: User;
 }> => {
-  const userId = (await UserRepo.create(getNewUser())).toString();
-  const account = await AccountRepo.create(userId);
-  return { userId, account };
+  const user = await createUser();
+  const account = await AccountRepo.create(user.id.toString());
+  return { account, user };
 };

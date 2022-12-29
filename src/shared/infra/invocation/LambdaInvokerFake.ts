@@ -3,7 +3,7 @@ import { IInvoker } from './LambdaInvoker';
 import { ExeResponse } from '../../decorators/IDecorator';
 
 export class LambdaInvokerFake implements IInvoker {
-  public async invokeEventHandler(event: DomainEventBase, handler: string) {
+  public async invoke(event: DomainEventBase, handler: string) {
     console.log(`${this.constructor.name}.invokeEventHandler`, event, handler);
   }
 

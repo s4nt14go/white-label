@@ -23,7 +23,6 @@ export class StoreService {
   }
 
   public async saveTransactionCreated(event: TransactionCreatedEventDTO) {
-
     const { transaction: { id, balance, delta, date, description } } = event;
 
     await this.storage.saveEvent({

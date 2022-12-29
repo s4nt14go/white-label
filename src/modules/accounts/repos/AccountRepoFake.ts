@@ -14,6 +14,7 @@ export enum UserId {
 }
 
 export class AccountRepoFake extends Repository<Account> implements IAccountRepo {
+  private GOOD3 = 'GOOD3';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public create(userId: string): void {
     return;
@@ -25,6 +26,7 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
     transactionsLimit = 10
   ): Promise<Account | null> {
     switch (userId) {
+      case this.GOOD3:
       case UserId.GOOD:
       case UserId.GOOD2: {
         const rawAccount = {
@@ -62,5 +64,9 @@ export class AccountRepoFake extends Repository<Account> implements IAccountRepo
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public transfer(props: TransferProps): void {
     return;
+  }
+
+  public setGoodUserId(userId: string) {
+    this.GOOD3 = userId;
   }
 }

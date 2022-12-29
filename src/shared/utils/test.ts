@@ -6,6 +6,7 @@ import { UserEmail } from '../../modules/users/domain/UserEmail';
 import { Alias } from '../../modules/users/domain/Alias';
 import { TextDecoder, TextEncoder } from 'util';
 import Chance from 'chance';
+import lodash from 'lodash';
 import { Request as CreateUserDTOreq } from '../../modules/users/useCases/createUser/CreateUserDTOs';
 import { AppSyncResolverEvent } from 'aws-lambda';
 import { Lambda } from '@aws-sdk/client-lambda';
@@ -23,6 +24,10 @@ import fs from 'fs';
 import velocityTemplate from 'amplify-velocity-template';
 import * as velocityMapper from 'amplify-appsync-simulator/lib/velocity/value-mapper/mapper';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
+import {
+  ConnectionAcquireTimeoutError,
+  Transaction as SequelizeTransaction,
+} from 'sequelize';
 
 const DocumentClient = new DynamoDB.DocumentClient();
 
@@ -172,8 +177,13 @@ export const deleteItems = async (
   Keys: Record<string, unknown>[],
   TableName: string
 ) => {
-  return Promise.all(
+  return await Promise.all(
     Keys.map(async (Key) => {
+      if (!Key) {
+        // If undefined is passed here, the code escapes and the following command in the calling code won't be run
+        console.log('Key', Key);
+        throw Error('No Key to delete!');
+      }
       await DocumentClient.delete({
         TableName,
         Key,
@@ -185,4 +195,101 @@ export const deleteItems = async (
 export const retryDefault = {
   retries: 10,
   maxTimeout: 1000,
+};
+
+export const getRetryItem = async (tokenBeginning: string) => {
+  // Add all process.env used:
+  const { DBretryTable } = process.env;
+  if (!DBretryTable) {
+    console.log('process.env', process.env);
+    throw new Error(`Undefined env var!`);
+  }
+
+  const res = await DocumentClient.scan({
+    TableName: DBretryTable,
+    FilterExpression: 'begins_with(#attribute, :value)',
+    ExpressionAttributeNames: {
+      '#attribute': 'retryToken',
+    },
+    ExpressionAttributeValues: {
+      ':value': tokenBeginning,
+    },
+  }).promise();
+  if (!res.Items || res.Items.length !== 1) {
+    console.log('res', res);
+    throw Error(`When searching for tokenRetry didn't get 1 item`);
+  }
+  return res.Items[0];
+};
+
+export const dateFormat = new RegExp(
+  /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
+);
+
+export const fakeTransactionWithError = () =>
+  ({
+    commit() {
+      throw new ConnectionAcquireTimeoutError(Error('Database error faked!'));
+    },
+  } as unknown as SequelizeTransaction);
+
+export const deleteAuditEventsByPart = async (parts: string[]) => {
+  const promises = parts.map(async (part) => {
+    await _deleteAuditEventsByPart(part);
+  });
+  await Promise.all(promises);
+};
+const _deleteAuditEventsByPart = async (part: string) => {
+  // Add all process.env used:
+  const { StorageTable } = process.env;
+  if (!StorageTable) {
+    console.log('process.env', process.env);
+    throw new Error(`Undefined env var!`);
+  }
+
+  const loop = async (exclusiveStartKey?: DynamoDB.Key): Promise<void> => {
+    const resp = await DocumentClient.query({
+      TableName: StorageTable,
+      ExclusiveStartKey: exclusiveStartKey,
+      Limit: 100,
+      KeyConditionExpression: `typeAggregateId = :pk`,
+      ExpressionAttributeValues: {
+        ':pk': part,
+      },
+    }).promise();
+
+    if (resp.Items) {
+      const auditEventEntries = resp.Items.map((item) => ({
+        DeleteRequest: {
+          Key: {
+            typeAggregateId: item.typeAggregateId,
+            dateTimeOccurred: item.dateTimeOccurred,
+          },
+        },
+      }));
+
+      const chunks = lodash.chunk(auditEventEntries, 25);
+
+      const promises = chunks.map(async (chunk) => {
+        await DocumentClient.batchWrite({
+          RequestItems: {
+            [StorageTable]: chunk,
+          },
+        }).promise();
+      });
+      await Promise.all(promises);
+    }
+
+    if (resp.LastEvaluatedKey) {
+      return await loop(resp.LastEvaluatedKey);
+    }
+  };
+
+  try {
+    await loop();
+  } catch (error) {
+    // Log and throw error if fails to make more visible, otherwise it fails silently
+    console.log('error', error);
+    throw Error(JSON.stringify(error, null, 2));
+  }
 };

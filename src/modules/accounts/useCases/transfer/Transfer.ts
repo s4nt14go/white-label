@@ -8,7 +8,7 @@ import { BaseError } from '../../../../shared/core/AppError';
 import { Description } from '../../domain/Description';
 import { Guard } from '../../../../shared/core/Guard';
 import { CreateTransactionErrors } from '../createTransaction/CreateTransactionErrors';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 import { Status } from '../../../../shared/core/Status';
 import { CreateTransactionEvents } from '../createTransaction/CreateTransactionEvents';
 import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
@@ -23,7 +23,7 @@ export class Transfer extends AppSyncController<Request, Response> {
     CreateTransactionEvents.registration(invoker);
   }
 
-  protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(dto: Request): ControllerResult<Response> {
 
     const descriptionOrError = Description.create({ value: dto.fromDescription });
     if (descriptionOrError.isFailure)

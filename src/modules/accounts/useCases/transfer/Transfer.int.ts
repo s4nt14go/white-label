@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import {
+  dateFormat,
   deleteItems,
   getAppSyncEvent as getEvent,
   getByPart,
@@ -20,6 +21,7 @@ import { Amount } from '../../domain/Amount';
 import { Description } from '../../domain/Description';
 import { NotificationTypes } from '../../../notification/domain/NotificationTypes';
 import retry from 'async-retry';
+import { User } from '../../../users/domain/User';
 
 const chance = new Chance();
 
@@ -30,13 +32,14 @@ if (!transfer || !NotificationsTable || !StorageTable) {
   throw new Error(`Undefined env var!`);
 }
 
-interface Seed {
-  userId: string;
+type Seed = {
+  user: User;
   account: Account;
 }
-let fromSeed: Seed, toSeed: Seed, fund: number;
+let fromSeed: Seed, toSeed: Seed, fund: number, fromSeedUserId: string, toSeedUserId: string;
 beforeAll(async () => {
   fromSeed = await createUserAndAccount();
+  fromSeedUserId = fromSeed.user.id.toString();
   fund = 100;
   const fundT = Transaction.create({
     delta: Amount.create({ value: fund }).value,
@@ -46,6 +49,7 @@ beforeAll(async () => {
   }).value;
   await AccountRepo.createTransaction(fundT, fromSeed.account.id.toString());
   toSeed = await createUserAndAccount();
+  toSeedUserId = toSeed.user.id.toString();
 });
 
 const notifications: {
@@ -56,7 +60,7 @@ let auditEventsFrom: Record<string, unknown>[],
   auditEventsTo: Record<string, unknown>[],
   auditEventsAll: Record<string, unknown>[];
 afterAll(async () => {
-  await deleteUsers([{ id: fromSeed.userId }, { id: toSeed.userId }]);
+  await deleteUsers([{ id: fromSeedUserId }, { id: toSeedUserId }]);
   await deleteItems(notifications, NotificationsTable);
   auditEventsAll = auditEventsFrom.concat(auditEventsTo);
   auditEventsAll = auditEventsAll.map((event) => {
@@ -71,8 +75,8 @@ afterAll(async () => {
 
 test('transfer', async () => {
   const dto: Request = {
-    fromUserId: fromSeed.userId,
-    toUserId: toSeed.userId,
+    fromUserId: fromSeedUserId,
+    toUserId: toSeedUserId,
     quantity: 30,
     fromDescription: `Test: ${chance.sentence()}`,
     toDescription: `Test: ${chance.sentence()}`,
@@ -83,9 +87,9 @@ test('transfer', async () => {
     error: expect.anything(),
   });
 
-  const fromAccount = await AccountRepo.getAccountByUserId(fromSeed.userId);
+  const fromAccount = await AccountRepo.getAccountByUserId(fromSeedUserId);
   if (!fromAccount)
-    throw new Error(`fromAccount not found for userId ${fromSeed.userId}`);
+    throw new Error(`fromAccount not found for userId ${fromSeedUserId}`);
   expect(fromAccount.transactions.length).toBe(3); // Initial transaction when seeding with createUserAndAccount, funding transaction and transfer
   expect(fromAccount.transactions[0].balance.value).toBe(
     fromSeed.account.balance().value + fund - dto.quantity
@@ -96,9 +100,9 @@ test('transfer', async () => {
     fromSeed.account.balance().value + fund - dto.quantity
   );
 
-  const toAccount = await AccountRepo.getAccountByUserId(toSeed.userId);
+  const toAccount = await AccountRepo.getAccountByUserId(toSeedUserId);
   if (!toAccount)
-    throw new Error(`toAccount not found for userId ${toSeed.userId}`);
+    throw new Error(`toAccount not found for userId ${toSeedUserId}`);
   expect(toAccount.transactions.length).toBe(2); // Initial transaction when seeding with createUserAndAccount and transfer
   expect(toAccount.transactions[0].balance.value).toBe(
     toSeed.account.balance().value + dto.quantity
@@ -110,7 +114,7 @@ test('transfer', async () => {
   );
 
   expect(invoked).toMatchObject({
-    time: expect.any(String),
+    time: expect.stringMatching(dateFormat),
     result: {
       fromTransaction: fromAccount.transactions[0].id.toString(),
       toTransaction: toAccount.transactions[0].id.toString(),

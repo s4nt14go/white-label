@@ -4,6 +4,7 @@ import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
 import { CreateUser } from './CreateUser';
 import {
+  dateFormat,
   getAppSyncEvent as getEvent,
   getNewUserDto,
 } from '../../../../shared/utils/test';
@@ -31,7 +32,7 @@ let createUser: CreateUser,
 beforeAll(() => {
   setHooks();
   invokerFake = new LambdaInvokerFake();
-  spyOnInvoker = jest.spyOn(invokerFake, 'invokeEventHandler');
+  spyOnInvoker = jest.spyOn(invokerFake, 'invoke');
 });
 
 beforeEach(() => {
@@ -53,7 +54,7 @@ test('Domain event dispatcher invokes distributeDomainEvents with user data for 
   )) as Envelope<Created>;
 
   expect(response).toMatchObject({
-    time: expect.any(String),
+    time: expect.stringMatching(dateFormat),
     result: {
       id: expect.any(String),
     },

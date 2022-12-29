@@ -1,7 +1,7 @@
 import { SubscriberController } from '../../../../shared/core/SubscriberController';
 import { ISlackService } from '../../services/slack';
 import { Request, Response } from './NotifySlackChannelDTOs';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 
 type UserCreatedDTO = {
   email: string;
@@ -21,7 +21,7 @@ export class NotifySlackChannel extends SubscriberController<Request, Response> 
       Need to reach 'em? Their email is ${user.email}.`;
   }
 
-  protected async executeImpl(event: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(event: Request): ControllerResult<Response> {
     const { user } = event;
 
     await this.slackService.sendMessage(

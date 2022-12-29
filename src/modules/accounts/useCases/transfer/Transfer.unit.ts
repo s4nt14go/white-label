@@ -2,6 +2,7 @@ process.env.distributeDomainEvents = 'dummy';
 import { Transfer } from './Transfer';
 import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import {
+  dateFormat,
   getAppSyncEvent as getEvent,
   getRandom,
 } from '../../../../shared/utils/test';
@@ -27,7 +28,7 @@ test('Transfer', async () => {
   const result = await transfer.execute(getEvent(data));
 
   expect(result).toMatchObject({
-    time: expect.any(String),
+    time: expect.stringMatching(dateFormat),
     result : {
       fromTransaction: expect.any(String),
       toTransaction: expect.any(String),

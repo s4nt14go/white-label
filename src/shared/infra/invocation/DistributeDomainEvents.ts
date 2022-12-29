@@ -11,6 +11,9 @@ if (!notifySlackChannel || !someWork || !createAccount || !notifyFE || !storeEve
 const { UserCreatedEvent, TransactionCreatedEvent } = DomainEventTypes;
 
 const subscribers = {
+  // Set up permissions in MyStack.ts:
+  // Events/keys: allowEmittingDomainEvents
+  // Subscribers/values: allowSubscribeToDomainEvents
   [UserCreatedEvent]: [storeEvent, notifySlackChannel, someWork, createAccount],
   [TransactionCreatedEvent]: [storeEvent, notifyFE],
 };
@@ -24,10 +27,11 @@ class DistributeDomainEvents {
 
   public async execute(event: DomainEventBase) {
     console.log('event', event);
+    console.log(`subscribers[${event.type}]`, subscribers[event.type]);
 
     await Promise.all(
       subscribers[event.type].map((lambda) => {
-        return this.invoker.invokeEventHandler(event, lambda);
+        return this.invoker.invoke(event, lambda);
       })
     );
 

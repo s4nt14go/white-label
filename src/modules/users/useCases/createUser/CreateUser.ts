@@ -9,7 +9,7 @@ import { User } from '../../domain/User';
 import { IUserRepo } from '../../repos/IUserRepo';
 import { CreateUserEvents } from './CreateUserEvents';
 import { Alias } from '../../domain/Alias';
-import { ControllerResultAsync } from '../../../../shared/core/BaseController';
+import { ControllerResult } from '../../../../shared/core/ControllerResult';
 import { Status } from '../../../../shared/core/Status';
 import { BaseError } from '../../../../shared/core/AppError';
 import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
@@ -23,7 +23,7 @@ export class CreateUser extends AppSyncController<Request, Response> {
     CreateUserEvents.registration(invoker);
   }
 
-  protected async executeImpl(dto: Request): ControllerResultAsync<Response> {
+  protected async executeImpl(dto: Request): ControllerResult<Response> {
 
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });

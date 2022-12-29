@@ -3,7 +3,10 @@ dotenv.config();
 import setHooks from '../../../../shared/infra/database/sequelize/hooks';
 import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
 import { CreateTransaction } from './CreateTransaction';
-import { getAppSyncEvent as getEvent } from '../../../../shared/utils/test';
+import {
+  dateFormat,
+  getAppSyncEvent as getEvent,
+} from '../../../../shared/utils/test';
 import {
   AccountRepo,
   createUserAndAccount,
@@ -16,6 +19,7 @@ import { Account } from '../../domain/Account';
 import { Request as CreateTransactionDTOreq } from './CreateTransactionDTOs';
 import { AccountRepoFake } from '../../repos/AccountRepoFake';
 import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
+import { User } from '../../../users/domain/User';
 
 // Add all process.env used:
 const { distributeDomainEvents } = process.env;
@@ -24,7 +28,7 @@ if (!distributeDomainEvents) {
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { userId: string; account: Account };
+let seed: { user: User, account: Account }, seedUserId : string;
 let createTransaction: CreateTransaction,
   invokerFake: IInvoker,
   spyOnInvoker: jest.SpyInstance<
@@ -34,8 +38,9 @@ let createTransaction: CreateTransaction,
 beforeAll(async () => {
   setHooks();
   invokerFake = new LambdaInvokerFake();
-  spyOnInvoker = jest.spyOn(invokerFake, 'invokeEventHandler');
+  spyOnInvoker = jest.spyOn(invokerFake, 'invoke');
   seed = await createUserAndAccount();
+  seedUserId = seed.user.id.toString();
 });
 
 beforeEach(async () => {
@@ -43,14 +48,14 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  await deleteUsers([{ id: seed.userId }]);
+  await deleteUsers([{ id: seedUserId }]);
 });
 
 test('Domain event dispatcher invokes distributeDomainEvents with transaction data for TransactionCreatedEvent', async () => {
   createTransaction = new CreateTransaction(AccountRepo, invokerFake);
 
   const newTransaction: CreateTransactionDTOreq = {
-    userId: seed.userId,
+    userId: seedUserId,
     description: 'Test CreateTransactionEvents.int.ts',
     delta: 55,
   };
@@ -60,7 +65,7 @@ test('Domain event dispatcher invokes distributeDomainEvents with transaction da
   )) as Envelope<Created>;
 
   expect(response).toMatchObject({
-    time: expect.any(String),
+    time: expect.stringMatching(dateFormat),
     result: {
       id: expect.any(String),
     },
@@ -89,7 +94,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails [createTransac
   createTransaction = new CreateTransaction(new AccountRepoFake(), invokerFake);
 
   const newTransaction: CreateTransactionDTOreq = {
-    userId: seed.userId,
+    userId: seedUserId,
     description: 'THROW_WHEN_SAVE',
     delta: 55,
   };

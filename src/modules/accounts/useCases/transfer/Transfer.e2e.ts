@@ -15,12 +15,14 @@ import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import { MutationTransferResponse } from '../../../../shared/infra/appsync/schema.graphql';
 import gql from 'graphql-tag';
 import {
+  dateFormat,
   deleteItems,
   getByPart,
   retryDefault,
 } from '../../../../shared/utils/test';
 import { NotificationTypes } from '../../../notification/domain/NotificationTypes';
 import retry from 'async-retry';
+import { User } from '../../../users/domain/User';
 
 const chance = new Chance();
 const appsync = new AppSyncClient();
@@ -32,13 +34,14 @@ if (!NotificationsTable || !StorageTable) {
   throw new Error(`Undefined env var!`);
 }
 
-interface Seed {
-  userId: string;
+type Seed = {
+  user: User;
   account: Account;
 }
-let fromSeed: Seed, toSeed: Seed, fund: number;
+let fromSeed: Seed, toSeed: Seed, fund: number, fromSeedUserId: string, toSeedUserId: string;
 beforeAll(async () => {
   fromSeed = await createUserAndAccount();
+  fromSeedUserId = fromSeed.user.id.toString();
   fund = 100;
   const fundT = Transaction.create({
     delta: Amount.create({ value: fund }).value,
@@ -48,6 +51,7 @@ beforeAll(async () => {
   }).value;
   await AccountRepo.createTransaction(fundT, fromSeed.account.id.toString());
   toSeed = await createUserAndAccount();
+  toSeedUserId = toSeed.user.id.toString();
 });
 
 let auditEventsFrom: Record<string, unknown>[],
@@ -58,7 +62,7 @@ const notifications: {
   id: string;
 }[] = [];
 afterAll(async () => {
-  await deleteUsers([{ id: fromSeed.userId }, { id: toSeed.userId }]);
+  await deleteUsers([{ id: fromSeedUserId }, { id: toSeedUserId }]);
   await deleteItems(notifications, NotificationsTable);
   auditEventsAll = auditEventsFrom.concat(auditEventsTo);
   auditEventsAll = auditEventsAll.map((event) => {
@@ -73,9 +77,9 @@ afterAll(async () => {
 
 test('Transfer', async () => {
   const dto: Request = {
-    fromUserId: fromSeed.userId,
+    fromUserId: fromSeedUserId,
     fromDescription: `Test: ${chance.sentence()}`,
-    toUserId: toSeed.userId,
+    toUserId: toSeedUserId,
     toDescription: `Test: ${chance.sentence()}`,
     quantity: 50,
   };
@@ -109,7 +113,7 @@ test('Transfer', async () => {
   expect(json.data.transfer).toMatchObject({
     fromTransaction: expect.any(String),
     toTransaction: expect.any(String),
-    response_time: expect.any(String),
+    response_time: expect.stringMatching(dateFormat),
   });
   expect(json).not.toMatchObject({
     errors: expect.anything(),

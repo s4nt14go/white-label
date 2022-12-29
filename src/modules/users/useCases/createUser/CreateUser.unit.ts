@@ -3,6 +3,7 @@ import { CreateUser } from './CreateUser';
 import { UserRepoFake } from '../../repos/UserRepoFake';
 import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
 import {
+  dateFormat,
   getAppSyncEvent as getEvent,
 } from '../../../../shared/utils/test';
 
@@ -23,7 +24,7 @@ test('User creation with alias', async () => {
   const result = await createUser.execute(getEvent(validData));
 
   expect(result).toMatchObject({
-    time: expect.any(String),
+    time: expect.stringMatching(dateFormat),
   });
   expect(result).not.toMatchObject({
     error: expect.anything(),
@@ -40,7 +41,7 @@ test('User creation without alias', async () => {
   const result = await createUser.execute(getEvent(validData));
 
   expect(result).toMatchObject({
-    time: expect.any(String),
+    time: expect.stringMatching(dateFormat),
   });
   expect(result).not.toMatchObject({
     error: expect.anything(),

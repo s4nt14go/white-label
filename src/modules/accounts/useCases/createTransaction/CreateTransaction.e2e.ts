@@ -12,6 +12,7 @@ import Chance from 'chance';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import gql from 'graphql-tag';
 import {
+  dateFormat,
   deleteItems,
   getByPart,
   getRandom,
@@ -19,6 +20,7 @@ import {
 } from '../../../../shared/utils/test';
 import { NotificationTypes } from '../../../notification/domain/NotificationTypes';
 import retry from 'async-retry';
+import { User } from '../../../users/domain/User';
 
 const appsync = new AppSyncClient();
 const chance = new Chance();
@@ -30,9 +32,10 @@ if (!StorageTable || !NotificationsTable) {
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { userId: string; account: Account };
+let seed: { user: User, account: Account }, seedUserId : string;
 beforeAll(async () => {
   seed = await createUserAndAccount();
+  seedUserId = seed.user.id.toString();
 });
 
 let auditEvent: Record<string, unknown>;
@@ -41,7 +44,7 @@ const notifications: {
   id: string;
 }[] = [];
 afterAll(async () => {
-  await deleteUsers([{ id: seed.userId }]);
+  await deleteUsers([{ id: seedUserId }]);
   await deleteItems(notifications, NotificationsTable);
   await deleteItems(
     [
@@ -56,7 +59,7 @@ afterAll(async () => {
 
 test('Create transaction', async () => {
   const dto: Request = {
-    userId: seed.userId,
+    userId: seedUserId,
     description: `Test: ${chance.sentence()}`,
     delta: getRandom({ min: 0 }),
   };
@@ -80,14 +83,14 @@ test('Create transaction', async () => {
   const json = (await response.json()) as MutationCreateTransactionResponse;
   expect(json.data.createTransaction).toMatchObject({
     id: expect.any(String),
-    response_time: expect.any(String),
+    response_time: expect.stringMatching(dateFormat),
   });
   expect(json).not.toMatchObject({
     errors: expect.anything(),
   });
 
-  const account = await AccountRepo.getAccountByUserId(seed.userId);
-  if (!account) throw new Error(`Account not found for userId ${seed.userId}`);
+  const account = await AccountRepo.getAccountByUserId(seedUserId);
+  if (!account) throw new Error(`Account not found for userId ${seedUserId}`);
   expect(account.transactions.length).toBe(2); // Initial transaction when seeding with createUserAndAccount and the created one
   expect(account.transactions[0].balance.value).toBe(
     seed.account.balance().value + dto.delta

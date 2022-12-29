@@ -11,16 +11,19 @@ import {
   QueryGetAccountByUserIdResponse,
 } from '../../../../shared/infra/appsync/schema.graphql';
 import gql from 'graphql-tag';
+import { User } from '../../../users/domain/User';
+import { dateFormat } from '../../../../shared/utils/test';
 
 const appsync = new AppSyncClient();
 
-let seed: { userId: string; account: Account };
+let seed: { user: User, account: Account }, seedUserId : string;
 beforeAll(async () => {
   seed = await createUserAndAccount();
+  seedUserId = seed.user.id.toString();
 });
 
 afterAll(async () => {
-  await deleteUsers([{ id: seed.userId }]);
+  await deleteUsers([{ id: seedUserId }]);
 });
 
 it('gets an account', async () => {
@@ -39,7 +42,7 @@ it('gets an account', async () => {
         }
       }
     `,
-    variables: { userId: seed.userId },
+    variables: { userId: seedUserId },
   });
 
   expect(response.status).toBe(200);
@@ -56,14 +59,14 @@ it('gets an account', async () => {
       delta: delta.value,
       date: date.toJSON(),
     })]),
-    response_time: expect.any(String),
+    response_time: expect.stringMatching(dateFormat),
   });
   expect(json).not.toMatchObject({
     errors: expect.anything(),
   });
 
-  const accountDB = await AccountRepo.getAccountByUserId(seed.userId);
-  if (!accountDB) throw new Error(`Account not found for userId ${seed.userId}`);
+  const accountDB = await AccountRepo.getAccountByUserId(seedUserId);
+  if (!accountDB) throw new Error(`Account not found for userId ${seedUserId}`);
   expect(accountDB.transactions.length).toBe(1); // Initial transaction when seeding
   expect(accountDB.transactions[0].balance.value).toBe(0);
 });

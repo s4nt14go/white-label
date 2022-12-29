@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import {
+  dateFormat,
   deleteItems,
   getByPart,
   getNewUserDto,
@@ -12,9 +13,7 @@ import {
 } from '../../../../shared/utils/repos';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
 import gql from 'graphql-tag';
-import {
-  MutationCreateUserResponse,
-} from '../../../../shared/infra/appsync/schema.graphql';
+import { MutationCreateUserResponse } from '../../../../shared/infra/appsync/schema.graphql';
 
 // Add all process.env used:
 const { StorageTable } = process.env;
@@ -30,10 +29,15 @@ let auditEvent: Record<string, unknown>;
 afterAll(async () => {
   await deleteUsers(createdUsers);
 
-  await deleteItems([{
-    typeAggregateId: auditEvent.typeAggregateId,
-    dateTimeOccurred: auditEvent.dateTimeOccurred,
-  }], StorageTable);
+  await deleteItems(
+    [
+      {
+        typeAggregateId: auditEvent.typeAggregateId,
+        dateTimeOccurred: auditEvent.dateTimeOccurred,
+      },
+    ],
+    StorageTable
+  );
 });
 
 test('User creation', async () => {
@@ -64,7 +68,7 @@ test('User creation', async () => {
   const json = (await response.json()) as MutationCreateUserResponse;
   expect(json.data.createUser).toMatchObject({
     id: expect.any(String),
-    response_time: expect.any(String),
+    response_time: expect.stringMatching(dateFormat),
   });
 
   const user = await UserRepo.findUserByUsername(newUser.username);
