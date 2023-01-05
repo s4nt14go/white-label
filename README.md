@@ -46,6 +46,14 @@ If we repeat a request in the next 5m, we don't have cold starts, `createUser` t
 </p>
 <br />
 
+## Decorators
+
+For cross-cutting concerns these decorators are used:
+* [ReturnUnexpectedError](src/shared/decorators/ReturnUnexpectedError.ts): When we receive a FE client request and the server throws an unexpected error, we log the error, request and context; and return a well-formed error response to the FE client. Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [GetAccountByUserID](src/modules/accounts/useCases/getAccountByUserId/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
+* [Transaction](src/shared/decorators/Transaction.ts): All command use cases that use the SQL DB should be wrapped in a serializable transaction (for query use cases don't). Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
+* [DBretry](src/shared/decorators/DBretry.ts): Handle retries for DB/Sequelize connection failures. Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/index.ts), [GetAccountByUserID](src/modules/accounts/useCases/getAccountByUserId/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
+* Cache is query specific: [GetAccountByUserIdCache](src/modules/accounts/useCases/getAccountByUserId/GetAccountByUserIdCache.ts)
+
 ## Tests
 
 Unit tests (with faked repos):
@@ -83,13 +91,6 @@ E2E tests:
   - [CreateTransaction](src/modules/accounts/useCases/createTransaction/CreateTransaction.e2e.ts)
 - Notifications:
   - [NotifyFE](src/modules/notification/useCases/notifyFE/NotifyFE.e2e.ts)
-
-## Decorators
-
-For cross-cutting concerns these decorators are used:
-* [ReturnUnexpectedError](src/shared/decorators/ReturnUnexpectedError.ts): When we receive a FE client request and the server throws an unexpected error, we log the error, request and context; and return a well-formed error response to the FE client. Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [GetAccountByUserID](src/modules/accounts/useCases/getAccountByUserId/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
-* [Transaction](src/shared/decorators/Transaction.ts): All command use cases that use the SQL DB should be wrapped in a serializable transaction (for query use cases don't). Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
-* [DBretry](src/shared/decorators/DBretry.ts): Handle retries for DB/Sequelize connection failures. Use cases: [CreateUser](src/modules/users/useCases/createUser/index.ts), [CreateAccount](src/modules/accounts/useCases/createAccount/index.ts), [GetAccountByUserID](src/modules/accounts/useCases/getAccountByUserId/index.ts), [CreateTransaction](src/modules/accounts/useCases/createTransaction/index.ts) and [Transfer](src/modules/accounts/useCases/transfer/index.ts)
 
 ## Stack
 
