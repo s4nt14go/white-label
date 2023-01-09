@@ -101,8 +101,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails [createTransac
 
   try {
     await createTransaction.execute(getEvent(newTransaction));
-    // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { /*do nothing*/ }
 
   expect(spyOnInvoker).toBeCalledTimes(0);
 });

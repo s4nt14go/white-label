@@ -146,8 +146,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails [transfer]`, a
 
   try {
     await transfer.execute(getEvent(dto));
-    // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { /*do nothing*/ }
 
   expect(spyOnInvoker).toBeCalledTimes(0);
 });

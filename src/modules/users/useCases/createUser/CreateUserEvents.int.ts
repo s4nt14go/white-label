@@ -90,8 +90,7 @@ test(`distributeDomainEvents isn't called when saving to DB fails [createUser]`,
 
   try {
     await createUser.execute(getEvent(newUser));
-    // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { /*do nothing*/ }
 
   expect(spyOnInvoker).toBeCalledTimes(0);
 });
