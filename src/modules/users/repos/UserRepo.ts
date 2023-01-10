@@ -12,7 +12,7 @@ export class UserRepo extends Repository<User> implements IUserRepo {
   public constructor(models: any) {
     super();
     // Put this.transaction in all repos queries: this.<Model>.<find/create/destroy/etc>({...}, { transaction: this.transaction })
-    // If no getTransaction is passed to controller/use case, it's null and doesn't have effect (SQL transaction isn't' used)
+    // this.transaction type is SequelizeTransaction and is populated when Transaction decorator is used, if that decorator isn't used, this.transaction is null and doesn't have any effect (SQL transaction isn't' used)
     this.User = models.User;
   }
 
