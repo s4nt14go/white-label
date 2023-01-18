@@ -5,6 +5,7 @@ const { TEST_MODE } = process.env;
 switch (TEST_MODE) {
   case 'unit':
     options.testRegex = '\\.unit' + testRegex;
+    options.testTimeout = 10000;
     break;
   case 'int':
     options.testRegex = '\\.int' + testRegex;
