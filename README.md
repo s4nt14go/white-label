@@ -110,6 +110,17 @@ I also added modules `accounts`, `audit`, `notifications`, decorators for cross-
 
 ## Instructions
 
+Use same Node 16 version as in the [pipeline](.github/workflows/dev.yml), using [nvm](https://github.com/nvm-sh/nvm) you can:
+
+```
+# set Node 16 in current terminal
+nvm use 16
+# set Node 16 as default (new terminals will use 16)
+nvm alias default 16
+```
+
+Install and run tests:
+
 ```
 npm ci
 npm test

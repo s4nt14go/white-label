@@ -1,5 +1,12 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+currentNodeVersion=`node -v`
+if [[ $currentNodeVersion != *"v16"* ]]; then
+  echo "ERROR: Node version being used: $currentNodeVersion"
+  echo "FIX: Use same Node version 16 as in pipeline"
+  exit 1
+fi
+
 npm run lint
 npm test
