@@ -1,4 +1,9 @@
-import { StackContext, Function, AppSyncApi } from '@serverless-stack/resources';
+import {
+  StackContext,
+  Function,
+  AppSyncApi,
+  Runtime,
+} from '@serverless-stack/resources';
 import * as cdk from 'aws-cdk-lib';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { SSM } from 'aws-sdk';
@@ -30,17 +35,21 @@ export async function MyStack({ stack, app }: StackContext) {
     COCKROACH_cluster: cluster,
   };
 
+  const nodeVersion: { runtime: Runtime } = { runtime: 'nodejs16.x' }; // Node v16 is used all along the project and pipeline
   const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
     handler: 'shared/infra/invocation/DistributeDomainEvents.handler',
+    ...nodeVersion,
   });
 
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
     handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
+    ...nodeVersion,
   });
   allowSubscribeToDomainEvents(notifySlackChannel, 'notifySlackChannel');
 
   const someWork = new Function(stack, 'someWork', {
     handler: 'modules/users/useCases/someWork/index.handler',
+    ...nodeVersion,
   });
   allowSubscribeToDomainEvents(someWork, 'someWork');
 
@@ -53,6 +62,7 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const createAccount = new Function(stack, 'createAccount', {
     handler: 'modules/accounts/useCases/createAccount/index.handler',
+    ...nodeVersion,
     environment: dbCreds,
   });
   allowSubscribeToDomainEvents(createAccount, 'createAccount');
@@ -67,6 +77,7 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const createTransaction = new Function(stack, 'createTransaction', {
     handler: 'modules/accounts/useCases/createTransaction/index.handler',
+    ...nodeVersion,
     environment: dbCreds,
   });
   allowEmittingDomainEvents(createTransaction);
@@ -74,6 +85,7 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const transfer = new Function(stack, 'transfer', {
     handler: 'modules/accounts/useCases/transfer/index.handler',
+    ...nodeVersion,
     environment: dbCreds,
   });
   allowEmittingDomainEvents(transfer);
@@ -81,6 +93,7 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const getAccountByUserId = new Function(stack, 'getAccountByUserId', {
     handler: 'modules/accounts/useCases/getAccountByUserId/index.handler',
+    ...nodeVersion,
     environment: dbCreds,
   });
   DBretryable(getAccountByUserId);
@@ -174,6 +187,7 @@ export async function MyStack({ stack, app }: StackContext) {
 
   const notifyFE = new Function(stack, 'notifyFE', {
     handler: 'modules/notification/useCases/notifyFE/index.handler',
+    ...nodeVersion,
     environment: {
       appsyncKey: api.cdk.graphqlApi.apiKey,
       appsyncUrl: api.url,
@@ -209,6 +223,7 @@ export async function MyStack({ stack, app }: StackContext) {
   });
   const storeEvent = new Function(stack, 'storeEvent', {
     handler: 'modules/audit/useCases/storeEvent/index.handler',
+    ...nodeVersion,
     environment: {
       StorageTable: storageTable.tableName,
     },
