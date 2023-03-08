@@ -2,13 +2,12 @@ import {
   StackContext,
   Function,
   AppSyncApi,
-  Runtime,
-} from '@serverless-stack/resources';
+  Table,
+} from 'sst/constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { SSM } from 'aws-sdk';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { Table } from '@serverless-stack/resources';
 
 export async function MyStack({ stack, app }: StackContext) {
   const ssm = new SSM();
@@ -35,21 +34,17 @@ export async function MyStack({ stack, app }: StackContext) {
     COCKROACH_cluster: cluster,
   };
 
-  const nodeVersion: { runtime: Runtime } = { runtime: 'nodejs16.x' }; // Node v16 is used all along the project and pipeline
   const distributeDomainEvents = new Function(stack, 'distributeDomainEvents', {
-    handler: 'shared/infra/invocation/DistributeDomainEvents.handler',
-    ...nodeVersion,
+    handler: 'src/shared/infra/invocation/DistributeDomainEvents.handler',
   });
 
   const notifySlackChannel = new Function(stack, 'notifySlackChannel', {
-    handler: 'modules/notification/useCases/notifySlackChannel/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/notification/useCases/notifySlackChannel/index.handler',
   });
   allowSubscribeToDomainEvents(notifySlackChannel, 'notifySlackChannel');
 
   const someWork = new Function(stack, 'someWork', {
-    handler: 'modules/users/useCases/someWork/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/users/useCases/someWork/index.handler',
   });
   allowSubscribeToDomainEvents(someWork, 'someWork');
 
@@ -61,39 +56,35 @@ export async function MyStack({ stack, app }: StackContext) {
   });
 
   const createAccount = new Function(stack, 'createAccount', {
-    handler: 'modules/accounts/useCases/createAccount/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/accounts/useCases/createAccount/index.handler',
     environment: dbCreds,
   });
   allowSubscribeToDomainEvents(createAccount, 'createAccount');
   DBretryable(createAccount);
 
   const createUser = new Function(stack, 'createUser', {
-    handler: 'modules/users/useCases/createUser/index.handler',
+    handler: 'src/modules/users/useCases/createUser/index.handler',
     environment: dbCreds,
   });
   allowEmittingDomainEvents(createUser);
   DBretryable(createUser);
 
   const createTransaction = new Function(stack, 'createTransaction', {
-    handler: 'modules/accounts/useCases/createTransaction/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/accounts/useCases/createTransaction/index.handler',
     environment: dbCreds,
   });
   allowEmittingDomainEvents(createTransaction);
   DBretryable(createTransaction);
 
   const transfer = new Function(stack, 'transfer', {
-    handler: 'modules/accounts/useCases/transfer/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/accounts/useCases/transfer/index.handler',
     environment: dbCreds,
   });
   allowEmittingDomainEvents(transfer);
   DBretryable(transfer);
 
   const getAccountByUserId = new Function(stack, 'getAccountByUserId', {
-    handler: 'modules/accounts/useCases/getAccountByUserId/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/accounts/useCases/getAccountByUserId/index.handler',
     environment: dbCreds,
   });
   DBretryable(getAccountByUserId);
@@ -186,8 +177,7 @@ export async function MyStack({ stack, app }: StackContext) {
   }
 
   const notifyFE = new Function(stack, 'notifyFE', {
-    handler: 'modules/notification/useCases/notifyFE/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/notification/useCases/notifyFE/index.handler',
     environment: {
       appsyncKey: api.cdk.graphqlApi.apiKey,
       appsyncUrl: api.url,
@@ -222,8 +212,7 @@ export async function MyStack({ stack, app }: StackContext) {
     },
   });
   const storeEvent = new Function(stack, 'storeEvent', {
-    handler: 'modules/audit/useCases/storeEvent/index.handler',
-    ...nodeVersion,
+    handler: 'src/modules/audit/useCases/storeEvent/index.handler',
     environment: {
       StorageTable: storageTable.tableName,
     },
