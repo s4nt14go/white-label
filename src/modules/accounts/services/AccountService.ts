@@ -20,7 +20,8 @@ export class AccountService {
     toAccount: Account;
     toDescription: Description;
   }): Result<{ fromTransaction: Transaction; toTransaction: Transaction }> {
-    if (!fromAccount.active) return Result.fail(new AccountServiceErrors.FromAccountNotActive());
+    if (!fromAccount.active)
+      return Result.fail(new AccountServiceErrors.FromAccountNotActive());
     if (!toAccount.active)
       return Result.fail(new AccountServiceErrors.ToAccountNotActive());
 
@@ -35,7 +36,11 @@ export class AccountService {
       fromDescription
     );
     if (fromTransactionOrError.isFailure)
-      return Result.fail(new AccountServiceErrors.InvalidFromTransaction(fromTransactionOrError.error as BaseError));
+      return Result.fail(
+        new AccountServiceErrors.InvalidFromTransaction(
+          fromTransactionOrError.error as BaseError
+        )
+      );
 
     const fromTransaction = fromTransactionOrError.value;
 
@@ -47,7 +52,11 @@ export class AccountService {
 
     const toTransactionOrError = toAccount.createTransaction(delta, toDescription);
     if (toTransactionOrError.isFailure)
-      return Result.fail(new AccountServiceErrors.InvalidToTransaction(toTransactionOrError.error as BaseError));
+      return Result.fail(
+        new AccountServiceErrors.InvalidToTransaction(
+          toTransactionOrError.error as BaseError
+        )
+      );
 
     const toTransaction = toTransactionOrError.value;
 

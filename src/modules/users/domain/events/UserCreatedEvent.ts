@@ -8,8 +8,8 @@ export type UserCreatedEventDTO = DomainEventBaseDTO & {
   user: {
     email: string;
     username: string;
-  },
-}
+  };
+};
 
 export class UserCreatedEvent extends DomainEventBase {
   public user;
@@ -27,6 +27,6 @@ export class UserCreatedEvent extends DomainEventBase {
       ...DomainEventBase.baseProps(this),
       dateTimeOccurred: this.dateTimeOccurred.toJSON(),
       user: this.user,
-    }
+    };
   }
 }

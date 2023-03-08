@@ -3,8 +3,15 @@ import { DomainEventBase } from '../../domain/events/DomainEventBase';
 import { DomainEventTypes } from '../../domain/events/DomainEventTypes';
 
 // Add all process.env used:
-const { notifySlackChannel, someWork, createAccount, notifyFE, storeEvent } = process.env;
-if (!notifySlackChannel || !someWork || !createAccount || !notifyFE || !storeEvent) {
+const { notifySlackChannel, someWork, createAccount, notifyFE, storeEvent } =
+  process.env;
+if (
+  !notifySlackChannel ||
+  !someWork ||
+  !createAccount ||
+  !notifyFE ||
+  !storeEvent
+) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }

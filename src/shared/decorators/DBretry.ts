@@ -4,7 +4,9 @@ import { DBretryTable } from './DBretryTable';
 import { ConnectionAcquireTimeoutError } from 'sequelize';
 import { RetryableRequest } from './IRetryableRequest';
 
-export class DBretry<Request extends RetryableRequest> implements IDecorator<Request> {
+export class DBretry<Request extends RetryableRequest>
+  implements IDecorator<Request>
+{
   private readonly MaxFails = 3;
   public wrapee: IDecorator<Request>['wrapee'];
   private readonly renewConn: () => void;
@@ -25,11 +27,10 @@ export class DBretry<Request extends RetryableRequest> implements IDecorator<Req
   }
 
   public async execute(
-    event:
-      // When it's an AppSync event (controller implements AppSyncController) [Note 1]
-      AppSyncResolverEvent<Request> |
+    event: // When it's an AppSync event (controller implements AppSyncController) [Note 1]
+    | AppSyncResolverEvent<Request>
       // ...when it's a Subscriber event (controller implements SubscriberController) [Note 2]
-      Request,
+      | Request,
     context: Context
   ): ExeResponse {
     console.log(`${this.constructor.name}.execute`);
@@ -50,9 +51,11 @@ export class DBretry<Request extends RetryableRequest> implements IDecorator<Req
         console.log(`DB error`);
 
         let dto;
-        if (this.instanceOfAppSynEvent(event)) {  // See Note 1
+        if (this.instanceOfAppSynEvent(event)) {
+          // See Note 1
           dto = event.arguments;
-        } else {  // See Note 2
+        } else {
+          // See Note 2
           dto = event;
         }
         if (!dto.firstFail) {
@@ -98,8 +101,9 @@ export class DBretry<Request extends RetryableRequest> implements IDecorator<Req
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private instanceOfAppSynEvent(event: any): event is AppSyncResolverEvent<Request> {
+  private instanceOfAppSynEvent(
+    event: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  ): event is AppSyncResolverEvent<Request> {
     return !!event.arguments;
   }
 }

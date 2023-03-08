@@ -24,7 +24,6 @@ export class Transfer extends AppSyncController<Request, Response> {
   }
 
   protected async executeImpl(dto: Request): ControllerResult<Response> {
-
     const descriptionOrError = Description.create({ value: dto.fromDescription });
     if (descriptionOrError.isFailure)
       return {

@@ -1,9 +1,4 @@
-import {
-  StackContext,
-  Function,
-  AppSyncApi,
-  Table,
-} from 'sst/constructs';
+import { StackContext, Function, AppSyncApi, Table } from 'sst/constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as appsync from '@aws-cdk/aws-appsync-alpha';
 import { SSM } from 'aws-sdk';

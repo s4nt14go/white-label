@@ -5,6 +5,6 @@ export type Request = RetryableRequest & {
   userId: string;
   description: string;
   delta: number;
-}
+};
 
 export type Response = Created;

@@ -12,7 +12,6 @@ export class CreateAccount extends SubscriberController<Request, Response> {
   }
 
   protected async executeImpl(event: Request): ControllerResult<Response> {
-
     const { aggregateId } = event;
     await this.accountRepo.create(aggregateId);
 

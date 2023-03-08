@@ -28,7 +28,10 @@ if (!distributeDomainEvents) {
 
 let createUser: CreateUser,
   invokerFake: IInvoker,
-  spyOnInvoker: jest.SpyInstance<unknown, [event: DomainEventBase, handler: string]>;
+  spyOnInvoker: jest.SpyInstance<
+    unknown,
+    [event: DomainEventBase, handler: string]
+  >;
 beforeAll(() => {
   setHooks();
   invokerFake = new LambdaInvokerFake();
@@ -50,7 +53,7 @@ test('Domain event dispatcher invokes distributeDomainEvents with user data for 
   const newUser = getNewUserDto();
 
   const response = (await createUser.execute(
-    getEvent(newUser),
+    getEvent(newUser)
   )) as Envelope<Created>;
 
   expect(response).toMatchObject({
@@ -70,10 +73,7 @@ test('Domain event dispatcher invokes distributeDomainEvents with user data for 
     type: 'UserCreatedEvent',
     version: 0,
   });
-  expect(spyOnInvoker).toHaveBeenCalledWith(
-    invokerIntake,
-    distributeDomainEvents
-  );
+  expect(spyOnInvoker).toHaveBeenCalledWith(invokerIntake, distributeDomainEvents);
   expect(spyOnInvoker).toBeCalledTimes(1);
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const id = response.result!.id;
@@ -90,7 +90,9 @@ test(`distributeDomainEvents isn't called when saving to DB fails [createUser]`,
 
   try {
     await createUser.execute(getEvent(newUser));
-  } catch { /*do nothing*/ }
+  } catch {
+    /*do nothing*/
+  }
 
   expect(spyOnInvoker).toBeCalledTimes(0);
 });

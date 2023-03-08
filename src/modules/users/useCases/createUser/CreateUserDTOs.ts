@@ -6,6 +6,6 @@ export type Request = RetryableRequest & {
   password: string;
   username: string;
   alias?: string;
-}
+};
 
 export type Response = Created;

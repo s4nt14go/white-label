@@ -6,10 +6,7 @@ import {
   dateFormat,
   fakeTransactionWithError,
 } from '../../../../shared/utils/test';
-import {
-  deleteUsers,
-  createUser,
-} from '../../../../shared/utils/repos';
+import { deleteUsers, createUser } from '../../../../shared/utils/repos';
 import { Request } from './CreateAccountDTOs';
 import { AccountRepoFake } from '../../repos/AccountRepoFake';
 import { Transaction } from '../../../../shared/decorators/Transaction';
@@ -56,7 +53,7 @@ test('DB retry for a SubscriberController', async () => {
 
   // In the first attempt to create a transaction will fail because we're using fakeTransactionWithError
   const decorated1 = new Transaction(controller, fakeTransactionWithError, [
-  // const decorated1 = new Transaction(controller, models.getTransaction, [
+    // const decorated1 = new Transaction(controller, models.getTransaction, [
     accountRepo,
   ]);
   // ...in the second attempt the retry will succeed because DBretry loads index.ts where the transaction is properly created

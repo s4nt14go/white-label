@@ -28,7 +28,7 @@ if (!distributeDomainEvents) {
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { user: User, account: Account }, seedUserId : string;
+let seed: { user: User; account: Account }, seedUserId: string;
 let createTransaction: CreateTransaction,
   invokerFake: IInvoker,
   spyOnInvoker: jest.SpyInstance<
@@ -101,7 +101,9 @@ test(`distributeDomainEvents isn't called when saving to DB fails [createTransac
 
   try {
     await createTransaction.execute(getEvent(newTransaction));
-  } catch { /*do nothing*/ }
+  } catch {
+    /*do nothing*/
+  }
 
   expect(spyOnInvoker).toBeCalledTimes(0);
 });

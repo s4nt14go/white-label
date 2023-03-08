@@ -15,6 +15,11 @@ const repo = new AccountRepo(models);
 const controller = new Transfer(repo, invoker);
 
 const decorated1 = new Transaction(controller, models.getTransaction, [repo]);
-const decorated2 = new DBretry(decorated1, new DBretryTable(), models.renewConn, __filename);
+const decorated2 = new DBretry(
+  decorated1,
+  new DBretryTable(),
+  models.renewConn,
+  __filename
+);
 const decorated3 = new ReturnUnexpectedError(decorated2);
 export const handler = decorated3.execute.bind(decorated3);

@@ -3,14 +3,10 @@ import { Envelope } from '../core/Envelope';
 import { UnexpectedError as _UnexpectedError } from '../core/AppError';
 import { ExeResponse, IDecorator } from './IDecorator';
 
-export class ReturnUnexpectedError<Request>
-  implements IDecorator<Request>
-{
+export class ReturnUnexpectedError<Request> implements IDecorator<Request> {
   public wrapee: IDecorator<Request>['wrapee'];
 
-  public constructor(
-    wrapee: IDecorator<Request>['wrapee']
-  ) {
+  public constructor(wrapee: IDecorator<Request>['wrapee']) {
     this.wrapee = wrapee;
   }
 
@@ -23,7 +19,10 @@ export class ReturnUnexpectedError<Request>
     try {
       return await this.wrapee.execute(event, context);
     } catch (error) {
-      console.log(`An unexpected error occurred @ ${this.constructor.name}.execute`, error);
+      console.log(
+        `An unexpected error occurred @ ${this.constructor.name}.execute`,
+        error
+      );
       console.log(`Context`, event);
       console.log(`Event`, context);
       const r = {

@@ -16,13 +16,14 @@ export class StoreEvent extends SubscriberController<Request, Response> {
   }
 
   protected async executeImpl(event: Request): ControllerResult<Response> {
-
     switch (event.type) {
       case DomainEventTypes.UserCreatedEvent:
         await this.storeService.saveUserCreated(event as UserCreatedEventDTO);
         break;
       case DomainEventTypes.TransactionCreatedEvent:
-        await this.storeService.saveTransactionCreated(event as TransactionCreatedEventDTO);
+        await this.storeService.saveTransactionCreated(
+          event as TransactionCreatedEventDTO
+        );
         break;
       default:
         console.log('event', event);

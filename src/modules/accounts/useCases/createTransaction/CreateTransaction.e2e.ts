@@ -32,7 +32,7 @@ if (!StorageTable || !NotificationsTable) {
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { user: User, account: Account }, seedUserId : string;
+let seed: { user: User; account: Account }, seedUserId: string;
 beforeAll(async () => {
   seed = await createUserAndAccount();
   seedUserId = seed.user.id.toString();

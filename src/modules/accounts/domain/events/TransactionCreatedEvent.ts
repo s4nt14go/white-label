@@ -10,10 +10,10 @@ export type TransactionDTO = {
   delta: number;
   date: string;
   description: string;
-}
+};
 export type TransactionCreatedEventDTO = DomainEventBaseDTO & {
-  transaction: TransactionDTO
-}
+  transaction: TransactionDTO;
+};
 
 export class TransactionCreatedEvent extends DomainEventBase {
   public transaction;
@@ -37,6 +37,6 @@ export class TransactionCreatedEvent extends DomainEventBase {
         ...this.transaction,
         date: this.transaction.date.toJSON(),
       },
-    }
+    };
   }
 }

@@ -19,7 +19,7 @@ export class GetAccountByUserIdCache implements IDecorator<Request> {
 
     const userId = event.arguments.userId;
     if (userId in this.cache) {
-      console.log(`Response for userId ${userId} taken from cache`);  // Used in test GetAccountByUserId.int.ts
+      console.log(`Response for userId ${userId} taken from cache`); // Used in test GetAccountByUserId.int.ts
       return this.cache[userId];
     }
     const response = await this.wrapee.execute(event, context);

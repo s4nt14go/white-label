@@ -7,16 +7,14 @@ import {
 } from '../../../../shared/utils/repos';
 import { Account } from '../../domain/Account';
 import { AppSyncClient } from '../../../../shared/infra/appsync/AppSyncClient';
-import {
-  QueryGetAccountByUserIdResponse,
-} from '../../../../shared/infra/appsync/schema.graphql';
+import { QueryGetAccountByUserIdResponse } from '../../../../shared/infra/appsync/schema.graphql';
 import gql from 'graphql-tag';
 import { User } from '../../../users/domain/User';
 import { dateFormat } from '../../../../shared/utils/test';
 
 const appsync = new AppSyncClient();
 
-let seed: { user: User, account: Account }, seedUserId : string;
+let seed: { user: User; account: Account }, seedUserId: string;
 beforeAll(async () => {
   seed = await createUserAndAccount();
   seedUserId = seed.user.id.toString();
@@ -54,11 +52,13 @@ it('gets an account', async () => {
   expect(json.data.getAccountByUserId).toMatchObject({
     balance: account.balance().value,
     active: account.active,
-    transactions: expect.arrayContaining([expect.objectContaining({
-      balance: balance.value,
-      delta: delta.value,
-      date: date.toJSON(),
-    })]),
+    transactions: expect.arrayContaining([
+      expect.objectContaining({
+        balance: balance.value,
+        delta: delta.value,
+        date: date.toJSON(),
+      }),
+    ]),
     response_time: expect.stringMatching(dateFormat),
   });
   expect(json).not.toMatchObject({

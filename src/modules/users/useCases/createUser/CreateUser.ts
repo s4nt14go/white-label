@@ -24,7 +24,6 @@ export class CreateUser extends AppSyncController<Request, Response> {
   }
 
   protected async executeImpl(dto: Request): ControllerResult<Response> {
-
     const emailOrError = UserEmail.create(dto.email);
     const passwordOrError = UserPassword.create({ value: dto.password });
     const usernameOrError = UserName.create({ name: dto.username });

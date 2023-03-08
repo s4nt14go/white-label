@@ -10,7 +10,12 @@ import { GetAccountByUserIdCache as Cache } from './GetAccountByUserIdCache';
 const repo = new AccountRepo(models);
 const controller = new GetAccountByUserId(repo);
 
-const decorated1 = new DBretry(controller, new DBretryTable(), models.renewConn, __filename);
+const decorated1 = new DBretry(
+  controller,
+  new DBretryTable(),
+  models.renewConn,
+  __filename
+);
 const decorated2 = new Cache(decorated1);
 const decorated3 = new ReturnUnexpectedError(decorated2);
 export const handler = decorated3.execute.bind(decorated3);

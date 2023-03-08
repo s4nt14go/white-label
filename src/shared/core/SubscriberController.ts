@@ -7,7 +7,9 @@ import { Envelope } from './Envelope';
 export abstract class SubscriberController<Request, Response> {
   protected event!: Request;
 
-  protected abstract executeImpl(dto: unknown | Request): ControllerResult<Response>;
+  protected abstract executeImpl(
+    dto: unknown | Request
+  ): ControllerResult<Response>;
 
   public async execute(event: Request): ExeResponse {
     this.event = event;

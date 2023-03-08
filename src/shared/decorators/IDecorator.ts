@@ -8,7 +8,7 @@ export type ExeResponse = Promise<
   | Envelope<unknown | Created>
   // ...if AppSyncController/SubscriberController couldn't complete the use case because of an expected possible error
   | Envelope<BaseError>
-  >;
+>;
 
 export interface IDecorator<Request> {
   // execute for AppSyncController:
@@ -16,8 +16,11 @@ export interface IDecorator<Request> {
   // execute for SubscriberController
   // execute(event: Request): ExeResponse;
   // ...both merged:
-  execute(event: AppSyncResolverEvent<Request> | Request, context?: Context): ExeResponse;
+  execute(
+    event: AppSyncResolverEvent<Request> | Request,
+    context?: Context
+  ): ExeResponse;
   wrapee: {
     execute: IDecorator<Request>['execute'];
-  }
+  };
 }

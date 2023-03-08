@@ -1,6 +1,4 @@
-import {
-  DomainEvents,
-} from '../../../../shared/domain/events/DomainEvents';
+import { DomainEvents } from '../../../../shared/domain/events/DomainEvents';
 import { TransactionCreatedEvent } from '../../domain/events/TransactionCreatedEvent';
 import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
 

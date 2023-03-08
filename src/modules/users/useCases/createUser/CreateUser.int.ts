@@ -16,14 +16,15 @@ import {
 } from '../../../../shared/utils/repos';
 
 // Add all process.env used:
-const {
-  createUser,
-  AWS_REGION,
-  notifySlackChannel,
-  someWork,
-  StorageTable,
-} = process.env;
-if (!createUser || !AWS_REGION || !notifySlackChannel || !someWork || !StorageTable) {
+const { createUser, AWS_REGION, notifySlackChannel, someWork, StorageTable } =
+  process.env;
+if (
+  !createUser ||
+  !AWS_REGION ||
+  !notifySlackChannel ||
+  !someWork ||
+  !StorageTable
+) {
   console.log('process.env', process.env);
   throw new Error(`Undefined env var!`);
 }
@@ -35,7 +36,7 @@ afterAll(async () => {
   const Key = {
     typeAggregateId: auditEvent.typeAggregateId,
     dateTimeOccurred: auditEvent.dateTimeOccurred,
-  }
+  };
   await deleteItems([Key], StorageTable);
 });
 
@@ -68,8 +69,8 @@ test('User creation', async () => {
       timeout: 12000,
     }).toHaveLog(
       `SlackService.sendMessage finished without errors` &&
-      `${newUser.username}` &&
-      `${newUser.email}`
+        `${newUser.username}` &&
+        `${newUser.email}`
     );
     // Side effect in service someWork
     await expect({
@@ -78,8 +79,8 @@ test('User creation', async () => {
       timeout: 12000,
     }).toHaveLog(
       `ExternalService.sendToExternal finished without errors` &&
-      `${newUser.username}` &&
-      `${newUser.email}`
+        `${newUser.username}` &&
+        `${newUser.email}`
     );
   } else {
     console.log(`CloudWatch logs aren't written when SST is running locally`);

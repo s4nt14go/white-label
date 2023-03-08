@@ -10,7 +10,7 @@ test('TransactionCreatedEvent is added to account during creation', () => {
   const account = seedAccount();
 
   const transaction = account.createTransaction(
-    Amount.create({ value: getRandom({min: 0}) }).value,
+    Amount.create({ value: getRandom({ min: 0 }) }).value,
     Description.create({ value: chance.sentence() }).value
   ).value;
 

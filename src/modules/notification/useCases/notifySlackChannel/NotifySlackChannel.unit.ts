@@ -1,8 +1,6 @@
 import { SlackService } from '../../services/slack';
 import { NotifySlackChannel } from './NotifySlackChannel';
-import {
-  UserCreatedEvent,
-} from '../../../users/domain/events/UserCreatedEvent';
+import { UserCreatedEvent } from '../../../users/domain/events/UserCreatedEvent';
 import { createUser } from '../../../../shared/utils/test';
 
 test('Slack service is called when notifying on a channel', async () => {

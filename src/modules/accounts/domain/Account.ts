@@ -56,7 +56,7 @@ export class Account extends AggregateRoot<AccountProps> {
 
   public createTransaction(
     delta: Amount,
-    description: Description,
+    description: Description
   ): Result<Transaction> {
     if (!this.active) return Result.fail(new AccountErrors.NotActive());
 
@@ -73,7 +73,9 @@ export class Account extends AggregateRoot<AccountProps> {
       date: new Date(),
     });
     if (transactionOrError.isFailure)
-      return Result.fail(new AccountErrors.InvalidTransaction(transactionOrError.error as BaseError));
+      return Result.fail(
+        new AccountErrors.InvalidTransaction(transactionOrError.error as BaseError)
+      );
     const transaction = transactionOrError.value;
     this.addDomainEvent(
       new TransactionCreatedEvent(this.id.toString(), transaction)

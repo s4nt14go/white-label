@@ -40,8 +40,12 @@ let transfer: Transfer,
 type Seed = {
   user: User;
   account: Account;
-}
-let fromSeed: Seed, toSeed: Seed, fund: number, fromSeedUserId: string, toSeedUserId: string;
+};
+let fromSeed: Seed,
+  toSeed: Seed,
+  fund: number,
+  fromSeedUserId: string,
+  toSeedUserId: string;
 beforeAll(async () => {
   setHooks();
   invokerFake = new LambdaInvokerFake();
@@ -80,9 +84,7 @@ test('Domain event dispatcher invokes distributeDomainEvents with the 2 transact
     toDescription: `Test: ${chance.sentence()}`,
   };
 
-  const response = (await transfer.execute(
-    getEvent(dto),
-  )) as Envelope<Response>;
+  const response = (await transfer.execute(getEvent(dto))) as Envelope<Response>;
 
   expect(response).not.toMatchObject({
     errorMessage: expect.anything(),
@@ -146,7 +148,9 @@ test(`distributeDomainEvents isn't called when saving to DB fails [transfer]`, a
 
   try {
     await transfer.execute(getEvent(dto));
-  } catch { /*do nothing*/ }
+  } catch {
+    /*do nothing*/
+  }
 
   expect(spyOnInvoker).toBeCalledTimes(0);
 });

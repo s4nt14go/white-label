@@ -21,7 +21,7 @@ if (!getAccountByUserId || !AWS_REGION) {
   throw new Error(`Undefined env var!`);
 }
 
-let seed: { user: User, account: Account }, seedUserId : string;
+let seed: { user: User; account: Account }, seedUserId: string;
 beforeAll(async () => {
   seed = await createUserAndAccount();
   seedUserId = seed.user.id.toString();
@@ -53,8 +53,6 @@ it('gets an account & uses cache for a second query', async () => {
       region: AWS_REGION,
       function: getAccountByUserId,
       timeout: 12000,
-    }).toHaveLog(
-      `Response for userId ${dto.userId} taken from cache`
-    );
+    }).toHaveLog(`Response for userId ${dto.userId} taken from cache`);
   } else console.log(`CloudWatch logs aren't written when SST is running locally`);
 });

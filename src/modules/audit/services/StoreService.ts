@@ -1,8 +1,6 @@
 import { UserCreatedEventDTO } from '../../users/domain/events/UserCreatedEvent';
 import { IStorage } from './IStorage';
-import {
-  TransactionCreatedEventDTO,
-} from '../../accounts/domain/events/TransactionCreatedEvent';
+import { TransactionCreatedEventDTO } from '../../accounts/domain/events/TransactionCreatedEvent';
 import { DomainEventBase } from '../../../shared/domain/events/DomainEventBase';
 
 export class StoreService {
@@ -13,7 +11,9 @@ export class StoreService {
   }
 
   public async saveUserCreated(event: UserCreatedEventDTO) {
-    const { user: { email, username } } = event;
+    const {
+      user: { email, username },
+    } = event;
 
     await this.storage.saveEvent({
       ...DomainEventBase.baseProps(event),
@@ -23,7 +23,9 @@ export class StoreService {
   }
 
   public async saveTransactionCreated(event: TransactionCreatedEventDTO) {
-    const { transaction: { id, balance, delta, date, description } } = event;
+    const {
+      transaction: { id, balance, delta, date, description },
+    } = event;
 
     await this.storage.saveEvent({
       ...DomainEventBase.baseProps(event),

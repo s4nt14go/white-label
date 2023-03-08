@@ -65,7 +65,7 @@ test.each([
     const result = await createUser.execute(getEvent(badData));
 
     expect(result).toMatchObject({
-        errorType,
+      errorType,
     });
   }
 );
@@ -80,7 +80,7 @@ test('User creation fails for taken email', async () => {
   const result = await createUser.execute(getEvent(data));
 
   expect(result).toMatchObject({
-      errorType: 'CreateUserErrors.EmailAlreadyTaken',
+    errorType: 'CreateUserErrors.EmailAlreadyTaken',
   });
 });
 
@@ -94,6 +94,6 @@ test('User creation fails for taken username', async () => {
   const result = await createUser.execute(getEvent(data));
 
   expect(result).toMatchObject({
-      errorType: 'CreateUserErrors.UsernameAlreadyTaken',
+    errorType: 'CreateUserErrors.UsernameAlreadyTaken',
   });
 });

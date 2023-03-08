@@ -5,7 +5,7 @@ export type DomainEventBaseDTO = {
   aggregateId: string;
   type: string;
   version: number;
-}
+};
 
 export class DomainEventBase {
   private __proto__: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -21,12 +21,19 @@ export class DomainEventBase {
     this.version = 0;
   }
 
-  public static baseProps(eventBase: DomainEventBase | DomainEventBaseDTO): DomainEventBaseDTO {
-    const { dateTimeOccurred: _dateTimeOccurred, aggregateId, type, version } = eventBase;
+  public static baseProps(
+    eventBase: DomainEventBase | DomainEventBaseDTO
+  ): DomainEventBaseDTO {
+    const {
+      dateTimeOccurred: _dateTimeOccurred,
+      aggregateId,
+      type,
+      version,
+    } = eventBase;
 
     let dateTimeOccurred;
     switch (typeof _dateTimeOccurred) {
-      case 'object':  // eventBase.dateTimeOccurred is a Date, convert into a string
+      case 'object': // eventBase.dateTimeOccurred is a Date, convert into a string
         dateTimeOccurred = _dateTimeOccurred.toJSON();
         break;
       case 'string':

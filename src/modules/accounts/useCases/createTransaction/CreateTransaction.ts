@@ -11,22 +11,18 @@ import { Status } from '../../../../shared/core/Status';
 import { CreateTransactionEvents } from './CreateTransactionEvents';
 import { IInvoker } from '../../../../shared/infra/invocation/LambdaInvoker';
 
-const {BAD_REQUEST, CREATED} = Status;
+const { BAD_REQUEST, CREATED } = Status;
 
 export class CreateTransaction extends AppSyncController<Request, Response> {
   private readonly accountRepo: IAccountRepo;
 
-  public constructor(
-    accountRepo: IAccountRepo,
-    invoker: IInvoker
-  ) {
+  public constructor(accountRepo: IAccountRepo, invoker: IInvoker) {
     super();
     this.accountRepo = accountRepo;
     CreateTransactionEvents.registration(invoker);
   }
 
   protected async executeImpl(dto: Request): ControllerResult<Response> {
-
     const { userId } = dto;
 
     const guardNull = Guard.againstNullOrUndefined(
@@ -86,10 +82,7 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
       };
 
     const transaction = transactionOrError.value;
-    await this.accountRepo.createTransaction(
-      transaction,
-      account.id.toString()
-    );
+    await this.accountRepo.createTransaction(transaction, account.id.toString());
 
     return { status: CREATED, result: { id: transaction.id.toString() } };
   }

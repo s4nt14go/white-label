@@ -14,9 +14,8 @@ enum Operation {
 }
 
 export class Amount extends ValueObject<AmountProps> {
-
   // The operations add and subtract first multiply numbers by 100 to work with integers instead of decimals, and as it has no sense to allow a value we won't be able to add or subtract we set a maximum value for the creation:
-  public static MAX_ABS = 90071992547409 // JS Number.MAX_SAFE_INTEGER = 9007199254740991, Number.MIN_SAFE_INTEGER = -9007199254740991
+  public static MAX_ABS = 90071992547409; // JS Number.MAX_SAFE_INTEGER = 9007199254740991, Number.MIN_SAFE_INTEGER = -9007199254740991
 
   get value(): number {
     return this.props.value;
@@ -95,7 +94,9 @@ export class Amount extends ValueObject<AmountProps> {
     const resultOrError = Amount.create({ value: Amount.divideBy100(resultx100) });
 
     if (resultOrError.isFailure)
-      return Result.fail(new AmountErrors.InvalidOperationResult(resultOrError.error as BaseError));
+      return Result.fail(
+        new AmountErrors.InvalidOperationResult(resultOrError.error as BaseError)
+      );
 
     const result = resultOrError.value;
     console.log('operation result', result);
@@ -124,15 +125,16 @@ export class Amount extends ValueObject<AmountProps> {
     } else {
       decimalPart = arrayStr.slice(dotIndex + 1).join('');
       decimalPart = decimalPart.padEnd(2, '0');
-      integerPart = arrayStr.slice(0,dotIndex).join('');
+      integerPart = arrayStr.slice(0, dotIndex).join('');
     }
     return Number(integerPart + decimalPart);
   }
   private static divideBy100(value: number): number {
     const arrayStr = value.toString().split('');
-    if (arrayStr.includes('.')) throw Error(`divideBy100 only handles integer numbers`);
+    if (arrayStr.includes('.'))
+      throw Error(`divideBy100 only handles integer numbers`);
     const decimalPart = arrayStr.slice(-2).join('');
-    const integerPart = arrayStr.slice(0,-2).join('');
+    const integerPart = arrayStr.slice(0, -2).join('');
     return Number(integerPart + '.' + decimalPart);
   }
 }

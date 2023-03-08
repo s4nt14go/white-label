@@ -37,8 +37,12 @@ if (!NotificationsTable || !StorageTable) {
 type Seed = {
   user: User;
   account: Account;
-}
-let fromSeed: Seed, toSeed: Seed, fund: number, fromSeedUserId: string, toSeedUserId: string;
+};
+let fromSeed: Seed,
+  toSeed: Seed,
+  fund: number,
+  fromSeedUserId: string,
+  toSeedUserId: string;
 beforeAll(async () => {
   fromSeed = await createUserAndAccount();
   fromSeedUserId = fromSeed.user.id.toString();
