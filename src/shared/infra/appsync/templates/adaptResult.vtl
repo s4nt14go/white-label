@@ -1,3 +1,4 @@
+## Keep error detection in synchro with src/shared/core/Envelope.ts: as Envelope.errorType takes BaseError.constructor.name, the error will always be detected by AppSync
 #if (!$util.isNull($ctx.result.errorType))
   $util.error($ctx.result.errorMessage, $ctx.result.errorType, null, $ctx.result)
 #end
