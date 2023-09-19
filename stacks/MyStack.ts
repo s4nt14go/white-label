@@ -9,9 +9,19 @@ import { Code } from 'aws-cdk-lib/aws-appsync/lib/code';
 
 export async function MyStack({ stack, app }: StackContext) {
   const ssm = new SSM();
-  const ssmGetResponse = await ssm
-    .getParameter({ Name: `/${app.name}/${app.stage}/cockroach` })
-    .promise();
+  let ssmGetResponse;
+
+  try {
+    ssmGetResponse = await ssm
+      .getParameter({ Name: `/${app.name}/${app.stage}/cockroach` })
+      .promise();
+  } catch (e) {
+    console.log(
+      `\nMake sure you have parameter /${app.name}/${app.stage}/cockroach in AWS account's Parameter Store with your CockroachDB data following this structure: $username,$password,$database,$host,$dialect,$port,$cluster\n`,
+    );
+    throw e;
+  }
+
   if (
     !ssmGetResponse ||
     !ssmGetResponse.Parameter ||
