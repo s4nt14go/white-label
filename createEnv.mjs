@@ -37,9 +37,12 @@ tables.map(async t => {
 $.verbose = false // Don't log sensitive data
 
 await $`aws appsync list-graphql-apis > appsync.json`
-let appsyncId = require('./appsync.json').graphqlApis[0].apiId;
-let appsyncUrl = require('./appsync.json').graphqlApis[0].uris.GRAPHQL;
-await $`rm appsync.json`
+const graphqlApis = require(`./appsync.json`).graphqlApis;
+await $`rm appsync.json`;
+const appsyncName = 'AppSyncApi';
+const appsync = graphqlApis.filter(g => g.name === `${stage}-${project}-${appsyncName}`)[0];
+let appsyncId = appsync.apiId;
+let appsyncUrl = appsync.uris.GRAPHQL;
 await $`echo appsyncUrl=${appsyncUrl} >> ${envFile}`
 await $`aws appsync list-api-keys --api-id ${appsyncId} > appsyncKeys.json`
 let appsyncKey = require('./appsyncKeys.json').apiKeys[0].id;
