@@ -9,6 +9,10 @@ export class Envelope<T> {
   public constructor(result?: T, error?: BaseError) {
     if (result !== undefined) this.result = result;
     if (error !== undefined) {
+      if (!error.message || !error.type) {
+        console.log('message or type missing in error:', error);
+        throw ('Errors should have message and type');
+      }
       this.errorMessage = error.message;
       this.errorType = error.type;
     }

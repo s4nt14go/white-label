@@ -1,8 +1,11 @@
-import { StackContext, Function, AppSyncApi, Table } from 'sst/constructs';
+import { StackContext, Function, AppSyncApi, Table, Stack } from 'sst/constructs';
 import * as cdk from 'aws-cdk-lib';
-import * as appsync from '@aws-cdk/aws-appsync-alpha';
+import * as appsync from 'aws-cdk-lib/aws-appsync';
 import { SSM } from 'aws-sdk';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { BaseDataSource } from 'aws-cdk-lib/aws-appsync';
+import { bundleAppSyncResolver } from './helpers';
+import { Code } from 'aws-cdk-lib/aws-appsync/lib/code';
 
 export async function MyStack({ stack, app }: StackContext) {
   const ssm = new SSM();
@@ -84,9 +87,6 @@ export async function MyStack({ stack, app }: StackContext) {
   });
   DBretryable(getAccountByUserId);
 
-  const adaptResult = {
-    file: 'src/shared/infra/appsync/templates/adaptResult.vtl',
-  };
   const notificationsTable = new Table(stack, 'Notifications', {
     fields: {
       target: 'string', // e.g. FE
@@ -115,45 +115,15 @@ export async function MyStack({ stack, app }: StackContext) {
             },
           },
         },
+        logConfig: {
+          fieldLogLevel: appsync.FieldLogLevel.ALL,
+        },
       },
     },
     dataSources: {
-      getAccountByUserId,
-      createTransaction,
-      transfer,
-      createUser,
       none: { type: 'none' },
-      notificationsTable: {
-        type: 'dynamodb',
-        table: notificationsTable,
-      },
     },
     resolvers: {
-      'Query getAccountByUserId': {
-        dataSource: 'getAccountByUserId',
-        responseMapping: adaptResult,
-      },
-      'Mutation createTransaction': {
-        dataSource: 'createTransaction',
-        responseMapping: adaptResult,
-      },
-      'Mutation transfer': {
-        dataSource: 'transfer',
-        responseMapping: adaptResult,
-      },
-      'Mutation createUser': {
-        dataSource: 'createUser',
-        responseMapping: adaptResult,
-      },
-      'Mutation notifyTransactionCreated': {
-        dataSource: 'notificationsTable',
-        requestMapping: {
-          file: 'src/shared/infra/appsync/templates/Mutation.notifyTransactionCreated.request.vtl',
-        },
-        responseMapping: {
-          file: 'src/shared/infra/appsync/templates/Mutation.notifyTransactionCreated.response.vtl',
-        },
-      },
       'Subscription onNotifyTransactionCreated': {
         dataSource: 'none',
         requestMapping: {
@@ -165,6 +135,48 @@ export async function MyStack({ stack, app }: StackContext) {
       },
     },
   });
+
+  const adaptResult = bundleAppSyncResolver(
+    'src/shared/infra/appsync/templates/adaptResult.ts'
+  );
+
+  addResolverWithLambda(
+    'Query',
+    'getAccountByUserId',
+    adaptResult,
+    getAccountByUserId
+  );
+  addResolverWithLambda(
+    'Mutation',
+    'transfer',
+    adaptResult,
+    transfer
+  );
+  addResolverWithLambda(
+    'Mutation',
+    'createTransaction',
+    adaptResult,
+    createTransaction
+  );
+  addResolverWithLambda(
+    'Mutation',
+    'createUser',
+    adaptResult,
+    createUser
+  );
+
+  const passThrough = bundleAppSyncResolver(
+    'src/shared/infra/appsync/templates/passThrough.ts'
+  );
+  addResolverWithTable(
+    'Mutation',
+    'notifyTransactionCreated',
+    passThrough,
+    bundleAppSyncResolver(
+      'src/shared/infra/appsync/templates/Mutation.notifyTransactionCreated.ts'
+    ),
+    notificationsTable
+  );
 
   if (!api.cdk.graphqlApi.apiKey) {
     console.log('api.cdk', api.cdk);
@@ -226,6 +238,72 @@ export async function MyStack({ stack, app }: StackContext) {
     appsyncKey: api.cdk.graphqlApi.apiKey,
     appsyncUrl: api.url,
   });
+
+  function getAppsyncFunctionForLambda(name: string, datasource: string, stack: Stack) {
+    return new appsync.AppsyncFunction(stack, name, {
+      name,
+      api: api.cdk.graphqlApi,
+      dataSource: api.getDataSource(datasource) as BaseDataSource,
+    });
+  }
+  function getAppsyncFunctionForTable(name: string, datasource: string, stack: Stack, adapter: Code) {
+    return new appsync.AppsyncFunction(stack, name, {
+      name,
+      api: api.cdk.graphqlApi,
+      dataSource: api.getDataSource(datasource) as BaseDataSource,
+      code: adapter,
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+    });
+  }
+  function addResolverWithTable(
+    type: string,
+    field: string,
+    resolverAdapter: Code,
+    appsyncFunctionAdapter: Code,
+    table: Table,
+  ) {
+    const prefix = type + field;
+    const ds = prefix + 'DS';
+    api.addDataSources(stack, {
+      [ds]: {
+        type: 'dynamodb',
+        table,
+      },
+    });
+    new appsync.Resolver(stack, prefix + 'R', {
+      api: api.cdk.graphqlApi,
+      typeName: type,
+      fieldName: field,
+      code: resolverAdapter,
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+      pipelineConfig: [
+        getAppsyncFunctionForTable(prefix + 'AF', ds, stack, appsyncFunctionAdapter),
+      ],
+    });
+  }
+  function addResolverWithLambda(
+    type: string,
+    field: string,
+    resolverAdapter: Code,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    lambda: Function
+  ) {
+    const prefix = type + field;
+    const ds = prefix + 'DS';
+    api.addDataSources(stack, {
+      [ds]: lambda,
+    });
+    new appsync.Resolver(stack, prefix + 'R', {
+      api: api.cdk.graphqlApi,
+      typeName: type,
+      fieldName: field,
+      code: resolverAdapter,
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+      pipelineConfig: [
+        getAppsyncFunctionForLambda(prefix + 'AF', ds, stack),
+      ],
+    });
+  }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   function allowEmittingDomainEvents(lambda: Function) {

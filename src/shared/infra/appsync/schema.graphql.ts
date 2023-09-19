@@ -1,5 +1,6 @@
-import { NotificationTypes } from '../../../modules/notification/domain/NotificationTypes';
-import { NotificationTargets } from '../../../modules/notification/domain/NotificationTargets';
+// These are the TypeScript types counterparts of GraphQL types
+// Once the data enters the TypeScript boundary they are simple dto so some types are cast to primitives:
+// Date, NotificationTypes and NotificationTargets to string
 
 export type MutationCreateUserResponse = {
   data: {
@@ -30,7 +31,7 @@ type AccountResponse = {
 type Transaction = {
   balance: number;
   delta: number;
-  date: Date;
+  date: string;
   description: string;
 };
 
@@ -45,20 +46,30 @@ type TransferResponse = {
   responseTime: string;
 };
 
-export type NotifyTransactionCreatedData = {
+export type NotifyTransactionCreatedInput = {
+  type: string;
+  target: string;
+  accountId: string;
+  transaction: TransactionWithIdInput;
+}
+type TransactionWithIdInput = {
+  balance: number;
+  delta: number;
+  date: string;
+  description: string;
+  id: string;
+}
+
+export type TransactionCreatedNotification = {
+  type: string;
+  target: string;
   accountId: string;
   transaction: TransactionWithId;
 };
 type TransactionWithId = {
   balance: number;
   delta: number;
-  date: Date;
+  date: string;
   description: string;
   id: string;
-};
-export type TransactionCreatedNotification = {
-  type: NotificationTypes;
-  target: NotificationTargets;
-  accountId: string;
-  transaction: TransactionWithId;
 };

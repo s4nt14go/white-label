@@ -17,12 +17,6 @@ import { Amount } from '../../modules/accounts/domain/Amount';
 import { Description } from '../../modules/accounts/domain/Description';
 import { Account } from '../../modules/accounts/domain/Account';
 import { Transaction } from '../../modules/accounts/domain/Transaction';
-import * as velocityUtil from 'amplify-appsync-simulator/lib/velocity/util';
-import fs from 'fs';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import velocityTemplate from 'amplify-velocity-template';
-import * as velocityMapper from 'amplify-appsync-simulator/lib/velocity/value-mapper/mapper';
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 import {
   ConnectionAcquireTimeoutError,
@@ -31,41 +25,25 @@ import {
 
 const DocumentClient = new DynamoDB.DocumentClient();
 
-export const invokeVtl = (templatePath: string, input: unknown) => {
-  const template = fs.readFileSync(templatePath, { encoding: 'utf-8' });
-  const ast = velocityTemplate.parse(template);
-  const compiler = new velocityTemplate.Compile(ast, {
-    valueMapper: velocityMapper.map,
-    escape: false,
-  });
-  return JSON.parse(compiler.render(input));
-};
-
-export const getAppsyncInput = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result: any,
-  args: unknown = null,
-  error: unknown = null
-) => {
-  const util = velocityUtil.create([], new Date(), Object(), Object());
-  const context = {
+export function getAppsyncCtx<Args, TResult> (
+  args: Args,
+  result: TResult,
+  error?: { message: string; type: string; },
+) {
+  return {
     identity: null,
     args,
     arguments: args,
     result,
-    source: null,
-    info: null,
-    prev: null,
-    stash: null,
+    source: {},
+    info: {fieldName: '', parentTypeName: '', variables: args, selectionSetList: [], selectionSetGraphQL: ''},
+    prev: {},
+    stash: {},
     error,
+    request: { headers: {}, domainName: null },
+
   };
-  return {
-    context,
-    ctx: context,
-    util,
-    utils: util,
-  };
-};
+}
 
 const chance = new Chance();
 

@@ -1,17 +1,16 @@
-import { getAppsyncInput, invokeVtl } from '../../../utils/test';
-import path from 'path';
+import { getAppsyncCtx } from '../../../utils/test';
+import { response } from './adaptResult';
 
-describe('adaptResult.vtl', () => {
-  it('should unnest $ctx.result.result', () => {
-    const templatePath = path.resolve(__dirname, './adaptResult.vtl');
+describe('adaptResult.ts', () => {
+  it('should unnest ctx.result.result', () => {
 
-    const input = getAppsyncInput({
+    const input = getAppsyncCtx({}, {
       result: {
         some_data: 10,
       },
       time: 'some time',
     });
-    const result = invokeVtl(templatePath, input);
+    const result = response(input);
 
     expect(result).toMatchObject({
       some_data: 10,

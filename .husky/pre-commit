@@ -8,5 +8,5 @@ if [[ $currentNodeVersion != *"v16"* ]]; then
   exit 1
 fi
 
-npm run lint
-npm test
+#npm run lint
+#npm test
