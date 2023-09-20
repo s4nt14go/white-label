@@ -18,7 +18,7 @@ await $`rm deployed.json`
 const deployedLambdas = resources.filter(r => r.ResourceType === 'AWS::Lambda::Function');
 
 // The name of deployed lambda distributeDomainEvents is needed in design code while the others in integration tests
-const lambdas = ['distributeDomainEvents', 'getAccountByUserId', 'transfer'];
+const lambdas = ['distributeDomainEvents', 'getAccountByUserId', 'transfer', 'createUser', 'notifySlackChannel', 'someWork', 'createTransaction'];
 
 const envFile = `.env`;
 await $`rm -f ${envFile}`;
