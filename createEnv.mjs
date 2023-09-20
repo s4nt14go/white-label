@@ -9,6 +9,9 @@ if (!stack || !project || !region || !stage) {
   throw new Error(`Mandatory env var is missing`);
 }
 
+await $`ls -a`
+await $`ls .sst`
+
 await $`aws cloudformation describe-stack-resources \
     --stack-name ${stage}-${project}-${stack} > deployed.json`
 
