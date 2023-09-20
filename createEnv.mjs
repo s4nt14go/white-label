@@ -10,6 +10,10 @@ if (!stack || !project || !region) {
 
 const stage = fs.readFileSync('./.sst/stage');
 
+await $`ls -a`
+await $`ls .sst`
+await $`printenv`
+
 await $`aws cloudformation describe-stack-resources \
     --stack-name ${stage}-${project}-${stack} > deployed.json`
 
