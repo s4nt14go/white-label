@@ -9,9 +9,6 @@ if (!stack || !project || !region || !stage) {
   throw new Error(`Mandatory env var is missing`);
 }
 
-await $`ls -a`
-await $`ls .sst`
-
 await $`aws cloudformation describe-stack-resources \
     --stack-name ${stage}-${project}-${stack} > deployed.json`
 
@@ -20,15 +17,8 @@ await $`rm deployed.json`
 
 const deployedLambdas = resources.filter(r => r.ResourceType === 'AWS::Lambda::Function');
 
-const functionsJsonl = fs.readFileSync('./.sst/functions.jsonl', 'utf-8');
-const array = functionsJsonl.split("}\n{");
-const lambdas = []
-for (let i = 0; i < array.length; i++) {
-  if (i !== 0) array[i] = '{' + array[i]
-  if (i !== array.length - 1) array[i] = array[i] + '}';
-  array[i] = JSON.parse(array[i])
-  lambdas.push(array[i].id)
-}
+// The name of deployed lambda distributeDomainEvents is needed in design code while the others in integration tests
+const lambdas = ['distributeDomainEvents', 'getAccountByUserId', 'transfer'];
 
 const envFile = `.env`;
 await $`rm -f ${envFile}`;
@@ -36,7 +26,7 @@ await $`echo AWS_REGION=${region} >> ${envFile}`
 
 lambdas.map(async l => {
     const deployed = deployedLambdas.filter(d => {
-        return d.PhysicalResourceId.includes(l);
+        return d.PhysicalResourceId.startsWith(`${stage}-${project}-${stack}-${l}`);
     })[0]
     await $`echo ${l}=${deployed.PhysicalResourceId} >> ${envFile}`
 });
