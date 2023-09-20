@@ -3,16 +3,11 @@
 const stack = process.env.STACK;
 const project = process.env.PROJECT;
 const region = process.env.AWS_REGION;
-if (!stack || !project || !region) {
+const stage = process.env.STAGE;
+if (!stack || !project || !region || !stage) {
   console.log(process.env)
   throw new Error(`Mandatory env var is missing`);
 }
-
-await $`ls -a`
-await $`ls .sst`
-await $`printenv`
-
-const stage = fs.readFileSync('./.sst/stage');
 
 await $`aws cloudformation describe-stack-resources \
     --stack-name ${stage}-${project}-${stack} > deployed.json`
