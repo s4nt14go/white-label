@@ -8,11 +8,11 @@ if (!stack || !project || !region) {
   throw new Error(`Mandatory env var is missing`);
 }
 
-const stage = fs.readFileSync('./.sst/stage');
-
 await $`ls -a`
 await $`ls .sst`
 await $`printenv`
+
+const stage = fs.readFileSync('./.sst/stage');
 
 await $`aws cloudformation describe-stack-resources \
     --stack-name ${stage}-${project}-${stack} > deployed.json`
