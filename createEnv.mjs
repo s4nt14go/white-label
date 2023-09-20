@@ -2,6 +2,7 @@
 // Run it with stack name: STACK=MyStack zx createEnv.mjs
 const stack = process.env.STACK;
 if (!stack) throw new Error(`STACK env var should exist`);
+await $`ls -a`
 const sst = require(`./.build/sst-merged.json`)
 const { stage, name: project, region } = sst;
 
