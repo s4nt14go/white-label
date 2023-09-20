@@ -1,10 +1,14 @@
 // Create .env for integration and e2e tests
-// Run it with stack name: STACK=MyStack zx createEnv.mjs
+// Run it with stack name: PROJECT=white-label STACK=MyStack zx createEnv.mjs
 const stack = process.env.STACK;
-if (!stack) throw new Error(`STACK env var should exist`);
-await $`ls -a`
-const sst = require(`./.build/sst-merged.json`)
-const { stage, name: project, region } = sst;
+const project = process.env.PROJECT;
+const region = process.env.AWS_REGION;
+if (!stack || !project || !region) {
+  console.log(process.env)
+  throw new Error(`Mandatory env var is missing`);
+}
+
+const stage = fs.readFileSync('./.sst/stage');
 
 await $`aws cloudformation describe-stack-resources \
     --stack-name ${stage}-${project}-${stack} > deployed.json`
@@ -14,14 +18,21 @@ await $`rm deployed.json`
 
 const deployedLambdas = resources.filter(r => r.ResourceType === 'AWS::Lambda::Function');
 
-const localConstructs = require(`./.build/cdk.out/${stage}-${project}-${stack}.template.json`).Resources.SSTMetadata.Metadata['sst:constructs'];
-const localLambdas = localConstructs.filter(c => c.type === 'Function').map(f => f.id);
+const functionsJsonl = fs.readFileSync('./.sst/functions.jsonl', 'utf-8');
+const array = functionsJsonl.split("}\n{");
+const lambdas = []
+for (let i = 0; i < array.length; i++) {
+  if (i !== 0) array[i] = '{' + array[i]
+  if (i !== array.length - 1) array[i] = array[i] + '}';
+  array[i] = JSON.parse(array[i])
+  lambdas.push(array[i].id)
+}
 
 const envFile = `.env`;
 await $`rm -f ${envFile}`;
 await $`echo AWS_REGION=${region} >> ${envFile}`
 
-localLambdas.map(async l => {
+lambdas.map(async l => {
     const deployed = deployedLambdas.filter(d => {
         return d.PhysicalResourceId.includes(l);
     })[0]

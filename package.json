@@ -16,7 +16,7 @@
     "prettier-check": "prettier --config .prettierrc '**/*.ts' '**/*.js' --check",
     "test": "npm run test-unit",
     "test-unit": "TEST_MODE=unit jest -c jest.config.js",
-    "create-env": "STACK=MyStack zx createEnv.mjs",
+    "create-env": "PROJECT=white-label STACK=MyStack zx createEnv.mjs",
     "test-int": "TEST_MODE=int jest -c jest.config.js",
     "test-e2e": "TEST_MODE=e2e jest -c jest.config.js",
     "test-all": "npm run test-unit && npm run test-int && npm run test-e2e",
