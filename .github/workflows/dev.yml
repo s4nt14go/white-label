@@ -42,31 +42,31 @@ jobs:
 
 # Skip deployment for now, leave the already deployed infra as is
 
-#      - name: Deploy and create .env
-#        run: |
-#          CREDS=`aws sts assume-role --role-arn arn:aws:iam::$DEPLOYMENT_ACCOUNT:role/ci-role --role-session-name=ci_user`
-#          export AWS_ACCESS_KEY_ID=`echo $CREDS | jq -r '.Credentials.AccessKeyId'`
-#          export AWS_SECRET_ACCESS_KEY=`echo $CREDS | jq -r '.Credentials.SecretAccessKey'`
-#          export AWS_SESSION_TOKEN=`echo $CREDS | jq -r '.Credentials.SessionToken'`
-#          npm run deploy -- --stage $STAGE
-#          npm run create-env
+      - name: Deploy and create .env
+        run: |
+          CREDS=`aws sts assume-role --role-arn arn:aws:iam::$DEPLOYMENT_ACCOUNT:role/ci-role --role-session-name=ci_user`
+          export AWS_ACCESS_KEY_ID=`echo $CREDS | jq -r '.Credentials.AccessKeyId'`
+          export AWS_SECRET_ACCESS_KEY=`echo $CREDS | jq -r '.Credentials.SecretAccessKey'`
+          export AWS_SESSION_TOKEN=`echo $CREDS | jq -r '.Credentials.SessionToken'`
+          npm run deploy -- --stage $STAGE
+          npm run create-env
 
-#      - name: Run migrations
-#        run: npm run db-migrate
+      - name: Run migrations
+        run: npm run db-migrate
 
-#      - name: Integration tests
-#        run: |
-#          CREDS=`aws sts assume-role --role-arn arn:aws:iam::$DEPLOYMENT_ACCOUNT:role/ci-role --role-session-name=ci_user`
-#          export AWS_ACCESS_KEY_ID=`echo $CREDS | jq -r '.Credentials.AccessKeyId'`
-#          export AWS_SECRET_ACCESS_KEY=`echo $CREDS | jq -r '.Credentials.SecretAccessKey'`
-#          export AWS_SESSION_TOKEN=`echo $CREDS | jq -r '.Credentials.SessionToken'`
-#          npm run test-int
+      - name: Integration tests
+        run: |
+          CREDS=`aws sts assume-role --role-arn arn:aws:iam::$DEPLOYMENT_ACCOUNT:role/ci-role --role-session-name=ci_user`
+          export AWS_ACCESS_KEY_ID=`echo $CREDS | jq -r '.Credentials.AccessKeyId'`
+          export AWS_SECRET_ACCESS_KEY=`echo $CREDS | jq -r '.Credentials.SecretAccessKey'`
+          export AWS_SESSION_TOKEN=`echo $CREDS | jq -r '.Credentials.SessionToken'`
+          npm run test-int
 
-#      - name: E2E tests
-#        run: |
-#          CREDS=`aws sts assume-role --role-arn arn:aws:iam::$DEPLOYMENT_ACCOUNT:role/ci-role --role-session-name=ci_user`
-#          export AWS_ACCESS_KEY_ID=`echo $CREDS | jq -r '.Credentials.AccessKeyId'`
-#          export AWS_SECRET_ACCESS_KEY=`echo $CREDS | jq -r '.Credentials.SecretAccessKey'`
-#          export AWS_SESSION_TOKEN=`echo $CREDS | jq -r '.Credentials.SessionToken'`
-#          npm run test-e2e
+      - name: E2E tests
+        run: |
+          CREDS=`aws sts assume-role --role-arn arn:aws:iam::$DEPLOYMENT_ACCOUNT:role/ci-role --role-session-name=ci_user`
+          export AWS_ACCESS_KEY_ID=`echo $CREDS | jq -r '.Credentials.AccessKeyId'`
+          export AWS_SECRET_ACCESS_KEY=`echo $CREDS | jq -r '.Credentials.SecretAccessKey'`
+          export AWS_SESSION_TOKEN=`echo $CREDS | jq -r '.Credentials.SessionToken'`
+          npm run test-e2e
 
