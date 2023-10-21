@@ -92,6 +92,30 @@ E2E tests:
 - Notifications:
   - [NotifyFE](src/modules/notification/useCases/notifyFE/NotifyFE.e2e.ts)
 
+## Class hierarchy
+
+Blue solid lines are *extends*, while green dashed ones are *implements*.
+
+<br />
+<p align="center">
+    <img alt="graph" src="doc/classHierarchy/Identifier.jpg" width="300px" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/Entity.jpg" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/ValueObject.jpg" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/IRepo.jpg" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/AppSyncController.jpg" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/DomainEventBase.jpg" width="600px" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/SubscriberController.jpg" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/IDecorator.jpg" /><br /><br />
+    <img alt="graph" src="doc/classHierarchy/IFeClient.jpg" width="450px" />
+</p>
+<br />
+
+## SQL diagram
+
+<p align="center">
+    <img alt="graph" src="doc/SQLdiagram.png" width="600px" />
+</p>
+
 ## Stack
 
 * DBs: PostgreSQL [CockroachDB](https://www.cockroachlabs.com) Serverless and DynamoDB
