@@ -8,7 +8,7 @@ export const successfulCodes = [200, 201];
 
 export abstract class AppSyncController<Request, Response> {
   protected abstract executeImpl(
-    dto: unknown | Request
+    dto: Request
   ): ControllerResult<Response>;
   public async execute(event: AppSyncResolverEvent<Request>): ExeResponse {
     console.log(`${this.constructor.name}.execute`);

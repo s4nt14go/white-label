@@ -8,7 +8,7 @@ export abstract class SubscriberController<Request, Response> {
   protected event!: Request;
 
   protected abstract executeImpl(
-    dto: unknown | Request
+    dto: Request
   ): ControllerResult<Response>;
 
   public async execute(event: Request): ExeResponse {

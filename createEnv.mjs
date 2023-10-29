@@ -34,7 +34,9 @@ lambdas.map(async l => {
 const tables = resources.filter(r => r.ResourceType === 'AWS::DynamoDB::Table');
 tables.map(async t => {
   const physicalResourceId = t.PhysicalResourceId;
-  const logicalName = physicalResourceId.split('-').pop() + 'Table';
+  const logicalNameArr = physicalResourceId.split('-');
+  logicalNameArr.pop(); // Get rid of suffix
+  const logicalName = logicalNameArr.pop() + 'Table';
   await $`echo ${logicalName}=${physicalResourceId} >> ${envFile}`
 });
 

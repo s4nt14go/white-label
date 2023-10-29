@@ -56,7 +56,8 @@ export async function MyStack({ stack, app }: StackContext) {
   });
   allowSubscribeToDomainEvents(someWork, 'someWork');
 
-  const DBretryTable = new Table(stack, 'DBretry', {
+  const tableSuffix = 2; // Create new tables to avoid error: Resource of type 'AWS::DynamoDB::Table' with identifier '...' already exists
+  const DBretryTable = new Table(stack, `DBretry-${tableSuffix}`, {
     fields: {
       retryToken: 'string',
     },
@@ -97,7 +98,7 @@ export async function MyStack({ stack, app }: StackContext) {
   });
   DBretryable(getAccountByUserId);
 
-  const notificationsTable = new Table(stack, 'Notifications', {
+  const notificationsTable = new Table(stack, `Notifications-${tableSuffix}`, {
     fields: {
       target: 'string', // e.g. FE
       type: 'string', // e.g. TransactionCreated
@@ -202,7 +203,7 @@ export async function MyStack({ stack, app }: StackContext) {
   });
   allowSubscribeToDomainEvents(notifyFE, 'notifyFE');
 
-  const storageTable = new Table(stack, 'Storage', {
+  const storageTable = new Table(stack, `Storage-${tableSuffix}`, {
     fields: {
       // Keys
       type: 'string', // UserCreatedEventStored | TransactionCreatedEventStored
