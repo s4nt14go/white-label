@@ -25,24 +25,14 @@ export class CreateTransaction extends AppSyncController<Request, Response> {
   protected async executeImpl(dto: Request): ControllerResult<Response> {
     const { userId } = dto;
 
-    const guardNull = Guard.againstNullOrUndefined(
-      userId,
-      new CreateTransactionErrors.UserIdNotDefined()
-    );
-    const guardType = Guard.isType(
-      userId,
-      'string',
-      new CreateTransactionErrors.UserIdNotString(typeof userId)
-    );
     const guardUuid = Guard.isUuid(
       userId,
       new CreateTransactionErrors.UserIdNotUuid(userId)
     );
-    const combined = Guard.combine([guardNull, guardType, guardUuid]);
-    if (combined.isFailure)
+    if (guardUuid.isFailure)
       return {
         status: BAD_REQUEST,
-        result: combined.error as BaseError,
+        result: guardUuid.error as BaseError,
       };
 
     const descriptionOrError = Description.create({ value: dto.description });

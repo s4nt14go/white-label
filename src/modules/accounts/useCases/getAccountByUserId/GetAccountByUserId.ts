@@ -21,22 +21,15 @@ export class GetAccountByUserId extends AppSyncController<Request, Response> {
   protected async executeImpl(dto: Request): ControllerResult<Response> {
     const { userId } = dto;
 
-    const guardNull = Guard.againstNullOrUndefined(
-      userId,
-      new GetAccountByUserIdErrors.UserIdNotDefined()
-    );
-    const guardType = Guard.isType(
-      userId,
-      'string',
-      new GetAccountByUserIdErrors.UserIdNotString(typeof userId)
-    );
     const guardUuid = Guard.isUuid(
       userId,
       new GetAccountByUserIdErrors.UserIdNotUuid(userId)
     );
-    const combined = Guard.combine([guardNull, guardType, guardUuid]);
-    if (combined.isFailure)
-      return { status: BAD_REQUEST, result: combined.error as BaseError };
+    if (guardUuid.isFailure)
+      return {
+        status: BAD_REQUEST,
+        result: guardUuid.error as BaseError,
+      };
 
     const account = await this.accountRepo.getAccountByUserId(userId);
     if (!account)

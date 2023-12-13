@@ -68,45 +68,25 @@ export class Transfer extends AppSyncController<Request, Response> {
       };
 
     {
-      const guardNull = Guard.againstNullOrUndefined(
-        fromUserId,
-        new TransferErrors.FromUserIdNotDefined()
-      );
-      const guardType = Guard.isType(
-        fromUserId,
-        'string',
-        new TransferErrors.FromUserIdNotString(typeof fromUserId)
-      );
       const guardUuid = Guard.isUuid(
         fromUserId,
         new CreateTransactionErrors.UserIdNotUuid(fromUserId)
       );
-      const combined = Guard.combine([guardNull, guardType, guardUuid]);
-      if (combined.isFailure)
+      if (guardUuid.isFailure)
         return {
           status: BAD_REQUEST,
-          result: combined.error as BaseError,
+          result: guardUuid.error as BaseError,
         };
     }
     {
-      const guardNull = Guard.againstNullOrUndefined(
-        toUserId,
-        new TransferErrors.ToUserIdNotDefined()
-      );
-      const guardType = Guard.isType(
-        toUserId,
-        'string',
-        new TransferErrors.ToUserIdNotString(typeof toUserId)
-      );
       const guardUuid = Guard.isUuid(
         toUserId,
         new TransferErrors.UserIdNotUuid(toUserId)
       );
-      const combined = Guard.combine([guardNull, guardType, guardUuid]);
-      if (combined.isFailure)
+      if (guardUuid.isFailure)
         return {
           status: BAD_REQUEST,
-          result: combined.error as BaseError,
+          result: guardUuid.error as BaseError,
         };
     }
 

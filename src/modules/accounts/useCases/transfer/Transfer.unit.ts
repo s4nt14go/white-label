@@ -40,8 +40,6 @@ test('Transfer', async () => {
 });
 
 test.each([
-  ['fromUserId', 'TransferErrors.FromUserIdNotDefined'],
-  ['toUserId', 'TransferErrors.ToUserIdNotDefined'],
   ['quantity', 'TransferErrors.QuantityInvalid'],
   ['fromDescription', 'TransferErrors.FromDescriptionInvalid'],
 ])(
@@ -56,27 +54,6 @@ test.each([
     delete badData[
       field as 'fromUserId' | 'toUserId' | 'quantity' | 'fromDescription'
     ];
-
-    const result = await transfer.execute(getEvent(badData));
-
-    expect(result).toMatchObject({
-      errorType,
-    });
-  }
-);
-test.each([
-  ['fromUserId', 'TransferErrors.FromUserIdNotString'],
-  ['toUserId', 'TransferErrors.ToUserIdNotString'],
-])(
-  'Transfer with %s not a string fails with %s',
-  async (field: string, errorType: string) => {
-    const badData = {
-      fromUserId: chance.guid(),
-      toUserId: chance.guid(),
-      quantity: getRandom({}),
-      fromDescription: `Test: ${chance.sentence()}`,
-    };
-    badData[field as 'fromUserId' | 'toUserId'] = 1 as unknown as string;
 
     const result = await transfer.execute(getEvent(badData));
 
