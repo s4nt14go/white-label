@@ -1,6 +1,5 @@
 import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
-import { Guard } from '../../../shared/core/Guard';
 import { AliasErrors } from './AliasErrors';
 import { BaseError } from '../../../shared/core/AppError';
 
@@ -31,12 +30,6 @@ export class Alias extends ValueObject<AliasProps> {
       (typeof props.value === 'string' && props.value.trim() === '')
     )
       return Result.ok<Alias>(new Alias({ value: null }));
-    const guardType = Guard.isType(
-      props.value,
-      'string',
-      new AliasErrors.AliasNotString()
-    );
-    if (guardType.isFailure) return Result.fail(guardType.error as BaseError);
 
     const trimmed = props.value.trim();
     const invalidChars = trimmed.match(/[^a-z0-9.\-_+]/gi);
@@ -52,7 +45,7 @@ export class Alias extends ValueObject<AliasProps> {
       .onBoth((result) =>
         result.isSuccess
           ? Result.ok<Alias>(new Alias({ value: result.value }))
-          : Result.fail(result.error as BaseError)
+          : Result.fail(result.error as BaseError),
       );
   }
 }

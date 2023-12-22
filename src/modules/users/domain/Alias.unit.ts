@@ -1,7 +1,7 @@
 import { Alias } from './Alias';
 import { AliasErrors } from './AliasErrors';
 
-test('Creation', () => {
+test(`Creation using a string`, () => {
   const validData = {
     value: 'test_alias',
   };
@@ -12,24 +12,18 @@ test('Creation', () => {
   expect(alias.value).toBe('test_alias');
 });
 
-test(`Creation is successful and gives null when it's not defined`, () => {
-  const result = Alias.create({} as never);
+test(`Creation using null`, () => {
+  const validData = {
+    value: null,
+  };
+
+  const result = Alias.create(validData);
   expect(result.isSuccess).toBe(true);
   const alias = result.value;
   expect(alias.value).toBe(null);
 });
 
-test('Creation fails with a non-string value', () => {
-  const invalidData = {
-    value: 1 as never,
-  };
-
-  const result = Alias.create(invalidData);
-  expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(AliasErrors.AliasNotString);
-});
-
-test('Creation fails with a short value', () => {
+test(`Creation fails with a short value`, () => {
   const invalidData = {
     value: '1',
   };
@@ -39,7 +33,7 @@ test('Creation fails with a short value', () => {
   expect(result.error).toBeInstanceOf(AliasErrors.TooShort);
 });
 
-test('Creation fails with a long value', () => {
+test(`Creation fails with a long value`, () => {
   const invalidData = {
     value: '1234567890123456',
   };
@@ -49,7 +43,7 @@ test('Creation fails with a long value', () => {
   expect(result.error).toBeInstanceOf(AliasErrors.TooLong);
 });
 
-test('Creation fails with invalid characters', () => {
+test(`Creation fails with invalid characters`, () => {
   const invalidData = {
     value: 'Alias123$%^&{',
   };

@@ -1,6 +1,5 @@
 import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
-import { Guard } from '../../../shared/core/Guard';
 import { CreateNameErrors } from './UserNameErrors';
 import { BaseError } from '../../../shared/core/AppError';
 
@@ -21,18 +20,6 @@ export class UserName extends ValueObject<UserNameProps> {
   }
 
   public static create(props: UserNameProps): Result<UserName> {
-    const guardNulls = Guard.againstNullOrUndefined(
-      props.name,
-      new CreateNameErrors.NameNotDefined()
-    );
-    const guardType = Guard.isType(
-      props.name,
-      'string',
-      new CreateNameErrors.NameNotString()
-    );
-    const combined = Guard.combine([guardNulls, guardType]);
-    if (combined.isFailure) return Result.fail(combined.error as BaseError);
-
     const trimmed = props.name.trim();
     const invalidChars = trimmed.match(/[^a-z0-9.\-_+]/gi);
     if (invalidChars)

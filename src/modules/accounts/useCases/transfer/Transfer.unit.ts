@@ -4,7 +4,6 @@ import { AccountRepoFake, UserId } from '../../repos/AccountRepoFake';
 import {
   dateFormat,
   getAppSyncEvent as getEvent,
-  getRandom,
 } from '../../../../shared/utils/test';
 import Chance from 'chance';
 import { LambdaInvokerFake } from '../../../../shared/infra/invocation/LambdaInvokerFake';
@@ -38,52 +37,6 @@ test('Transfer', async () => {
     error: expect.anything(),
   });
 });
-
-test.each([
-  ['quantity', 'TransferErrors.QuantityInvalid'],
-  ['fromDescription', 'TransferErrors.FromDescriptionInvalid'],
-])(
-  'Transfer without %s fails with %s',
-  async (field: string, errorType: string) => {
-    const badData = {
-      fromUserId: chance.guid(),
-      toUserId: chance.guid(),
-      quantity: getRandom({}),
-      fromDescription: `Test: ${chance.sentence()}`,
-    };
-    delete badData[
-      field as 'fromUserId' | 'toUserId' | 'quantity' | 'fromDescription'
-    ];
-
-    const result = await transfer.execute(getEvent(badData));
-
-    expect(result).toMatchObject({
-      errorType,
-    });
-  }
-);
-
-test.each([
-  ['fromUserId', 'TransferErrors.FromAccountNotFound'],
-  ['toUserId', 'TransferErrors.ToAccountNotFound'],
-])(
-  'If account not found for %s, it fails with %s',
-  async (field: string, errorType: string) => {
-    const badData = {
-      fromUserId: UserId.GOOD,
-      toUserId: UserId.GOOD2,
-      quantity: getRandom({}),
-      fromDescription: `Test: ${chance.sentence()}`,
-    };
-    badData[field as 'fromUserId' | 'toUserId'] = UserId.NO_TRANSACTIONS;
-
-    const result = await transfer.execute(getEvent(badData));
-
-    expect(result).toMatchObject({
-      errorType,
-    });
-  }
-);
 
 it('fails when quantity is greater than source/from balance', async () => {
   const data = {

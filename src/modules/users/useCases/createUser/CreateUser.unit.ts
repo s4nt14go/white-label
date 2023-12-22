@@ -48,28 +48,6 @@ test('User creation without alias', async () => {
   });
 });
 
-test.each([
-  ['username', 'CreateNameErrors.NameNotDefined'],
-  ['email', 'CreateEmailErrors.EmailNotDefined'],
-  ['password', 'CreatePasswordErrors.PasswordNotDefined'],
-])(
-  'User creation without %s fails with %s',
-  async (field: string, errorType: string) => {
-    const badData = {
-      username: 'test_username',
-      email: 'test@email.com',
-      password: 'passwordd',
-    };
-    delete badData[field as 'username' | 'email' | 'password'];
-
-    const result = await createUser.execute(getEvent(badData));
-
-    expect(result).toMatchObject({
-      errorType,
-    });
-  }
-);
-
 test('User creation fails for taken email', async () => {
   const data = {
     username: 'test_username',

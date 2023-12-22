@@ -1,6 +1,5 @@
 import { ValueObject } from '../../../shared/domain/ValueObject';
 import { Result } from '../../../shared/core/Result';
-import { Guard } from '../../../shared/core/Guard';
 import { AmountErrors } from './AmountErrors';
 import { BaseError } from '../../../shared/core/AppError';
 
@@ -26,18 +25,6 @@ export class Amount extends ValueObject<AmountProps> {
   }
 
   public static create(props: AmountProps): Result<Amount> {
-    const guardNull = Guard.againstNullOrUndefined(
-      props.value,
-      new AmountErrors.NotDefined()
-    );
-    const guardType = Guard.isType(
-      props.value,
-      'number',
-      new AmountErrors.NotNumber()
-    );
-    const combined = Guard.combine([guardNull, guardType]);
-    if (combined.isFailure) return Result.fail(combined.error as BaseError);
-
     // Unsigned integer part
     const integerAbsPart = Math.trunc(Math.abs(props.value));
     if (integerAbsPart > Amount.MAX_ABS)

@@ -3,11 +3,6 @@ import { BaseError } from '../../../shared/core/AppError';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AliasErrors {
-  export class AliasNotString extends BaseError {
-    public constructor() {
-      super(`Alias isn't a string`);
-    }
-  }
 
   export class TooShort extends BaseError {
     public constructor(minLength: number) {

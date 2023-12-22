@@ -38,26 +38,6 @@ it('creates a transaction', async () => {
   });
 });
 
-test.each([
-  ['description', 'CreateTransactionErrors.InvalidDescription'],
-  ['delta', 'CreateTransactionErrors.InvalidDelta'],
-])(
-  'Transaction creation without %s fails with %s',
-  async (field: string, errorType: string) => {
-    const badData = {
-      userId: UserId.GOOD,
-      description: `Test: ${chance.sentence()}`,
-      delta: 30,
-    };
-    delete badData[field as 'description' | 'delta'];
-
-    const result = await controller.execute(getEvent(badData));
-
-    expect(result).toMatchObject({
-      errorType,
-    });
-  }
-);
 it(`fails when userId isn't an uuid`, async () => {
   const badData = {
     userId: 'not an uuid',

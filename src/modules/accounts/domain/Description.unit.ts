@@ -9,20 +9,6 @@ test('Creation', () => {
   expect(description.value).toBe('Well done transaction!');
 });
 
-test('Fails with null', () => {
-  const result = Description.create({ value: null as unknown as string });
-
-  expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(DescriptionErrors.NotDefined);
-});
-
-test('Fails with type different from string', () => {
-  const result = Description.create({ value: 1 as unknown as string });
-
-  expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(DescriptionErrors.NotString);
-});
-
 test('Fails with a short value', () => {
   const invalidData = {
     value: '12',

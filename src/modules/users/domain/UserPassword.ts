@@ -68,18 +68,6 @@ export class UserPassword extends ValueObject<UserPasswordProps> {
     value: string;
     hashed?: boolean;
   }): Result<UserPassword> {
-    const guardNulls = Guard.againstNullOrUndefined(
-      props.value,
-      new CreatePasswordErrors.PasswordNotDefined()
-    );
-    const guardType = Guard.isType(
-      props.value,
-      'string',
-      new CreatePasswordErrors.PasswordNotString()
-    );
-    const combined = Guard.combine([guardNulls, guardType]);
-    if (combined.isFailure) return Result.fail(combined.error as BaseError);
-
     if (!props.hashed) {
       const trimmed = props.value.trim();
       const minLengthResult = Guard.againstAtLeast(

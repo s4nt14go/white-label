@@ -3,18 +3,6 @@ import { BaseError } from '../../../shared/core/AppError';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace CreateNameErrors {
-  export class NameNotDefined extends BaseError {
-    public constructor() {
-      super(`Name isn't defined`);
-    }
-  }
-
-  export class NameNotString extends BaseError {
-    public constructor() {
-      super(`Name isn't a string`);
-    }
-  }
-
   export class TooShort extends BaseError {
     public constructor(minLength: number) {
       super(`Name should have at least ${minLength} characters long`);

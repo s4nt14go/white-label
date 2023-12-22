@@ -3,18 +3,6 @@ import { BaseError } from '../../../shared/core/AppError';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace DescriptionErrors {
-  export class NotDefined extends BaseError {
-    public constructor() {
-      super(`Description isn't defined`);
-    }
-  }
-
-  export class NotString extends BaseError {
-    public constructor() {
-      super(`Description isn't a string`);
-    }
-  }
-
   export class TooShort extends BaseError {
     public constructor(minLength: number, currLength: number) {
       super(

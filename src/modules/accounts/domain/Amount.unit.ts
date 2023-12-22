@@ -12,24 +12,6 @@ test('Creation', () => {
   expect(amount.value).toBe(100);
 });
 
-test('Fails with null', () => {
-  const result = Amount.create({ value: null as unknown as number });
-
-  expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(AmountErrors.NotDefined);
-});
-
-test('Creation fails with a non-number value', () => {
-  const invalidData = {
-    value: '1' as never,
-  };
-
-  const result = Amount.create(invalidData);
-
-  expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(AmountErrors.NotNumber);
-});
-
 test('round down', () => {
   const result = Amount.create({ value: 0.01499 });
 

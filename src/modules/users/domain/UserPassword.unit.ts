@@ -13,26 +13,6 @@ test('Create with plain text', async () => {
   expect(password.isAlreadyHashed()).toBe(false);
 });
 
-test('Fails with undefined', async () => {
-  const passwordOrError = UserPassword.create({
-    value: undefined as unknown as string,
-  });
-
-  expect(passwordOrError.isFailure).toBe(true);
-  expect(passwordOrError.error).toBeInstanceOf(
-    CreatePasswordErrors.PasswordNotDefined
-  );
-});
-
-test('Fails with a type different from string', async () => {
-  const passwordOrError = UserPassword.create({ value: 1 as never });
-
-  expect(passwordOrError.isFailure).toBe(true);
-  expect(passwordOrError.error).toBeInstanceOf(
-    CreatePasswordErrors.PasswordNotString
-  );
-});
-
 test(`Fails when it's too short`, async () => {
   const passwordOrError = UserPassword.create({ value: 'short' });
 

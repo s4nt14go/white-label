@@ -12,22 +12,6 @@ test('Creation', () => {
   expect(username.value).toBe('test_name');
 });
 
-test('Creation fails without username', () => {
-  const result = UserName.create({} as never);
-  expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotDefined);
-});
-
-test('Creation fails with a non-string value', () => {
-  const invalidData = {
-    name: 1 as never,
-  };
-
-  const result = UserName.create(invalidData);
-  expect(result.isFailure).toBe(true);
-  expect(result.error).toBeInstanceOf(CreateNameErrors.NameNotString);
-});
-
 test('Creation fails with a short username', () => {
   const invalidData = {
     name: '1',
