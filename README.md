@@ -149,3 +149,5 @@ Install and run tests:
 npm ci
 npm test
 ```
+
+> It may take a few minutes to run all unit tests. For new projects, I recommend using `vitest`, which is much faster.

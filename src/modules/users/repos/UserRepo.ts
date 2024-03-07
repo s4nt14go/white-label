@@ -6,13 +6,12 @@ import { Repository } from '../../../shared/core/Repository';
 import { EntityID } from '../../../shared/domain/EntityID';
 
 export class UserRepo extends Repository<User> implements IUserRepo {
+  // Read comment in src/shared/core/Repository.ts about the use of this.transaction
   private User: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public constructor(models: any) {
     super();
-    // Put this.transaction in all repos queries: this.<Model>.<find/create/destroy/etc>({...}, { transaction: this.transaction })
-    // this.transaction type is SequelizeTransaction and is populated when Transaction decorator is used, if that decorator isn't used, this.transaction is null and doesn't have any effect (SQL transaction isn't' used)
     this.User = models.User;
   }
 
@@ -22,8 +21,8 @@ export class UserRepo extends Repository<User> implements IUserRepo {
         where: {
           username,
         },
+        transaction: this.transaction,
       },
-      { transaction: this.transaction }
     );
     if (user) return UserMap.toDomain(user.get());
     return null;
@@ -36,8 +35,8 @@ export class UserRepo extends Repository<User> implements IUserRepo {
         where: {
           email,
         },
+        transaction: this.transaction,
       },
-      { transaction: this.transaction }
     );
     if (user) return UserMap.toDomain(user.get());
     return null;
@@ -50,8 +49,8 @@ export class UserRepo extends Repository<User> implements IUserRepo {
         where: {
           email,
         },
+        transaction: this.transaction,
       },
-      { transaction: this.transaction }
     );
     return !!user;
   }
@@ -68,8 +67,8 @@ export class UserRepo extends Repository<User> implements IUserRepo {
         where: {
           id,
         },
+        transaction: this.transaction,
       },
-      { transaction: this.transaction }
     );
   }
 }

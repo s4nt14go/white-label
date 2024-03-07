@@ -6,14 +6,13 @@ import { Repository } from '../../../shared/core/Repository';
 import { IAccountRepo, TransferProps } from './IAccountRepo';
 
 export class AccountRepo extends Repository<Account> implements IAccountRepo {
+  // Read comment in src/shared/core/Repository.ts about the use of this.transaction
   private Account: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   private Transaction: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public constructor(models: any) {
     super();
-    // Put this.transaction in all repos queries: this.<Model>.<find/create/destroy/etc>({...}, { transaction: this.transaction })
-    // this.transaction type is SequelizeTransaction and is populated when Transaction decorator is used, if that decorator isn't used, this.transaction is null and doesn't have any effect (SQL transaction isn't' used)
     this.Account = models.Account;
     this.Transaction = models.Transaction;
   }
@@ -40,8 +39,8 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     const rawAccount = await this.Account.findOne(
       {
         where: { userId },
+        transaction: this.transaction,
       },
-      { transaction: this.transaction }
     );
     if (!rawAccount) return null;
     const transactions = await this.getTransactions(
@@ -62,7 +61,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
         ...raw,
         accountId,
       },
-      { transaction: this.transaction }
+      { transaction: this.transaction },
     );
   }
 
@@ -81,7 +80,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
         ...rawAccount,
         userId,
       },
-      { transaction: this.transaction }
+      { transaction: this.transaction },
     );
     const initialTransaction = newAccount.transactions[0];
     const rawTransaction = TransactionMap.toPersistence(initialTransaction);
@@ -90,7 +89,7 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
         ...rawTransaction,
         accountId: newAccount.id.toString(),
       },
-      { transaction: this.transaction }
+      { transaction: this.transaction },
     );
     return newAccount;
   }
@@ -101,12 +100,16 @@ export class AccountRepo extends Repository<Account> implements IAccountRepo {
     if (!account)
       return console.log(`No account for userId ${userId}, so nothing is deleted`);
     await this.Transaction.destroy(
-      { where: { accountId: account.id.toString() } },
-      { transaction: this.transaction }
+      {
+        where: { accountId: account.id.toString() },
+        transaction: this.transaction,
+      },
     );
     await this.Account.destroy(
-      { where: { userId } },
-      { transaction: this.transaction }
+      {
+        where: { userId },
+        transaction: this.transaction,
+      },
     );
   }
 }
